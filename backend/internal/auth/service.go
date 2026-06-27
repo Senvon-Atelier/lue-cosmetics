@@ -378,6 +378,121 @@ func (s *Service) mintSessionForUser(ctx context.Context, userID uuid.UUID, ip n
 	}, nil
 }
 
+// VerifyEmail marks a user's email as verified using the raw token from the
+// verification email. Returns ErrInvalidToken when the token is missing,
+// not found, already used, or expired.
+func (s *Service) VerifyEmail(ctx context.Context, rawToken string) error {
+	if rawToken == "" {
+		return ErrInvalidToken
+	}
+	h := HashToken(rawToken)
+	tok, err := s.Repo.GetUnusedVerificationToken(ctx, h[:], "email_verify")
+	if errors.Is(err, ErrNotFound) {
+		return ErrInvalidToken
+	}
+	if err != nil {
+		return err
+	}
+	return db.WithTx(ctx, s.Repo.Pool(), func(tx pgx.Tx) error {
+		q := sqlcq.New(tx)
+		if err := q.UpdateUserEmailVerified(ctx, sqlcq.UpdateUserEmailVerifiedParams{
+			ID: tok.UserID, EmailVerified: true,
+		}); err != nil {
+			return err
+		}
+		return q.MarkVerificationTokenUsed(ctx, tok.ID)
+	})
+}
+
+// ResendVerification issues a new email_verify token and sends the verification
+// email. If the user's address is not on the allowlist (i.e., they are already
+// auto-verified), this is a no-op.
+func (s *Service) ResendVerification(ctx context.Context, userID uuid.UUID, emailAddr string) error {
+	if !s.isAllowlisted(emailAddr) {
+		return nil
+	}
+	raw, err := NewToken()
+	if err != nil {
+		return err
+	}
+	h := HashToken(raw)
+	_, err = s.Repo.CreateVerificationToken(ctx, sqlcq.CreateVerificationTokenParams{
+		UserID:    userID,
+		Kind:      "email_verify",
+		TokenHash: h[:],
+		ExpiresAt: pgtype.Timestamptz{Time: s.Now().Add(24 * time.Hour), Valid: true},
+	})
+	if err != nil {
+		return err
+	}
+	return s.Email.Send(ctx, emailAddr, "verify_email", map[string]any{"token": raw})
+}
+
+// RequestPasswordReset looks up the user by email and, if found, creates a
+// password_reset token and sends the reset email. Errors are silently logged
+// and never surfaced to the caller — preventing email enumeration.
+func (s *Service) RequestPasswordReset(ctx context.Context, emailAddr string) {
+	emailAddr = strings.TrimSpace(strings.ToLower(emailAddr))
+	user, err := s.Repo.GetUserByEmail(ctx, emailAddr)
+	if err != nil {
+		s.Log.InfoContext(ctx, "password-reset request for unknown email", "email", emailAddr)
+		return
+	}
+	raw, err := NewToken()
+	if err != nil {
+		s.Log.ErrorContext(ctx, "password-reset token gen", "err", err)
+		return
+	}
+	h := HashToken(raw)
+	if _, err := s.Repo.CreateVerificationToken(ctx, sqlcq.CreateVerificationTokenParams{
+		UserID:    user.ID,
+		Kind:      "password_reset",
+		TokenHash: h[:],
+		ExpiresAt: pgtype.Timestamptz{Time: s.Now().Add(1 * time.Hour), Valid: true},
+	}); err != nil {
+		s.Log.ErrorContext(ctx, "password-reset token insert", "err", err)
+		return
+	}
+	_ = s.Email.Send(ctx, emailAddr, "password_reset", map[string]any{"token": raw})
+}
+
+// ConfirmPasswordReset validates the reset token, rotates the password, marks
+// the token used, and deletes ALL sessions for the user — all inside a single
+// transaction. Returns ErrInvalidCreds when newPassword is shorter than 8 chars
+// and ErrInvalidToken when the token is absent, expired, or already used.
+func (s *Service) ConfirmPasswordReset(ctx context.Context, rawToken, newPassword string) error {
+	if len(newPassword) < 8 {
+		return ErrInvalidCreds
+	}
+	if rawToken == "" {
+		return ErrInvalidToken
+	}
+	h := HashToken(rawToken)
+	tok, err := s.Repo.GetUnusedVerificationToken(ctx, h[:], "password_reset")
+	if errors.Is(err, ErrNotFound) {
+		return ErrInvalidToken
+	}
+	if err != nil {
+		return err
+	}
+	hash, err := Hash(newPassword, s.Params)
+	if err != nil {
+		return err
+	}
+	return db.WithTx(ctx, s.Repo.Pool(), func(tx pgx.Tx) error {
+		q := sqlcq.New(tx)
+		if err := q.UpsertPasswordCredential(ctx, sqlcq.UpsertPasswordCredentialParams{
+			UserID: tok.UserID, PasswordHash: hash,
+		}); err != nil {
+			return err
+		}
+		if err := q.MarkVerificationTokenUsed(ctx, tok.ID); err != nil {
+			return err
+		}
+		return q.DeleteSessionsForUser(ctx, tok.UserID)
+	})
+}
+
 // netToAddr converts a net.IP to *netip.Addr for use in CreateSessionParams.
 // Returns nil if ip is nil or cannot be parsed.
 func netToAddr(ip net.IP) *netip.Addr {

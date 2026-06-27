@@ -71,7 +71,8 @@ func run() error {
 		// Auth-gated routes (one Group with RequireSession middleware)
 		api.Group(func(r chi.Router) {
 			r.Use(authHandlers.RequireSession)
-			me.NewHandlers().Mount(r) // GET /me
+			me.NewHandlers().Mount(r)       // GET /me
+			authHandlers.MountAuthGated(r)  // POST /auth/verify-email/resend
 		})
 	})
 

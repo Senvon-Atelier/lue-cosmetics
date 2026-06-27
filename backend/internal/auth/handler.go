@@ -37,6 +37,17 @@ func (h *Handlers) Mount(r chi.Router) {
 	r.Get("/auth/session", h.session)
 	r.Get("/auth/google/start", h.googleStart)
 	r.Get("/auth/google/callback", h.googleCallback)
+	// Email verification (public — token in body authorises the call)
+	r.Post("/auth/verify-email", h.verifyEmail)
+	// Password reset (both public)
+	r.Post("/auth/password-reset/request", h.passwordResetRequest)
+	r.Post("/auth/password-reset/confirm", h.passwordResetConfirm)
+}
+
+// MountAuthGated registers routes that require an active session. Call inside
+// the RequireSession Group alongside other protected handlers.
+func (h *Handlers) MountAuthGated(r chi.Router) {
+	r.Post("/auth/verify-email/resend", h.resendVerification)
 }
 
 type signupBody struct {
@@ -214,4 +225,112 @@ func clientIP(r *http.Request) net.IP {
 		return nil
 	}
 	return net.ParseIP(host)
+}
+
+// ── Email verification ────────────────────────────────────────────────────────
+
+type verifyEmailBody struct {
+	Token string `json:"token"`
+}
+
+// verifyEmail godoc
+//
+// @Summary  Verify email by token
+// @Tags     auth
+// @Accept   json
+// @Produce  json
+// @Param    body body verifyEmailBody true "Token payload"
+// @Success  204
+// @Failure  400 {object} httpx.ErrorEnvelope
+// @Router   /auth/verify-email [post]
+func (h *Handlers) verifyEmail(w http.ResponseWriter, r *http.Request) {
+	var body verifyEmailBody
+	if err := httpx.ReadJSON(r, &body); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, httpx.CodeBadRequest, "invalid body", nil)
+		return
+	}
+	if err := h.Svc.VerifyEmail(r.Context(), body.Token); err != nil {
+		if errors.Is(err, ErrInvalidToken) {
+			httpx.WriteError(w, http.StatusBadRequest, httpx.CodeValidation, "invalid or expired token", nil)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "verify failed", nil)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// resendVerification godoc (auth required)
+//
+// @Summary  Resend verification email
+// @Tags     auth
+// @Produce  json
+// @Success  204
+// @Failure  401 {object} httpx.ErrorEnvelope
+// @Router   /auth/verify-email/resend [post]
+func (h *Handlers) resendVerification(w http.ResponseWriter, r *http.Request) {
+	view, ok := GetSessionView(r.Context())
+	if !ok {
+		httpx.WriteError(w, http.StatusUnauthorized, httpx.CodeUnauthorized, "authentication required", nil)
+		return
+	}
+	_ = h.Svc.ResendVerification(r.Context(), view.UserID, view.Email)
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// ── Password reset ────────────────────────────────────────────────────────────
+
+type prReqBody struct {
+	Email string `json:"email"`
+}
+
+type prConfBody struct {
+	Token       string `json:"token"`
+	NewPassword string `json:"new_password"`
+}
+
+// passwordResetRequest godoc
+//
+// @Summary  Request a password-reset email
+// @Tags     auth
+// @Accept   json
+// @Produce  json
+// @Param    body body prReqBody true "Email payload"
+// @Success  204
+// @Router   /auth/password-reset/request [post]
+func (h *Handlers) passwordResetRequest(w http.ResponseWriter, r *http.Request) {
+	var body prReqBody
+	_ = httpx.ReadJSON(r, &body)
+	h.Svc.RequestPasswordReset(r.Context(), body.Email)
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// passwordResetConfirm godoc
+//
+// @Summary  Confirm password reset with token
+// @Tags     auth
+// @Accept   json
+// @Produce  json
+// @Param    body body prConfBody true "Token + new password"
+// @Success  204
+// @Failure  400 {object} httpx.ErrorEnvelope
+// @Router   /auth/password-reset/confirm [post]
+func (h *Handlers) passwordResetConfirm(w http.ResponseWriter, r *http.Request) {
+	var body prConfBody
+	if err := httpx.ReadJSON(r, &body); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, httpx.CodeBadRequest, "invalid body", nil)
+		return
+	}
+	if err := h.Svc.ConfirmPasswordReset(r.Context(), body.Token, body.NewPassword); err != nil {
+		switch {
+		case errors.Is(err, ErrInvalidToken):
+			httpx.WriteError(w, http.StatusBadRequest, httpx.CodeValidation, "invalid or expired token", nil)
+		case errors.Is(err, ErrInvalidCreds):
+			httpx.WriteError(w, http.StatusBadRequest, httpx.CodeValidation, "password too short", nil)
+		default:
+			httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "reset failed", nil)
+		}
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
