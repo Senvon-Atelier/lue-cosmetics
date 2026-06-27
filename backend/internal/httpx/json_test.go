@@ -40,3 +40,14 @@ func TestWriteJSONSetsHeaders(t *testing.T) {
 		t.Errorf("body = %s", rec.Body.String())
 	}
 }
+
+func TestReadJSONRejectsOversizedBody(t *testing.T) {
+	// Body slightly larger than the 1 MiB cap enforced by ReadJSON.
+	oversized := `{"name":"` + strings.Repeat("x", 1<<20) + `"}`
+	req := httptest.NewRequest("POST", "/", strings.NewReader(oversized))
+	req.Header.Set("Content-Type", "application/json")
+	var v struct{ Name string }
+	if err := httpx.ReadJSON(req, &v); err == nil {
+		t.Fatal("expected error for oversized body")
+	}
+}

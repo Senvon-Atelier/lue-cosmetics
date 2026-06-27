@@ -11,6 +11,7 @@ openapi:
 
 drift-check:
 	$(MAKE) openapi
+	$(MAKE) sqlc
 	@git diff --exit-code docs/ || (echo "ERROR: openapi docs are stale. Run 'make openapi' and commit." && exit 1)
 	@git diff --exit-code internal/db/sqlc/ || (echo "ERROR: sqlc output is stale. Run 'make sqlc' and commit." && exit 1)
 
