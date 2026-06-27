@@ -47,4 +47,10 @@ func TestApplicationNewWiresPool(t *testing.T) {
 	if a.Shipping == nil {
 		t.Error("nil Shipping")
 	}
+	if a.Auth == nil {
+		t.Error("nil Auth")
+	}
+	if a.Email == nil {
+		t.Error("nil Email")
+	}
 }

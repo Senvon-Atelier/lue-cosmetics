@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -89,4 +90,41 @@ func TestServerBootsAndHealthzReturnsOK(t *testing.T) {
 	}
 	defer resp.Body.Close()
 	io.Copy(io.Discard, resp.Body) //nolint:errcheck
+
+	// POST /api/v1/auth/signup → 201, capture cookie
+	signupBody := strings.NewReader(`{"email":"smoke@y.test","password":"hunter22","name":"Smoke"}`)
+	signupReq, _ := http.NewRequest("POST", "http://127.0.0.1:18080/api/v1/auth/signup", signupBody)
+	signupReq.Header.Set("Content-Type", "application/json")
+	resp, err = http.DefaultClient.Do(signupReq)
+	if err != nil {
+		t.Fatalf("signup: %v", err)
+	}
+	if resp.StatusCode != 201 {
+		t.Fatalf("signup code = %d", resp.StatusCode)
+	}
+	var sessionCookie *http.Cookie
+	for _, c := range resp.Cookies() {
+		if c.Name == "rue_session" {
+			sessionCookie = c
+			break
+		}
+	}
+	defer resp.Body.Close()
+	_, _ = io.Copy(io.Discard, resp.Body)
+	if sessionCookie == nil {
+		t.Fatal("no rue_session cookie set on signup")
+	}
+
+	// GET /api/v1/me with cookie → 200
+	meReq, _ := http.NewRequest("GET", "http://127.0.0.1:18080/api/v1/me", nil)
+	meReq.AddCookie(sessionCookie)
+	resp, err = http.DefaultClient.Do(meReq)
+	if err != nil {
+		t.Fatalf("me: %v", err)
+	}
+	if resp.StatusCode != 200 {
+		t.Fatalf("me code = %d", resp.StatusCode)
+	}
+	defer resp.Body.Close()
+	_, _ = io.Copy(io.Discard, resp.Body)
 }

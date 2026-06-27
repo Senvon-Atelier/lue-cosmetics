@@ -11,10 +11,12 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/oti-adjei/ruecosmetics/internal/app"
+	"github.com/oti-adjei/ruecosmetics/internal/auth"
 	"github.com/oti-adjei/ruecosmetics/internal/catalog"
 	"github.com/oti-adjei/ruecosmetics/internal/config"
 	"github.com/oti-adjei/ruecosmetics/internal/health"
 	"github.com/oti-adjei/ruecosmetics/internal/httpx"
+	"github.com/oti-adjei/ruecosmetics/internal/me"
 	"github.com/oti-adjei/ruecosmetics/internal/shipping"
 )
 
@@ -57,6 +59,16 @@ func run() error {
 	r.Route("/api/v1", func(api chi.Router) {
 		catalogHandlers.Mount(api)
 		shippingHandlers.Mount(api)
+
+		secure := cfg.Env != "development"
+		authHandlers := auth.NewHandlers(a.Auth, cfg.SessionCookieName, cfg.SessionCookieDomain, secure)
+		authHandlers.Mount(api) // public: /auth/signup, /auth/login, /auth/logout, /auth/session
+
+		// Auth-gated routes (one Group with RequireSession middleware)
+		api.Group(func(r chi.Router) {
+			r.Use(authHandlers.RequireSession)
+			me.NewHandlers().Mount(r) // GET /me
+		})
 	})
 
 	srv := &http.Server{

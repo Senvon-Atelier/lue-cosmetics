@@ -4,8 +4,10 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/oti-adjei/ruecosmetics/internal/auth"
 	"github.com/oti-adjei/ruecosmetics/internal/config"
 	"github.com/oti-adjei/ruecosmetics/internal/db"
+	"github.com/oti-adjei/ruecosmetics/internal/email"
 	"github.com/oti-adjei/ruecosmetics/internal/shipping"
 )
 
@@ -14,6 +16,8 @@ type Application struct {
 	Pool     db.Pool
 	Logger   *slog.Logger
 	Shipping *shipping.Service
+	Auth     *auth.Service
+	Email    email.Sender
 }
 
 func New(ctx context.Context, cfg *config.Config) (*Application, error) {
@@ -28,7 +32,10 @@ func New(ctx context.Context, cfg *config.Config) (*Application, error) {
 		return nil, err
 	}
 	ship := shipping.New(shipCfg)
-	return &Application{Config: cfg, Pool: pool, Logger: logger, Shipping: ship}, nil
+	sender := email.LogSender{Log: logger}
+	repo := auth.NewRepository(pool)
+	authSvc := auth.NewService(repo, logger, sender, cfg.EmailAllowlist)
+	return &Application{Config: cfg, Pool: pool, Logger: logger, Shipping: ship, Auth: authSvc, Email: sender}, nil
 }
 
 func (a *Application) Close() {
