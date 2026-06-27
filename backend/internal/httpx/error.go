@@ -16,13 +16,14 @@ type ErrorBody struct {
 }
 
 const (
-	CodeBadRequest   = "bad_request"
-	CodeUnauthorized = "unauthorized"
-	CodeForbidden    = "forbidden"
-	CodeNotFound     = "not_found"
-	CodeConflict     = "conflict"
-	CodeInternal     = "internal_error"
-	CodeValidation   = "validation_failed"
+	CodeBadRequest    = "bad_request"
+	CodeUnauthorized  = "unauthorized"
+	CodeForbidden     = "forbidden"
+	CodeNotFound      = "not_found"
+	CodeConflict      = "conflict"
+	CodeInternal      = "internal_error"
+	CodeValidation    = "validation_failed"
+	CodeNotConfigured = "not_configured"
 )
 
 func WriteError(w http.ResponseWriter, status int, code, message string, fields map[string]string) {

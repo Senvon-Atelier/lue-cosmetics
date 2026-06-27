@@ -46,3 +46,40 @@ func TestLoadRequiresDatabaseURL(t *testing.T) {
 		t.Fatal("expected error when DATABASE_URL is empty")
 	}
 }
+
+func TestLoadParsesAuthEnvVars(t *testing.T) {
+	t.Setenv("DATABASE_URL", "postgres://x:y@localhost:5432/z")
+	t.Setenv("SESSION_COOKIE_NAME", "my_session")
+	t.Setenv("SESSION_COOKIE_DOMAIN", "example.com")
+	t.Setenv("GOOGLE_CLIENT_ID", "gid123")
+	t.Setenv("GOOGLE_CLIENT_SECRET", "gsecret456")
+	t.Setenv("GOOGLE_REDIRECT_URL", "https://example.com/callback")
+	t.Setenv("EMAIL_ALLOWLIST", "alice@example.com,bob@example.com")
+	t.Setenv("FRONTEND_BASE_URL", "https://app.example.com")
+
+	cfg, err := config.Load()
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if cfg.SessionCookieName != "my_session" {
+		t.Errorf("SessionCookieName = %q, want my_session", cfg.SessionCookieName)
+	}
+	if cfg.SessionCookieDomain != "example.com" {
+		t.Errorf("SessionCookieDomain = %q, want example.com", cfg.SessionCookieDomain)
+	}
+	if cfg.GoogleClientID != "gid123" {
+		t.Errorf("GoogleClientID = %q, want gid123", cfg.GoogleClientID)
+	}
+	if cfg.GoogleClientSecret != "gsecret456" {
+		t.Errorf("GoogleClientSecret = %q, want gsecret456", cfg.GoogleClientSecret)
+	}
+	if cfg.GoogleRedirectURL != "https://example.com/callback" {
+		t.Errorf("GoogleRedirectURL = %q, want https://example.com/callback", cfg.GoogleRedirectURL)
+	}
+	if len(cfg.EmailAllowlist) != 2 || cfg.EmailAllowlist[0] != "alice@example.com" || cfg.EmailAllowlist[1] != "bob@example.com" {
+		t.Errorf("EmailAllowlist = %v", cfg.EmailAllowlist)
+	}
+	if cfg.FrontendBaseURL != "https://app.example.com" {
+		t.Errorf("FrontendBaseURL = %q, want https://app.example.com", cfg.FrontendBaseURL)
+	}
+}

@@ -5,6 +5,8 @@
 package sqlc
 
 import (
+	"net/netip"
+
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -27,6 +29,20 @@ type HealthMarker struct {
 	CreatedAt pgtype.Timestamptz
 }
 
+type OauthAccount struct {
+	ID                uuid.UUID
+	UserID            uuid.UUID
+	Provider          string
+	ProviderAccountID string
+	CreatedAt         pgtype.Timestamptz
+}
+
+type PasswordCredential struct {
+	UserID       uuid.UUID
+	PasswordHash string
+	UpdatedAt    pgtype.Timestamptz
+}
+
 type Product struct {
 	ID               uuid.UUID
 	Slug             string
@@ -42,4 +58,40 @@ type Product struct {
 	Tags             []string
 	ImagePath        string
 	CreatedAt        pgtype.Timestamptz
+}
+
+type Session struct {
+	ID         uuid.UUID
+	UserID     uuid.UUID
+	TokenHash  []byte
+	ExpiresAt  pgtype.Timestamptz
+	Ip         *netip.Addr
+	UserAgent  string
+	CreatedAt  pgtype.Timestamptz
+	LastUsedAt pgtype.Timestamptz
+}
+
+type User struct {
+	ID            uuid.UUID
+	Email         string
+	Name          string
+	Image         *string
+	EmailVerified bool
+	CreatedAt     pgtype.Timestamptz
+	UpdatedAt     pgtype.Timestamptz
+}
+
+type UserRole struct {
+	UserID uuid.UUID
+	Role   string
+}
+
+type VerificationToken struct {
+	ID        uuid.UUID
+	UserID    uuid.UUID
+	Kind      string
+	TokenHash []byte
+	ExpiresAt pgtype.Timestamptz
+	UsedAt    pgtype.Timestamptz
+	CreatedAt pgtype.Timestamptz
 }
