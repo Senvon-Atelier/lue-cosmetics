@@ -194,7 +194,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_catalog.sqlcProductView"
+                            "$ref": "#/definitions/internal_catalog.ProductView"
                         }
                     },
                     "404": {
@@ -273,58 +273,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_catalog.brandView": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "slug": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_catalog.categoryView": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "label": {
-                    "type": "string"
-                },
-                "slug": {
-                    "type": "string"
-                },
-                "sort_order": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_catalog.productsResponse": {
-            "type": "object",
-            "properties": {
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/internal_catalog.sqlcProductView"
-                    }
-                },
-                "limit": {
-                    "type": "integer"
-                },
-                "page": {
-                    "type": "integer"
-                },
-                "total": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_catalog.sqlcProductView": {
+        "internal_catalog.ProductView": {
             "type": "object",
             "properties": {
                 "brand_id": {
@@ -370,6 +319,57 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "was_price_ghs_minor": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_catalog.brandView": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_catalog.categoryView": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "sort_order": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_catalog.productsResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_catalog.ProductView"
+                    }
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "total": {
                     "type": "integer"
                 }
             }

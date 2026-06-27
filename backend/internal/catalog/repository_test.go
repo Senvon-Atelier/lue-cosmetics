@@ -2,39 +2,15 @@ package catalog_test
 
 import (
 	"context"
-	"database/sql"
 	"errors"
-	"path/filepath"
 	"testing"
 	"time"
 
-	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jackc/pgx/v5"
 	"github.com/oti-adjei/ruecosmetics/internal/catalog"
 	"github.com/oti-adjei/ruecosmetics/internal/db"
 	"github.com/oti-adjei/ruecosmetics/internal/testsupport"
-	"github.com/pressly/goose/v3"
 )
-
-// migrate applies all goose migrations under backend/migrations.
-func migrate(t *testing.T, url string) {
-	t.Helper()
-	sqlDB, err := sql.Open("pgx", url)
-	if err != nil {
-		t.Fatalf("open: %v", err)
-	}
-	defer sqlDB.Close()
-	if err := goose.SetDialect("postgres"); err != nil {
-		t.Fatalf("dialect: %v", err)
-	}
-	migDir, err := filepath.Abs("../../migrations")
-	if err != nil {
-		t.Fatalf("abs: %v", err)
-	}
-	if err := goose.UpContext(context.Background(), sqlDB, migDir); err != nil {
-		t.Fatalf("up: %v", err)
-	}
-}
 
 // seedSmall inserts one category, one brand, three products with different
 // prices/ratings so sort/filter tests have something to bite on.
@@ -91,7 +67,7 @@ func seedSmall(t *testing.T, pool db.Pool) {
 func newRepo(t *testing.T) (*catalog.Repository, db.Pool, func()) {
 	t.Helper()
 	url, stop := testsupport.StartPostgres(t)
-	migrate(t, url)
+	testsupport.Migrate(t, url, "../../migrations")
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	pool, err := db.NewPool(ctx, url)

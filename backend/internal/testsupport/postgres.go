@@ -3,8 +3,12 @@ package testsupport
 
 import (
 	"context"
+	"database/sql"
+	"path/filepath"
 	"testing"
 
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/pressly/goose/v3"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 
@@ -29,4 +33,25 @@ func StartPostgres(t *testing.T) (string, func()) {
 		t.Fatalf("conn string: %v", err)
 	}
 	return url, func() { _ = pg.Terminate(ctx) }
+}
+
+// Migrate applies all goose .sql migrations under migrationsRelPath (relative
+// to the test's working directory) against the given Postgres URL.
+func Migrate(t *testing.T, url, migrationsRelPath string) {
+	t.Helper()
+	sqlDB, err := sql.Open("pgx", url)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer sqlDB.Close()
+	if err := goose.SetDialect("postgres"); err != nil {
+		t.Fatalf("dialect: %v", err)
+	}
+	migDir, err := filepath.Abs(migrationsRelPath)
+	if err != nil {
+		t.Fatalf("abs: %v", err)
+	}
+	if err := goose.UpContext(context.Background(), sqlDB, migDir); err != nil {
+		t.Fatalf("up: %v", err)
+	}
 }

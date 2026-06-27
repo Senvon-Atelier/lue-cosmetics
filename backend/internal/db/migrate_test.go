@@ -2,15 +2,11 @@ package db_test
 
 import (
 	"context"
-	"database/sql"
-	"path/filepath"
 	"testing"
 	"time"
 
-	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/oti-adjei/ruecosmetics/internal/db"
 	"github.com/oti-adjei/ruecosmetics/internal/testsupport"
-	"github.com/pressly/goose/v3"
 )
 
 func TestMigrationsApply(t *testing.T) {
@@ -19,23 +15,7 @@ func TestMigrationsApply(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	sqlDB, err := sql.Open("pgx", url)
-	if err != nil {
-		t.Fatalf("open: %v", err)
-	}
-	defer sqlDB.Close()
-
-	migDir, err := filepath.Abs("../../migrations")
-	if err != nil {
-		t.Fatalf("abs: %v", err)
-	}
-	goose.SetBaseFS(nil)
-	if err := goose.SetDialect("postgres"); err != nil {
-		t.Fatalf("dialect: %v", err)
-	}
-	if err := goose.UpContext(ctx, sqlDB, migDir); err != nil {
-		t.Fatalf("up: %v", err)
-	}
+	testsupport.Migrate(t, url, "../../migrations")
 
 	pool, err := db.NewPool(ctx, url)
 	if err != nil {

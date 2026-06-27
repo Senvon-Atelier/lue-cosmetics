@@ -1,8 +1,6 @@
 package main_test
 
 import (
-	"context"
-	"database/sql"
 	"io"
 	"net/http"
 	"os"
@@ -11,36 +9,14 @@ import (
 	"testing"
 	"time"
 
-	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/oti-adjei/ruecosmetics/internal/testsupport"
-	"github.com/pressly/goose/v3"
 )
-
-// migrate applies all goose migrations from backend/migrations.
-func migrate(t *testing.T, url string) {
-	t.Helper()
-	sqlDB, err := sql.Open("pgx", url)
-	if err != nil {
-		t.Fatalf("open: %v", err)
-	}
-	defer sqlDB.Close()
-	if err := goose.SetDialect("postgres"); err != nil {
-		t.Fatalf("dialect: %v", err)
-	}
-	migDir, err := filepath.Abs("../../migrations")
-	if err != nil {
-		t.Fatalf("abs: %v", err)
-	}
-	if err := goose.UpContext(context.Background(), sqlDB, migDir); err != nil {
-		t.Fatalf("up: %v", err)
-	}
-}
 
 func TestServerBootsAndHealthzReturnsOK(t *testing.T) {
 	url, stop := testsupport.StartPostgres(t)
 	defer stop()
 
-	migrate(t, url)
+	testsupport.Migrate(t, url, "../../migrations")
 
 	wd, _ := os.Getwd()
 	root := filepath.Join(wd, "..", "..")

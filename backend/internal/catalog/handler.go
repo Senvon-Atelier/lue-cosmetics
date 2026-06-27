@@ -102,10 +102,10 @@ func (h *Handlers) listBrands(w http.ResponseWriter, r *http.Request) {
 }
 
 type productsResponse struct {
-	Items []sqlcProductView `json:"items"`
-	Page  int               `json:"page"`
-	Limit int               `json:"limit"`
-	Total int64             `json:"total"`
+	Items []ProductView `json:"items"`
+	Page  int           `json:"page"`
+	Limit int           `json:"limit"`
+	Total int64         `json:"total"`
 }
 
 // listProducts godoc
@@ -167,7 +167,7 @@ func (h *Handlers) listProducts(w http.ResponseWriter, r *http.Request) {
 		httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "failed to list products", nil)
 		return
 	}
-	views := make([]sqlcProductView, 0, len(pageOut.Items))
+	views := make([]ProductView, 0, len(pageOut.Items))
 	for _, p := range pageOut.Items {
 		views = append(views, productViewFromSqlc(p))
 	}
@@ -182,7 +182,7 @@ func (h *Handlers) listProducts(w http.ResponseWriter, r *http.Request) {
 // @Tags     catalog
 // @Produce  json
 // @Param    slug path string true "Slug"
-// @Success  200 {object} sqlcProductView
+// @Success  200 {object} ProductView
 // @Failure  404 {object} httpx.ErrorEnvelope
 // @Failure  500 {object} httpx.ErrorEnvelope
 // @Router   /products/{slug} [get]
@@ -200,7 +200,7 @@ func (h *Handlers) getProductBySlug(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusOK, productViewFromSqlc(p))
 }
 
-type sqlcProductView struct {
+type ProductView struct {
 	ID               string   `json:"id"`
 	Slug             string   `json:"slug"`
 	Name             string   `json:"name"`
@@ -217,8 +217,8 @@ type sqlcProductView struct {
 	CreatedAt        string   `json:"created_at"`
 }
 
-func productViewFromSqlc(p sqlcq.Product) sqlcProductView {
-	v := sqlcProductView{
+func productViewFromSqlc(p sqlcq.Product) ProductView {
+	v := ProductView{
 		ID:            p.ID.String(),
 		Slug:          p.Slug,
 		Name:          p.Name,
