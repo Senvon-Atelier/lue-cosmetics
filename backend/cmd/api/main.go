@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/oti-adjei/ruecosmetics/internal/app"
+	"github.com/oti-adjei/ruecosmetics/internal/catalog"
 	"github.com/oti-adjei/ruecosmetics/internal/config"
 	"github.com/oti-adjei/ruecosmetics/internal/health"
 	"github.com/oti-adjei/ruecosmetics/internal/httpx"
@@ -46,7 +47,14 @@ func run() error {
 	r.Use(httpx.RequestID)
 	r.Use(httpx.CORS(cfg.CORSOrigins))
 
+	// /healthz stays at the root for uptime monitoring.
 	r.Get("/healthz", health.Handler(a))
+
+	// All public + future protected APIs mount under /api/v1.
+	catalogHandlers := catalog.NewHandlers(catalog.NewRepository(a.Pool))
+	r.Route("/api/v1", func(api chi.Router) {
+		catalogHandlers.Mount(api)
+	})
 
 	srv := &http.Server{
 		Addr:              fmt.Sprintf(":%d", cfg.Port),
