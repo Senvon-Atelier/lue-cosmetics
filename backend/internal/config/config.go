@@ -7,11 +7,12 @@ import (
 )
 
 type Config struct {
-	Port        int      `envconfig:"PORT" default:"8080"`
-	Env         string   `envconfig:"ENV" default:"development"`
-	DatabaseURL string   `envconfig:"DATABASE_URL" required:"true"`
-	CORSOrigins []string `envconfig:"CORS_ORIGINS" default:"http://localhost:5173"`
-	LogLevel    string   `envconfig:"LOG_LEVEL" default:"info"`
+	Port               int      `envconfig:"PORT" default:"8080"`
+	Env                string   `envconfig:"ENV" default:"development"`
+	DatabaseURL        string   `envconfig:"DATABASE_URL" required:"true"`
+	CORSOrigins        []string `envconfig:"CORS_ORIGINS" default:"http://localhost:5173"`
+	LogLevel           string   `envconfig:"LOG_LEVEL" default:"info"`
+	ShippingConfigPath string   `envconfig:"SHIPPING_CONFIG_PATH" default:"seed/config/shipping_config.json"`
 }
 
 func Load() (*Config, error) {

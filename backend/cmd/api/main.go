@@ -15,6 +15,7 @@ import (
 	"github.com/oti-adjei/ruecosmetics/internal/config"
 	"github.com/oti-adjei/ruecosmetics/internal/health"
 	"github.com/oti-adjei/ruecosmetics/internal/httpx"
+	"github.com/oti-adjei/ruecosmetics/internal/shipping"
 )
 
 // @title           Rue Cosmetics API
@@ -52,8 +53,10 @@ func run() error {
 
 	// All public + future protected APIs mount under /api/v1.
 	catalogHandlers := catalog.NewHandlers(catalog.NewRepository(a.Pool))
+	shippingHandlers := shipping.NewHandlers(a.Shipping)
 	r.Route("/api/v1", func(api chi.Router) {
 		catalogHandlers.Mount(api)
+		shippingHandlers.Mount(api)
 	})
 
 	srv := &http.Server{

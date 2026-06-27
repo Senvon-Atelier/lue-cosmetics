@@ -7,7 +7,7 @@ test:
 	go test ./... -timeout=300s
 
 openapi:
-	swag init -g cmd/api/main.go -o docs --parseInternal --parseDependency
+	$(shell go env GOPATH)/bin/swag init -g cmd/api/main.go -o docs --parseInternal --parseDependency
 
 drift-check:
 	$(MAKE) openapi

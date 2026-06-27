@@ -51,6 +51,13 @@ func TestServerBootsAndHealthzReturnsOK(t *testing.T) {
 		t.Fatalf("build: %v\n%s", err, out)
 	}
 
+	// Build absolute path to the shipping config so the binary can find it
+	// regardless of its working directory.
+	shipConfigPath, err := filepath.Abs(filepath.Join(root, "seed", "config", "shipping_config.json"))
+	if err != nil {
+		t.Fatalf("shipping config abs: %v", err)
+	}
+
 	cmd := exec.Command(bin)
 	cmd.Env = append(os.Environ(),
 		"PORT=18080",
@@ -58,6 +65,7 @@ func TestServerBootsAndHealthzReturnsOK(t *testing.T) {
 		"DATABASE_URL="+url,
 		"CORS_ORIGINS=http://localhost:5173",
 		"LOG_LEVEL=debug",
+		"SHIPPING_CONFIG_PATH="+shipConfigPath,
 	)
 	cmd.Stdout = io.Discard
 	cmd.Stderr = io.Discard
@@ -68,7 +76,6 @@ func TestServerBootsAndHealthzReturnsOK(t *testing.T) {
 
 	deadline := time.Now().Add(10 * time.Second)
 	var resp *http.Response
-	var err error
 	for time.Now().Before(deadline) {
 		resp, err = http.Get("http://127.0.0.1:18080/healthz")
 		if err == nil && resp.StatusCode == 200 {
@@ -82,6 +89,8 @@ func TestServerBootsAndHealthzReturnsOK(t *testing.T) {
 		}
 		t.Fatalf("healthz never returned 200: %v", err)
 	}
+	defer resp.Body.Close()
+	io.Copy(io.Discard, resp.Body) //nolint:errcheck
 
 	// Verify /api/v1/categories is reachable (empty array — no seed data).
 	resp, err = http.Get("http://127.0.0.1:18080/api/v1/categories")
@@ -91,4 +100,17 @@ func TestServerBootsAndHealthzReturnsOK(t *testing.T) {
 		}
 		t.Fatalf("/api/v1/categories failed: %v", err)
 	}
+	defer resp.Body.Close()
+	io.Copy(io.Discard, resp.Body) //nolint:errcheck
+
+	// Verify /api/v1/shipping/quote returns a valid quote for a below-threshold subtotal.
+	resp, err = http.Get("http://127.0.0.1:18080/api/v1/shipping/quote?subtotal=10000")
+	if err != nil || resp.StatusCode != 200 {
+		if resp != nil {
+			t.Fatalf("/shipping/quote code = %d", resp.StatusCode)
+		}
+		t.Fatalf("/shipping/quote failed: %v", err)
+	}
+	defer resp.Body.Close()
+	io.Copy(io.Discard, resp.Body) //nolint:errcheck
 }

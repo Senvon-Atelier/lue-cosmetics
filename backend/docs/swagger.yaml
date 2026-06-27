@@ -16,6 +16,72 @@ definitions:
       error:
         $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorBody'
     type: object
+  internal_catalog.brandView:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      slug:
+        type: string
+    type: object
+  internal_catalog.categoryView:
+    properties:
+      id:
+        type: string
+      label:
+        type: string
+      slug:
+        type: string
+      sort_order:
+        type: integer
+    type: object
+  internal_catalog.productsResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/internal_catalog.sqlcProductView'
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
+  internal_catalog.sqlcProductView:
+    properties:
+      brand_id:
+        type: string
+      category_id:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      image_path:
+        type: string
+      name:
+        type: string
+      price_ghs_minor:
+        type: integer
+      rating:
+        type: number
+      review_count:
+        type: integer
+      size:
+        type: string
+      slug:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      tone:
+        type: string
+      was_price_ghs_minor:
+        type: integer
+    type: object
   internal_health.response:
     properties:
       db:
@@ -23,12 +89,59 @@ definitions:
       status:
         type: string
     type: object
+  internal_shipping.Quote:
+    properties:
+      applied_cost_ghs_minor:
+        type: integer
+      flat_rate_ghs_minor:
+        type: integer
+      free_over_ghs_minor:
+        type: integer
+      free_shipping_remainder_ghs_minor:
+        type: integer
+    type: object
 info:
   contact: {}
   description: E-commerce backend for the Rue Cosmetics case study.
   title: Rue Cosmetics API
   version: 0.1.0
 paths:
+  /brands:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/internal_catalog.brandView'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: List brands
+      tags:
+      - catalog
+  /categories:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/internal_catalog.categoryView'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: List categories
+      tags:
+      - catalog
   /healthz:
     get:
       description: Verifies the service is up and the database is reachable.
@@ -46,4 +159,101 @@ paths:
       summary: Health check
       tags:
       - meta
+  /products:
+    get:
+      parameters:
+      - description: Category slug
+        in: query
+        name: category
+        type: string
+      - description: Brand slug
+        in: query
+        name: brand
+        type: string
+      - description: Tag
+        in: query
+        name: tag
+        type: string
+      - description: Search query against name
+        in: query
+        name: q
+        type: string
+      - description: newest|price_asc|price_desc|rating_desc|name_asc
+        in: query
+        name: sort
+        type: string
+      - description: Page (1-based)
+        in: query
+        name: page
+        type: integer
+      - description: Page size (default 24, max 100)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_catalog.productsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: List products
+      tags:
+      - catalog
+  /products/{slug}:
+    get:
+      parameters:
+      - description: Slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_catalog.sqlcProductView'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: Get product by slug
+      tags:
+      - catalog
+  /shipping/quote:
+    get:
+      parameters:
+      - description: Cart subtotal in pesewas (>= 0)
+        in: query
+        name: subtotal
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_shipping.Quote'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: Get shipping quote
+      tags:
+      - shipping
 swagger: "2.0"

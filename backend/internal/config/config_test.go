@@ -12,6 +12,7 @@ func TestLoadParsesEnv(t *testing.T) {
 	t.Setenv("DATABASE_URL", "postgres://x:y@localhost:5432/z")
 	t.Setenv("CORS_ORIGINS", "https://a.com,https://b.com")
 	t.Setenv("LOG_LEVEL", "info")
+	t.Setenv("SHIPPING_CONFIG_PATH", "/custom/path/shipping.json")
 
 	cfg, err := config.Load()
 	if err != nil {
@@ -31,6 +32,9 @@ func TestLoadParsesEnv(t *testing.T) {
 	}
 	if cfg.LogLevel != "info" {
 		t.Errorf("LogLevel = %q", cfg.LogLevel)
+	}
+	if cfg.ShippingConfigPath != "/custom/path/shipping.json" {
+		t.Errorf("ShippingConfigPath = %q, want /custom/path/shipping.json", cfg.ShippingConfigPath)
 	}
 }
 

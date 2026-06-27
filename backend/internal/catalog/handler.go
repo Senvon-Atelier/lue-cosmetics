@@ -35,12 +35,27 @@ func (h *Handlers) Mount(r chi.Router) {
 	r.Get("/products/{slug}", h.getProductBySlug)
 }
 
+// categoryView is the JSON-serializable view of a catalog category.
+type categoryView struct {
+	ID        string `json:"id"`
+	Slug      string `json:"slug"`
+	Label     string `json:"label"`
+	SortOrder int32  `json:"sort_order"`
+}
+
+// brandView is the JSON-serializable view of a catalog brand.
+type brandView struct {
+	ID   string `json:"id"`
+	Slug string `json:"slug"`
+	Name string `json:"name"`
+}
+
 // listCategories godoc
 //
 // @Summary  List categories
 // @Tags     catalog
 // @Produce  json
-// @Success  200 {array} sqlc.Category
+// @Success  200 {array} categoryView
 // @Failure  500 {object} httpx.ErrorEnvelope
 // @Router   /categories [get]
 func (h *Handlers) listCategories(w http.ResponseWriter, r *http.Request) {
@@ -49,10 +64,16 @@ func (h *Handlers) listCategories(w http.ResponseWriter, r *http.Request) {
 		httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "failed to list categories", nil)
 		return
 	}
-	if cats == nil {
-		cats = []sqlcq.Category{}
+	views := make([]categoryView, 0, len(cats))
+	for _, c := range cats {
+		views = append(views, categoryView{
+			ID:        c.ID.String(),
+			Slug:      c.Slug,
+			Label:     c.Label,
+			SortOrder: c.SortOrder,
+		})
 	}
-	httpx.WriteJSON(w, http.StatusOK, cats)
+	httpx.WriteJSON(w, http.StatusOK, views)
 }
 
 // listBrands godoc
@@ -60,7 +81,7 @@ func (h *Handlers) listCategories(w http.ResponseWriter, r *http.Request) {
 // @Summary  List brands
 // @Tags     catalog
 // @Produce  json
-// @Success  200 {array} sqlc.Brand
+// @Success  200 {array} brandView
 // @Failure  500 {object} httpx.ErrorEnvelope
 // @Router   /brands [get]
 func (h *Handlers) listBrands(w http.ResponseWriter, r *http.Request) {
@@ -69,10 +90,15 @@ func (h *Handlers) listBrands(w http.ResponseWriter, r *http.Request) {
 		httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "failed to list brands", nil)
 		return
 	}
-	if bs == nil {
-		bs = []sqlcq.Brand{}
+	views := make([]brandView, 0, len(bs))
+	for _, b := range bs {
+		views = append(views, brandView{
+			ID:   b.ID.String(),
+			Slug: b.Slug,
+			Name: b.Name,
+		})
 	}
-	httpx.WriteJSON(w, http.StatusOK, bs)
+	httpx.WriteJSON(w, http.StatusOK, views)
 }
 
 type productsResponse struct {
