@@ -151,3 +151,82 @@ func TestSignupAllowlistedSendsVerifyToken(t *testing.T) {
 		t.Errorf("allowlisted address should NOT be auto-verified — verify token issued")
 	}
 }
+
+// ── LoginWithGoogle ──────────────────────────────────────────────────────────
+
+func TestLoginWithGoogle_NewUser(t *testing.T) {
+	svc, _, cleanup := newService(t)
+	defer cleanup()
+	ctx := context.Background()
+
+	res, err := svc.LoginWithGoogle(ctx, "sub-001", "google-new@g.test", "New User", nil, "")
+	if err != nil {
+		t.Fatalf("LoginWithGoogle: %v", err)
+	}
+	if res.SessionToken == "" {
+		t.Error("expected session token")
+	}
+	if res.Role != "customer" {
+		t.Errorf("role = %s, want customer", res.Role)
+	}
+
+	// Verify session is retrievable.
+	view, err := svc.GetSession(ctx, res.SessionToken)
+	if err != nil {
+		t.Fatalf("GetSession: %v", err)
+	}
+	if !strings.EqualFold(view.Email, "google-new@g.test") {
+		t.Errorf("email = %s", view.Email)
+	}
+}
+
+func TestLoginWithGoogle_ExistingEmailLinked(t *testing.T) {
+	svc, _, cleanup := newService(t)
+	defer cleanup()
+	ctx := context.Background()
+
+	// Sign up with password first.
+	sr, err := svc.Signup(ctx, auth.SignupInput{
+		Email: "link@g.test", Password: "hunter22", Name: "Link User",
+	}, nil, "")
+	if err != nil {
+		t.Fatalf("Signup: %v", err)
+	}
+
+	// Now sign in via Google with the same email — should link and return same user.
+	res, err := svc.LoginWithGoogle(ctx, "sub-link-001", "link@g.test", "Link User", nil, "")
+	if err != nil {
+		t.Fatalf("LoginWithGoogle (link): %v", err)
+	}
+	if res.UserID != sr.UserID {
+		t.Errorf("userID mismatch: got %s, want %s", res.UserID, sr.UserID)
+	}
+	if res.SessionToken == "" {
+		t.Error("expected session token")
+	}
+}
+
+func TestLoginWithGoogle_SameSubReturnsSameUser(t *testing.T) {
+	svc, _, cleanup := newService(t)
+	defer cleanup()
+	ctx := context.Background()
+
+	r1, err := svc.LoginWithGoogle(ctx, "sub-same-001", "same@g.test", "Same User", nil, "")
+	if err != nil {
+		t.Fatalf("first LoginWithGoogle: %v", err)
+	}
+	r2, err := svc.LoginWithGoogle(ctx, "sub-same-001", "same@g.test", "Same User", nil, "")
+	if err != nil {
+		t.Fatalf("second LoginWithGoogle: %v", err)
+	}
+	if r1.UserID != r2.UserID {
+		t.Errorf("expected same user on repeated sub: got %s vs %s", r1.UserID, r2.UserID)
+	}
+	// Both sessions should be valid.
+	if _, err := svc.GetSession(ctx, r1.SessionToken); err != nil {
+		t.Errorf("first session invalid: %v", err)
+	}
+	if _, err := svc.GetSession(ctx, r2.SessionToken); err != nil {
+		t.Errorf("second session invalid: %v", err)
+	}
+}

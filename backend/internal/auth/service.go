@@ -306,6 +306,78 @@ func validEmail(s string) bool {
 	return true
 }
 
+// LoginWithGoogle logs in or creates a user from a verified Google ID token.
+// Fast path: if an oauth_account row exists for (google, providerSub), mint a session.
+// Slow path: link by email or create a new user, then upsert the oauth_account row.
+func (s *Service) LoginWithGoogle(ctx context.Context, providerSub, emailAddr, name string, ip net.IP, ua string) (LoginResult, error) {
+	emailAddr = strings.TrimSpace(strings.ToLower(emailAddr))
+	// Fast path: existing oauth_account.
+	if acc, err := s.Repo.GetOAuthAccount(ctx, "google", providerSub); err == nil {
+		return s.mintSessionForUser(ctx, acc.UserID, ip, ua)
+	} else if !errors.Is(err, ErrNotFound) {
+		return LoginResult{}, err
+	}
+	// Slow path: link or create.
+	var userID uuid.UUID
+	err := db.WithTx(ctx, s.Repo.Pool(), func(tx pgx.Tx) error {
+		q := sqlcq.New(tx)
+		user, err := q.GetUserByEmail(ctx, emailAddr)
+		if errors.Is(err, pgx.ErrNoRows) {
+			user, err = q.CreateUser(ctx, sqlcq.CreateUserParams{
+				Email: emailAddr, Name: name, EmailVerified: true,
+			})
+			if err != nil {
+				return err
+			}
+			if err := q.AddUserRole(ctx, sqlcq.AddUserRoleParams{UserID: user.ID, Role: "customer"}); err != nil {
+				return err
+			}
+		} else if err != nil {
+			return err
+		}
+		if err := q.UpsertOAuthAccount(ctx, sqlcq.UpsertOAuthAccountParams{
+			UserID: user.ID, Provider: "google", ProviderAccountID: providerSub,
+		}); err != nil {
+			return err
+		}
+		userID = user.ID
+		return nil
+	})
+	if err != nil {
+		return LoginResult{}, err
+	}
+	return s.mintSessionForUser(ctx, userID, ip, ua)
+}
+
+func (s *Service) mintSessionForUser(ctx context.Context, userID uuid.UUID, ip net.IP, ua string) (LoginResult, error) {
+	roles, err := s.Repo.ListRolesForUser(ctx, userID)
+	if err != nil {
+		return LoginResult{}, err
+	}
+	rawToken, err := NewToken()
+	if err != nil {
+		return LoginResult{}, err
+	}
+	tokenHash := HashToken(rawToken)
+	expires := s.Now().Add(s.SessionLifetime)
+	_, err = s.Repo.CreateSession(ctx, sqlcq.CreateSessionParams{
+		UserID:    userID,
+		TokenHash: tokenHash[:],
+		ExpiresAt: pgtype.Timestamptz{Time: expires, Valid: true},
+		Ip:        netToAddr(ip),
+		UserAgent: ua,
+	})
+	if err != nil {
+		return LoginResult{}, err
+	}
+	return LoginResult{
+		UserID:         userID,
+		Role:           primaryRole(roles),
+		SessionToken:   rawToken,
+		SessionExpires: expires,
+	}, nil
+}
+
 // netToAddr converts a net.IP to *netip.Addr for use in CreateSessionParams.
 // Returns nil if ip is nil or cannot be parsed.
 func netToAddr(ip net.IP) *netip.Addr {

@@ -2,6 +2,7 @@ package auth_test
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -11,6 +12,16 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/oti-adjei/ruecosmetics/internal/auth"
 )
+
+// stubValidator is a test double for IDTokenValidator that returns a fixed Payload.
+type stubValidator struct {
+	payload *auth.Payload
+	err     error
+}
+
+func (s *stubValidator) Validate(_ context.Context, _, _ string) (*auth.Payload, error) {
+	return s.payload, s.err
+}
 
 func newHandlers(t *testing.T) (*auth.Handlers, func()) {
 	t.Helper()
@@ -198,5 +209,72 @@ func TestHandlerSessionNoCookieReturns204(t *testing.T) {
 
 	if rr.Code != http.StatusNoContent {
 		t.Fatalf("status = %d, want 204", rr.Code)
+	}
+}
+
+// ── Google OAuth handler tests ───────────────────────────────────────────────
+
+func TestHandlerGoogleStartNotConfiguredReturns503(t *testing.T) {
+	h, cleanup := newHandlers(t)
+	defer cleanup()
+	// GoogleClientID is empty by default — not configured.
+	router := routerWith(h)
+
+	req := httptest.NewRequest(http.MethodGet, "/auth/google/start", nil)
+	rr := httptest.NewRecorder()
+	router.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusServiceUnavailable {
+		t.Fatalf("status = %d, want 503; body: %s", rr.Code, rr.Body.String())
+	}
+	if !strings.Contains(rr.Body.String(), "not_configured") {
+		t.Errorf("expected not_configured code in body: %s", rr.Body.String())
+	}
+}
+
+func TestHandlerGoogleStartWithCredsSetsStateCookieAndRedirects(t *testing.T) {
+	h, cleanup := newHandlers(t)
+	defer cleanup()
+	h.GoogleClientID = "test-client-id"
+	h.GoogleClientSecret = "test-client-secret"
+	h.GoogleRedirectURL = "http://localhost/callback"
+	router := routerWith(h)
+
+	req := httptest.NewRequest(http.MethodGet, "/auth/google/start", nil)
+	rr := httptest.NewRecorder()
+	router.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusFound {
+		t.Fatalf("status = %d, want 302; body: %s", rr.Code, rr.Body.String())
+	}
+	location := rr.Header().Get("Location")
+	if !strings.Contains(location, "accounts.google.com") {
+		t.Errorf("expected redirect to Google; got: %s", location)
+	}
+	// State cookie must be set.
+	setCookie := rr.Header().Get("Set-Cookie")
+	if !strings.Contains(setCookie, "rue_oauth_state=") {
+		t.Errorf("expected rue_oauth_state cookie; Set-Cookie: %s", setCookie)
+	}
+}
+
+func TestHandlerGoogleCallbackStateMismatchReturns400(t *testing.T) {
+	h, cleanup := newHandlers(t)
+	defer cleanup()
+	h.GoogleClientID = "test-client-id"
+	h.GoogleClientSecret = "test-client-secret"
+	router := routerWith(h)
+
+	// Request has state in query but cookie holds a different value.
+	req := httptest.NewRequest(http.MethodGet, "/auth/google/callback?state=querystate&code=somecode", nil)
+	req.AddCookie(&http.Cookie{Name: "rue_oauth_state", Value: "different-state"})
+	rr := httptest.NewRecorder()
+	router.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want 400; body: %s", rr.Code, rr.Body.String())
+	}
+	if !strings.Contains(rr.Body.String(), "validation_failed") {
+		t.Errorf("expected validation_failed code in body: %s", rr.Body.String())
 	}
 }

@@ -12,10 +12,15 @@ import (
 )
 
 type Handlers struct {
-	Svc          *Service
-	CookieName   string
-	CookieDomain string
-	Secure       bool
+	Svc                *Service
+	CookieName         string
+	CookieDomain       string
+	Secure             bool
+	GoogleClientID     string
+	GoogleClientSecret string
+	GoogleRedirectURL  string
+	FrontendBaseURL    string
+	Validator          IDTokenValidator
 }
 
 func NewHandlers(svc *Service, cookieName, cookieDomain string, secure bool) *Handlers {
@@ -30,6 +35,8 @@ func (h *Handlers) Mount(r chi.Router) {
 	r.Post("/auth/login", h.login)
 	r.Post("/auth/logout", h.logout)
 	r.Get("/auth/session", h.session)
+	r.Get("/auth/google/start", h.googleStart)
+	r.Get("/auth/google/callback", h.googleCallback)
 }
 
 type signupBody struct {

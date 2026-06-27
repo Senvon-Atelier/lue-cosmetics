@@ -62,7 +62,11 @@ func run() error {
 
 		secure := cfg.Env != "development"
 		authHandlers := auth.NewHandlers(a.Auth, cfg.SessionCookieName, cfg.SessionCookieDomain, secure)
-		authHandlers.Mount(api) // public: /auth/signup, /auth/login, /auth/logout, /auth/session
+		authHandlers.GoogleClientID = cfg.GoogleClientID
+		authHandlers.GoogleClientSecret = cfg.GoogleClientSecret
+		authHandlers.GoogleRedirectURL = cfg.GoogleRedirectURL
+		authHandlers.FrontendBaseURL = cfg.FrontendBaseURL
+		authHandlers.Mount(api) // public: /auth/signup, /auth/login, /auth/logout, /auth/session, /auth/google/start, /auth/google/callback
 
 		// Auth-gated routes (one Group with RequireSession middleware)
 		api.Group(func(r chi.Router) {
