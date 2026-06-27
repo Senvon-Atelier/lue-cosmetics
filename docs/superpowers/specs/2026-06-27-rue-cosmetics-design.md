@@ -31,6 +31,7 @@ Rue Cosmetics is a Ghana-based cosmetics & wellness e-commerce concept. It was o
 | Layer | Choice | Reason |
 |---|---|---|
 | Frontend framework | **Vite + React 18 + TanStack Router + TanStack Query** | Cleanest split with a separate Go backend (TanStack Start's server-functions value would be wasted); TanStack ecosystem still showcases modern React DX. |
+| Frontend styling | **Tailwind CSS v4** | User preference. Existing mockup's palette + typography mapped into Tailwind theme tokens; components rebuilt with utility classes. |
 | Frontend validation | **Zod** | Best ecosystem fit with BetterAuth + TanStack Form; bundle cost is acceptable for a case-study site. |
 | Frontend package manager | **pnpm** | User preference. |
 | Auth | **BetterAuth (Go) with admin/roles plugin** | Handles email/password + Google OAuth + session cookies + role separation in one library. |
@@ -102,14 +103,16 @@ casestud/ruecosmetics/
     ├── vite.config.ts
     ├── tsconfig.json
     ├── public/products/        # stock photos (B); tone CSS fallback if needed
+    ├── tailwind.config.ts      # palette tokens, font families, animations
     └── src/
         ├── routes/             # TanStack Router file-based routes
-        ├── components/         # ported from existing Rue/src/*.jsx
+        ├── components/         # rebuilt from existing Rue/src/*.jsx as TS + Tailwind
         ├── lib/
         │   ├── api/            # client, Zod schemas, openapi-types
         │   ├── auth/           # BetterAuth React client
         │   └── format/         # GHS formatting, dates
-        └── styles/             # ported styles.css + pages.css + per-section
+        └── styles/
+            └── globals.css     # @tailwind directives + a small layer for keyframes / toast
 ```
 
 **Local dev:**
@@ -292,8 +295,9 @@ A `backend/seed/main.go` program populates the DB from a clean state.
 
 - **Ship:** stock photos (~25) sourced from Unsplash/Pexels, committed to `frontend/public/products/`, referenced by filename in the seed.
 - **Fallback if sourcing is a slog:** keep the existing CSS color-tone tiles (`lavender`, `cream`, `ink`, `rose`).
-- Existing CSS (`styles.css`, `pages.css`, `account.css`, `admin.css`, `legal.css`, `marketing.css`) is ported as-is into `frontend/src/styles/` and split per route as needed.
-- Existing JSX components (`home.jsx`, `pages.jsx`, `shared.jsx`, `acct-pages.jsx`, `admin.jsx`, `legal-pages.jsx`) are ported into TypeScript React under `frontend/src/components/` and `frontend/src/routes/`, rewired to use the API client instead of the in-memory `RueData` object. `marketing-pages.jsx` is deferred (see Section 8); its CSS is still ported so the visual system is consistent.
+- **Styling approach:** Tailwind CSS v4. The existing mockup's design system is **mapped into Tailwind theme tokens** (palette swatches `--lavender-*`, `--ink`, `--cream`, font families, spacing rhythm, typography scale) in `tailwind.config.ts`. The legacy CSS files (`styles.css`, `pages.css`, `account.css`, `admin.css`, `legal.css`, `marketing.css`) are kept in the repo as `frontend/reference/legacy-css/` for **visual reference only** — they are not imported into the build.
+- **Palette switching** (the existing `PALETTES` object in `app.jsx` with lavender/rose/sand/mint): preserved as CSS custom property overrides on `:root`, with Tailwind tokens referencing those custom properties. The tweaks panel UI is dropped (it was a design-tool artifact, not part of the product).
+- Existing JSX components (`home.jsx`, `pages.jsx`, `shared.jsx`, `acct-pages.jsx`, `admin.jsx`, `legal-pages.jsx`) are **rebuilt** as TypeScript React under `frontend/src/components/` and `frontend/src/routes/` using Tailwind utilities, matching the visual reference. Rewired to use the API client instead of the in-memory `RueData` object. `marketing-pages.jsx` is deferred (see Section 8).
 
 ## 10. Quality Guarantees
 
@@ -302,7 +306,7 @@ A `backend/seed/main.go` program populates the DB from a clean state.
 - **Backend:** `go vet` + `staticcheck` + `golangci-lint` in pre-commit and CI. sqlc generates typed Go from SQL — query results are never `interface{}`.
 - **Frontend:** `tsc --noEmit` in pre-commit and CI. `tsconfig` has `"strict": true` and `"noUncheckedIndexedAccess": true`. ESLint with `@typescript-eslint/recommended-type-checked`.
 - **Wire boundary:** every API response is parsed through a Zod schema in `frontend/src/lib/api/schemas.ts`. CI generates TS types from Go via `swaggo/swag` → `openapi-typescript` and checks Zod schemas against generated types — drift fails the build.
-- Pre-commit (lefthook) runs `gofmt`, `golangci-lint`, `tsc --noEmit`, `eslint`, `prettier`.
+- Pre-commit (lefthook) runs `gofmt`, `golangci-lint`, `tsc --noEmit`, `eslint`, `prettier` (with `prettier-plugin-tailwindcss` for class sorting).
 
 ### 10.2 SQL injection — structurally impossible
 
