@@ -16,6 +16,10 @@ import (
 	"github.com/oti-adjei/ruecosmetics/internal/httpx"
 )
 
+// @title           Rue Cosmetics API
+// @version         0.1.0
+// @description     E-commerce backend for the Rue Cosmetics case study.
+// @BasePath        /api/v1
 func main() {
 	if err := run(); err != nil {
 		fmt.Fprintf(os.Stderr, "fatal: %v\n", err)

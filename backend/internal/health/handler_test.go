@@ -58,6 +58,7 @@ func TestHealthDownReturns503(t *testing.T) {
 	if err != nil {
 		t.Fatalf("pg: %v", err)
 	}
+	defer pg.Terminate(ctx)
 	url, _ := pg.ConnectionString(ctx, "sslmode=disable")
 	cfg := &config.Config{Env: "development", DatabaseURL: url, CORSOrigins: []string{"http://localhost:5173"}, LogLevel: "debug"}
 	c, cancel := context.WithTimeout(ctx, 30*time.Second)
@@ -67,7 +68,6 @@ func TestHealthDownReturns503(t *testing.T) {
 		t.Fatalf("app: %v", err)
 	}
 	a.Pool.Close()
-	pg.Terminate(ctx)
 
 	rec := httptest.NewRecorder()
 	health.Handler(a)(rec, httptest.NewRequest("GET", "/healthz", nil))

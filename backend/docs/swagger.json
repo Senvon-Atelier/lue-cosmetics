@@ -1,0 +1,76 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "E-commerce backend for the Rue Cosmetics case study.",
+        "title": "Rue Cosmetics API",
+        "contact": {},
+        "version": "0.1.0"
+    },
+    "basePath": "/api/v1",
+    "paths": {
+        "/healthz": {
+            "get": {
+                "description": "Verifies the service is up and the database is reachable.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "meta"
+                ],
+                "summary": "Health check",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_health.response"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorBody": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "fields": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorBody"
+                }
+            }
+        },
+        "internal_health.response": {
+            "type": "object",
+            "properties": {
+                "db": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,49 @@
+basePath: /api/v1
+definitions:
+  github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorBody:
+    properties:
+      code:
+        type: string
+      fields:
+        additionalProperties:
+          type: string
+        type: object
+      message:
+        type: string
+    type: object
+  github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope:
+    properties:
+      error:
+        $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorBody'
+    type: object
+  internal_health.response:
+    properties:
+      db:
+        type: string
+      status:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: E-commerce backend for the Rue Cosmetics case study.
+  title: Rue Cosmetics API
+  version: 0.1.0
+paths:
+  /healthz:
+    get:
+      description: Verifies the service is up and the database is reachable.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_health.response'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: Health check
+      tags:
+      - meta
+swagger: "2.0"
