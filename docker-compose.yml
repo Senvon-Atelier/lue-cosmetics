@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: rue_postgres
+    environment:
+      POSTGRES_DB: ruecosmetics
+      POSTGRES_USER: rue
+      POSTGRES_PASSWORD: rue_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - rue_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rue -d ruecosmetics"]
+      interval: 2s
+      timeout: 3s
+      retries: 10
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: rue_mailpit
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+volumes:
+  rue_pg_data:

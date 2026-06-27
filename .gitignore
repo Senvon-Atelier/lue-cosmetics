@@ -1,0 +1,25 @@
+# binaries
+backend/cmd/api/api
+backend/tmp/
+*.exe
+
+# env
+.env
+.env.local
+*.env
+
+# editors / OS
+.DS_Store
+.idea/
+.vscode/
+
+# node (for Plan 9+)
+node_modules/
+frontend/dist/
+
+# go build cache (already in $GOPATH but harmless)
+*.test
+*.out
+
+# air
+.air.toml.bak
