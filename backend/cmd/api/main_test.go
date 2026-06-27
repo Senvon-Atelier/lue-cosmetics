@@ -1,7 +1,6 @@
 package main_test
 
 import (
-	"context"
 	"io"
 	"net/http"
 	"os"
@@ -10,20 +9,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/testcontainers/testcontainers-go/modules/postgres"
+	"github.com/oti-adjei/ruecosmetics/internal/testsupport"
 )
 
 func TestServerBootsAndHealthzReturnsOK(t *testing.T) {
-	ctx := context.Background()
-	pg, err := postgres.Run(ctx, "postgres:16-alpine",
-		postgres.WithDatabase("ruetest"), postgres.WithUsername("rue"), postgres.WithPassword("rue_dev"),
-		postgres.BasicWaitStrategies(),
-	)
-	if err != nil {
-		t.Fatalf("pg: %v", err)
-	}
-	defer pg.Terminate(ctx)
-	url, _ := pg.ConnectionString(ctx, "sslmode=disable")
+	url, stop := testsupport.StartPostgres(t)
+	defer stop()
 
 	wd, _ := os.Getwd()
 	root := filepath.Join(wd, "..", "..")
@@ -51,6 +42,7 @@ func TestServerBootsAndHealthzReturnsOK(t *testing.T) {
 
 	deadline := time.Now().Add(10 * time.Second)
 	var resp *http.Response
+	var err error
 	for time.Now().Before(deadline) {
 		resp, err = http.Get("http://127.0.0.1:18080/healthz")
 		if err == nil && resp.StatusCode == 200 {

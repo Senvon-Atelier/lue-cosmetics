@@ -11,20 +11,13 @@ import (
 	"github.com/oti-adjei/ruecosmetics/internal/app"
 	"github.com/oti-adjei/ruecosmetics/internal/config"
 	"github.com/oti-adjei/ruecosmetics/internal/health"
-	"github.com/testcontainers/testcontainers-go/modules/postgres"
+	"github.com/oti-adjei/ruecosmetics/internal/testsupport"
 )
 
 func TestHealthOK(t *testing.T) {
 	ctx := context.Background()
-	pg, err := postgres.Run(ctx, "postgres:16-alpine",
-		postgres.WithDatabase("ruetest"), postgres.WithUsername("rue"), postgres.WithPassword("rue_dev"),
-		postgres.BasicWaitStrategies(),
-	)
-	if err != nil {
-		t.Fatalf("pg: %v", err)
-	}
-	defer pg.Terminate(ctx)
-	url, _ := pg.ConnectionString(ctx, "sslmode=disable")
+	url, stop := testsupport.StartPostgres(t)
+	defer stop()
 	cfg := &config.Config{Env: "development", DatabaseURL: url, CORSOrigins: []string{"http://localhost:5173"}, LogLevel: "debug"}
 	c, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
@@ -51,15 +44,8 @@ func TestHealthOK(t *testing.T) {
 func TestHealthDownReturns503(t *testing.T) {
 	// closed pool → ping fails
 	ctx := context.Background()
-	pg, err := postgres.Run(ctx, "postgres:16-alpine",
-		postgres.WithDatabase("ruetest"), postgres.WithUsername("rue"), postgres.WithPassword("rue_dev"),
-		postgres.BasicWaitStrategies(),
-	)
-	if err != nil {
-		t.Fatalf("pg: %v", err)
-	}
-	defer pg.Terminate(ctx)
-	url, _ := pg.ConnectionString(ctx, "sslmode=disable")
+	url, stop := testsupport.StartPostgres(t)
+	defer stop()
 	cfg := &config.Config{Env: "development", DatabaseURL: url, CORSOrigins: []string{"http://localhost:5173"}, LogLevel: "debug"}
 	c, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()

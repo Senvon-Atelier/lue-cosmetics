@@ -8,31 +8,11 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/oti-adjei/ruecosmetics/internal/db"
-	"github.com/testcontainers/testcontainers-go/modules/postgres"
+	"github.com/oti-adjei/ruecosmetics/internal/testsupport"
 )
 
-func startPostgres(t *testing.T) (string, func()) {
-	t.Helper()
-	ctx := context.Background()
-	pg, err := postgres.Run(ctx,
-		"postgres:16-alpine",
-		postgres.WithDatabase("ruetest"),
-		postgres.WithUsername("rue"),
-		postgres.WithPassword("rue_dev"),
-		postgres.BasicWaitStrategies(),
-	)
-	if err != nil {
-		t.Fatalf("start postgres: %v", err)
-	}
-	url, err := pg.ConnectionString(ctx, "sslmode=disable")
-	if err != nil {
-		t.Fatalf("conn string: %v", err)
-	}
-	return url, func() { _ = pg.Terminate(ctx) }
-}
-
 func TestNewPoolConnects(t *testing.T) {
-	url, stop := startPostgres(t)
+	url, stop := testsupport.StartPostgres(t)
 	defer stop()
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -47,7 +27,7 @@ func TestNewPoolConnects(t *testing.T) {
 }
 
 func TestWithTxCommits(t *testing.T) {
-	url, stop := startPostgres(t)
+	url, stop := testsupport.StartPostgres(t)
 	defer stop()
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -78,7 +58,7 @@ func TestWithTxCommits(t *testing.T) {
 }
 
 func TestWithTxRollsBackOnError(t *testing.T) {
-	url, stop := startPostgres(t)
+	url, stop := testsupport.StartPostgres(t)
 	defer stop()
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()

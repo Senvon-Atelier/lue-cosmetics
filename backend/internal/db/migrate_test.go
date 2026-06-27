@@ -9,11 +9,12 @@ import (
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/oti-adjei/ruecosmetics/internal/db"
+	"github.com/oti-adjei/ruecosmetics/internal/testsupport"
 	"github.com/pressly/goose/v3"
 )
 
 func TestMigrationsApply(t *testing.T) {
-	url, stop := startPostgres(t)
+	url, stop := testsupport.StartPostgres(t)
 	defer stop()
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()

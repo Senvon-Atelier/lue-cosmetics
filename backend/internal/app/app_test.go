@@ -7,23 +7,13 @@ import (
 
 	"github.com/oti-adjei/ruecosmetics/internal/app"
 	"github.com/oti-adjei/ruecosmetics/internal/config"
-	"github.com/testcontainers/testcontainers-go/modules/postgres"
+	"github.com/oti-adjei/ruecosmetics/internal/testsupport"
 )
 
 func TestApplicationNewWiresPool(t *testing.T) {
 	ctx := context.Background()
-	pg, err := postgres.Run(ctx,
-		"postgres:16-alpine",
-		postgres.WithDatabase("ruetest"),
-		postgres.WithUsername("rue"),
-		postgres.WithPassword("rue_dev"),
-		postgres.BasicWaitStrategies(),
-	)
-	if err != nil {
-		t.Fatalf("pg: %v", err)
-	}
-	defer pg.Terminate(ctx)
-	url, _ := pg.ConnectionString(ctx, "sslmode=disable")
+	url, stop := testsupport.StartPostgres(t)
+	defer stop()
 
 	cfg := &config.Config{
 		Port: 0, Env: "development",
