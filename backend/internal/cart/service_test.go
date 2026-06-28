@@ -69,6 +69,10 @@ func TestService_GetOrCreate_EmptyIdentity_MintsGuestCart(t *testing.T) {
 	if view.SubtotalGhsMinor != 0 || view.TotalGhsMinor != 0 {
 		t.Errorf("expected zero totals, got sub=%d total=%d", view.SubtotalGhsMinor, view.TotalGhsMinor)
 	}
+	if view.FreeShippingRemainderGhsMinor != 50000 {
+		t.Errorf("FreeShippingRemainderGhsMinor = %d, want 50000",
+			view.FreeShippingRemainderGhsMinor)
+	}
 }
 
 func TestService_GetOrCreate_GuestToken_ReusesCart(t *testing.T) {
@@ -281,5 +285,45 @@ func TestService_View_IncludesShippingFromService(t *testing.T) {
 	}
 	if view.TotalGhsMinor != view.SubtotalGhsMinor+view.ShippingCostGhsMinor {
 		t.Errorf("total mismatch: %d != %d+%d", view.TotalGhsMinor, view.SubtotalGhsMinor, view.ShippingCostGhsMinor)
+	}
+}
+
+func TestService_RemoveItem_Happy_EmptiesCart(t *testing.T) {
+	ctx, pool, cleanup := testsupport.StartPool(t, "../../migrations")
+	defer cleanup()
+	svc := newCartService(t, pool)
+
+	productID := seedTestProduct(t, ctx, pool)
+	_, token, err := svc.GetOrCreate(ctx, CartIdentity{})
+	if err != nil {
+		t.Fatalf("GetOrCreate: %v", err)
+	}
+	id := CartIdentity{GuestToken: token}
+
+	addView, err := svc.AddItem(ctx, id, productID, 2)
+	if err != nil {
+		t.Fatalf("AddItem: %v", err)
+	}
+	if len(addView.Items) != 1 {
+		t.Fatalf("after AddItem: len(Items) = %d, want 1", len(addView.Items))
+	}
+	itemID := addView.Items[0].ID
+
+	removeView, err := svc.RemoveItem(ctx, id, itemID)
+	if err != nil {
+		t.Fatalf("RemoveItem: %v", err)
+	}
+	if len(removeView.Items) != 0 {
+		t.Errorf("after RemoveItem: len(Items) = %d, want 0", len(removeView.Items))
+	}
+	if removeView.SubtotalGhsMinor != 0 {
+		t.Errorf("subtotal = %d, want 0", removeView.SubtotalGhsMinor)
+	}
+	if removeView.TotalGhsMinor != 0 {
+		t.Errorf("total = %d, want 0", removeView.TotalGhsMinor)
+	}
+	if removeView.FreeShippingRemainderGhsMinor != 50000 {
+		t.Errorf("FreeShippingRemainderGhsMinor = %d, want 50000",
+			removeView.FreeShippingRemainderGhsMinor)
 	}
 }
