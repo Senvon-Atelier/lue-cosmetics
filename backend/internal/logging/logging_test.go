@@ -26,3 +26,13 @@ func TestFromReturnsFallbackWhenAbsent(t *testing.T) {
 		t.Errorf("From returned %p, want fallback %p", got, base)
 	}
 }
+
+func TestFromReturnsFallbackWhenNil(t *testing.T) {
+	base := zap.NewNop()
+	// Explicitly store nil under the logger key.
+	ctx := logging.WithLogger(context.Background(), nil)
+	got := logging.From(ctx, base)
+	if got != base {
+		t.Errorf("From with nil-in-ctx returned %p, want fallback %p", got, base)
+	}
+}
