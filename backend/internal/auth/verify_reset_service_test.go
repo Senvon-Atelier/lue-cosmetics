@@ -172,6 +172,11 @@ func TestResendVerification_AllowlistedCreatesNewToken(t *testing.T) {
 	}
 }
 
+// Bundle 3 semantic shift: ResendVerification's no-op guard moved from
+// "isAllowlisted(email) == false" to "user.EmailVerified == true". The
+// observable behavior here is unchanged — non-allowlisted users are
+// auto-verified at signup, so calling ResendVerification on them is still a
+// no-op — but the reason is different. Kept as-is; semantic shift documented.
 func TestResendVerification_NonAllowlistedIsNoop(t *testing.T) {
 	svc, _, cap, cleanup := newServiceWithCapture(t)
 	defer cleanup()
@@ -185,10 +190,10 @@ func TestResendVerification_NonAllowlistedIsNoop(t *testing.T) {
 	}
 	beforeCount := len(cap.calls)
 	if err := svc.ResendVerification(ctx, sr.UserID, "regular@y.test"); err != nil {
-		t.Fatalf("ResendVerification (non-allowlisted): %v", err)
+		t.Fatalf("ResendVerification (already-verified): %v", err)
 	}
 	if len(cap.calls) != beforeCount {
-		t.Error("expected no new send call for non-allowlisted user")
+		t.Error("expected no new send call for already-verified user")
 	}
 }
 

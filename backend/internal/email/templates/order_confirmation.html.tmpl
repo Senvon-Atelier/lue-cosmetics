@@ -1,0 +1,28 @@
+<!doctype html>
+<html><body style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+  <h1>Thanks for your order!</h1>
+  <p>Hi {{.name}},</p>
+  <p>Your order <strong>{{.paystack_reference}}</strong> is confirmed and on its way to being packed.</p>
+  <h2>Order summary</h2>
+  <table style="width: 100%; border-collapse: collapse;">
+    <thead>
+      <tr><th align="left">Item</th><th align="right">Qty</th><th align="right">Price</th></tr>
+    </thead>
+    <tbody>
+      {{- range .items}}
+      <tr>
+        <td>{{.name}}{{if .brand}} <em>by {{.brand}}</em>{{end}}</td>
+        <td align="right">{{.qty}}</td>
+        <td align="right">GHS {{.line_total}}</td>
+      </tr>
+      {{- end}}
+    </tbody>
+    <tfoot>
+      <tr><td colspan="2" align="right"><strong>Subtotal</strong></td><td align="right">GHS {{.subtotal}}</td></tr>
+      <tr><td colspan="2" align="right"><strong>Shipping</strong></td><td align="right">GHS {{.shipping}}</td></tr>
+      <tr><td colspan="2" align="right"><strong>Total</strong></td><td align="right"><strong>GHS {{.total}}</strong></td></tr>
+    </tfoot>
+  </table>
+  <p>We'll email you again when it ships.</p>
+  <p>— The Rue Cosmetics team</p>
+</body></html>

@@ -7,26 +7,22 @@ import (
 	"strings"
 	"testing"
 
-	"go.uber.org/zap"
-
 	"github.com/oti-adjei/ruecosmetics/internal/auth"
 	"github.com/oti-adjei/ruecosmetics/internal/db"
-	"github.com/oti-adjei/ruecosmetics/internal/email"
-	"github.com/oti-adjei/ruecosmetics/internal/testsupport"
 )
 
+// newService returns an auth.Service wired with the shared capturingSender
+// helper from verify_reset_service_test.go (the Send-call recorder). Tests in
+// this file that need direct access to the capturer should call
+// newServiceWithCapture instead.
 func newService(t *testing.T) (*auth.Service, db.Pool, func()) {
 	t.Helper()
-	_, pool, cleanup := testsupport.StartPool(t, "../../migrations")
-	logger := zap.NewNop()
-	repo := auth.NewRepository(pool)
-	svc := auth.NewService(repo, logger, email.LogSender{Log: logger}, nil)
-	svc.Params = auth.TestParams // fast hashes in tests
+	svc, pool, _, cleanup := newServiceWithCapture(t)
 	return svc, pool, cleanup
 }
 
 func TestSignupCreatesUserSessionAndAutoVerifies(t *testing.T) {
-	svc, _, cleanup := newService(t)
+	svc, _, cap, cleanup := newServiceWithCapture(t)
 	defer cleanup()
 	res, err := svc.Signup(context.Background(), auth.SignupInput{
 		Email: "user@demo.test", Password: "hunter22", Name: "Ada",
@@ -39,6 +35,19 @@ func TestSignupCreatesUserSessionAndAutoVerifies(t *testing.T) {
 	}
 	if res.SessionToken == "" || res.SessionExpires.IsZero() {
 		t.Errorf("session not minted: %+v", res)
+	}
+	// After Bundle 3: Send is unconditional, so auto-verified users also get a
+	// verify_email Send call (the AllowlistSender wrapper in app.New suppresses
+	// it). The data map should NOT carry a token because no token row was
+	// created.
+	if len(cap.calls) != 1 {
+		t.Fatalf("expected 1 Send call, got %d", len(cap.calls))
+	}
+	if cap.calls[0].Template != "verify_email" || cap.calls[0].To != "user@demo.test" {
+		t.Errorf("Send call args: %+v", cap.calls[0])
+	}
+	if _, ok := cap.calls[0].Data["token"]; ok {
+		t.Errorf("auto-verified user should not have token in Send data; got %+v", cap.calls[0].Data)
 	}
 }
 
@@ -131,7 +140,7 @@ func TestLogoutInvalidatesSession(t *testing.T) {
 }
 
 func TestSignupAllowlistedSendsVerifyToken(t *testing.T) {
-	svc, _, cleanup := newService(t)
+	svc, _, cap, cleanup := newServiceWithCapture(t)
 	defer cleanup()
 	svc.Allowlist = []string{"vip@y.test"}
 	res, err := svc.Signup(context.Background(), auth.SignupInput{
@@ -142,6 +151,16 @@ func TestSignupAllowlistedSendsVerifyToken(t *testing.T) {
 	}
 	if res.EmailVerified {
 		t.Errorf("allowlisted address should NOT be auto-verified — verify token issued")
+	}
+	if len(cap.calls) != 1 {
+		t.Fatalf("expected 1 Send call, got %d", len(cap.calls))
+	}
+	if cap.calls[0].Template != "verify_email" || cap.calls[0].To != "vip@y.test" {
+		t.Errorf("Send call args: %+v", cap.calls[0])
+	}
+	token, ok := cap.calls[0].Data["token"].(string)
+	if !ok || token == "" {
+		t.Errorf("allowlisted signup should include verify token in Send data; got %+v", cap.calls[0].Data)
 	}
 }
 

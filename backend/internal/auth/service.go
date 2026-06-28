@@ -66,14 +66,20 @@ func normalizeAllowlist(in []string) []string {
 	return out
 }
 
-func (s *Service) isAllowlisted(emailAddr string) bool {
+// autoVerifyDecision reports whether a signup for emailAddr should mark
+// email_verified=true immediately and skip issuing a verify token. The
+// historical "allowlist" semantics: addresses NOT on the allowlist are
+// dev/local addresses we cannot actually deliver mail to, so we auto-verify
+// them. Addresses ON the allowlist will receive a real verify email via the
+// wrapper, so they must verify the link the normal way.
+func (s *Service) autoVerifyDecision(emailAddr string) bool {
 	addr := strings.ToLower(strings.TrimSpace(emailAddr))
 	for _, a := range s.Allowlist {
 		if a == "*" || a == addr {
-			return true
+			return false
 		}
 	}
-	return false
+	return true
 }
 
 type SignupInput struct {
@@ -103,8 +109,7 @@ func (s *Service) Signup(ctx context.Context, in SignupInput, ip net.IP, ua stri
 	if err != nil {
 		return SignupResult{}, err
 	}
-	allow := s.isAllowlisted(in.Email)
-	emailVerified := !allow // non-allowlisted → auto-verified at signup
+	emailVerified := s.autoVerifyDecision(in.Email)
 
 	rawToken, err := NewToken()
 	if err != nil {
@@ -153,8 +158,12 @@ func (s *Service) Signup(ctx context.Context, in SignupInput, ip net.IP, ua stri
 		return SignupResult{}, err
 	}
 
-	// Email side effect AFTER tx commits.
-	if allow {
+	// Email side effect AFTER tx commits. Token row is created only when the
+	// user is NOT auto-verified (i.e., they need to click a verify link). The
+	// Send call is unconditional — the AllowlistSender wrapper installed in
+	// app.New decides whether the message is actually delivered or suppressed.
+	verifyData := map[string]any{"name": in.Name}
+	if !emailVerified {
 		verifyRaw, _ := NewToken()
 		verifyHash := HashToken(verifyRaw)
 		_, _ = s.Repo.CreateVerificationToken(ctx, sqlcq.CreateVerificationTokenParams{
@@ -163,12 +172,9 @@ func (s *Service) Signup(ctx context.Context, in SignupInput, ip net.IP, ua stri
 			TokenHash: verifyHash[:],
 			ExpiresAt: pgtype.Timestamptz{Time: s.Now().Add(emailVerifyTTL), Valid: true},
 		})
-		_ = s.Email.Send(ctx, in.Email, "verify_email", map[string]any{
-			"token": verifyRaw, "name": in.Name,
-		})
-	} else {
-		_ = s.Email.Send(ctx, in.Email, "welcome", map[string]any{"name": in.Name})
+		verifyData["token"] = verifyRaw
 	}
+	_ = s.Email.Send(ctx, in.Email, "verify_email", verifyData)
 	return result, nil
 }
 
@@ -420,10 +426,18 @@ func (s *Service) VerifyEmail(ctx context.Context, rawToken string) error {
 }
 
 // ResendVerification issues a new email_verify token and sends the verification
-// email. If the user's address is not on the allowlist (i.e., they are already
-// auto-verified), this is a no-op.
+// email. If the user is already email_verified, this is a no-op (no token
+// created, no Send call). The AllowlistSender wrapper installed in app.New
+// decides whether the Send actually delivers.
 func (s *Service) ResendVerification(ctx context.Context, userID uuid.UUID, emailAddr string) error {
-	if !s.isAllowlisted(emailAddr) {
+	user, err := s.Repo.GetUserByID(ctx, userID)
+	if errors.Is(err, ErrNotFound) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	if user.EmailVerified {
 		return nil
 	}
 	raw, err := NewToken()

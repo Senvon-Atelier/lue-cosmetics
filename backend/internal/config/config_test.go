@@ -56,6 +56,38 @@ func TestLoadPaystackDefaults(t *testing.T) {
 	}
 }
 
+func TestLoadResendDefaults(t *testing.T) {
+	t.Setenv("DATABASE_URL", "postgres://x:y@localhost:5432/z")
+
+	cfg, err := config.Load()
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if cfg.ResendAPIKey != "" {
+		t.Errorf("ResendAPIKey default = %q, want empty", cfg.ResendAPIKey)
+	}
+	if cfg.ResendFromEmail != "noreply@rue.example.com" {
+		t.Errorf("ResendFromEmail default = %q, want noreply@rue.example.com", cfg.ResendFromEmail)
+	}
+}
+
+func TestLoadResendOverride(t *testing.T) {
+	t.Setenv("DATABASE_URL", "postgres://x:y@localhost:5432/z")
+	t.Setenv("RESEND_API_KEY", "re_live_abc123")
+	t.Setenv("RESEND_FROM_EMAIL", "hi@rue.example.com")
+
+	cfg, err := config.Load()
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if cfg.ResendAPIKey != "re_live_abc123" {
+		t.Errorf("ResendAPIKey = %q", cfg.ResendAPIKey)
+	}
+	if cfg.ResendFromEmail != "hi@rue.example.com" {
+		t.Errorf("ResendFromEmail = %q", cfg.ResendFromEmail)
+	}
+}
+
 func TestLoadPaystackOverride(t *testing.T) {
 	t.Setenv("DATABASE_URL", "postgres://x:y@localhost:5432/z")
 	t.Setenv("PAYSTACK_SECRET_KEY", "sk_test_abc123")

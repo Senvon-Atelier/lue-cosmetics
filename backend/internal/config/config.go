@@ -23,6 +23,8 @@ type Config struct {
 	PaystackSecretKey    string   `envconfig:"PAYSTACK_SECRET_KEY" default:""`
 	PaystackBaseURL      string   `envconfig:"PAYSTACK_BASE_URL" default:"https://api.paystack.co"`
 	PaystackCallbackURL  string   `envconfig:"PAYSTACK_CALLBACK_URL" default:"http://localhost:5173/checkout/return"`
+	ResendAPIKey         string   `envconfig:"RESEND_API_KEY" default:""`
+	ResendFromEmail      string   `envconfig:"RESEND_FROM_EMAIL" default:"noreply@rue.example.com"`
 }
 
 func Load() (*Config, error) {

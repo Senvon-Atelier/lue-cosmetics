@@ -1,0 +1,13 @@
+Thanks for your order, {{.name}}!
+
+Order: {{.paystack_reference}}
+
+{{range .items -}}
+  - {{.name}}{{if .brand}} by {{.brand}}{{end}} × {{.qty}} — GHS {{.line_total}}
+{{end}}
+Subtotal: GHS {{.subtotal}}
+Shipping: GHS {{.shipping}}
+Total:    GHS {{.total}}
+
+We'll email again when it ships.
+— The Rue Cosmetics team
