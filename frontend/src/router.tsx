@@ -1,8 +1,10 @@
-import { createRouter, createRoute, createRootRoute, Outlet, Link } from '@tanstack/react-router';
+import { createRouter, createRoute, createRootRoute, Outlet, Link, useParams } from '@tanstack/react-router';
 import { QueryProvider } from './features/shared/providers/query-provider';
 import { AuthProvider, useAuth } from './lib/auth/auth-provider';
 import { CartProvider } from './features/cart/cart-provider';
 import { Brand, Button } from './features/shared/ui';
+import { ShopPage } from './features/catalog/shop-page';
+import { ProductDetail } from './features/catalog/product-detail';
 
 // Root route with all providers
 const rootRoute = createRootRoute({
@@ -128,13 +130,31 @@ const ShopRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/shop',
   component: () => (
-    <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '2rem' }}>
-      <h1 className="font-display text-4xl mb-4">Shop</h1>
-      <p className="text-ink-muted">Browse our curated collection of skincare, haircare, and wellness products.</p>
-      <p className="mt-4 text-sm text-ink-muted">Product catalog coming in Phase 5...</p>
+    <div className="min-h-screen bg-paper text-ink font-body">
+      <div className="mb-6 pt-6" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '2rem 2rem 0' }}>
+        <h1 className="font-display text-4xl mb-2">Shop</h1>
+        <p className="text-ink-muted">Browse our curated collection of skincare, haircare, and wellness products.</p>
+      </div>
+      <ShopPage />
     </div>
   ),
 });
+
+// Product detail route
+const ProductDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/shop/$slug',
+  component: ProductDetailComponent,
+});
+
+function ProductDetailComponent() {
+  const { slug } = useParams({ from: '/shop/$slug' });
+  return (
+    <div className="min-h-screen bg-paper text-ink font-body">
+      <ProductDetail slug={slug || ''} />
+    </div>
+  );
+}
 
 // Login route
 const LoginRoute = createRoute({
@@ -264,6 +284,7 @@ function AdminComponent() {
 const routeTree = rootRoute.addChildren([
   HomeRoute,
   ShopRoute,
+  ProductDetailRoute,
   LoginRoute,
   AccountRoute,
   AdminRoute,
