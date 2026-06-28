@@ -16,6 +16,52 @@ definitions:
       error:
         $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorBody'
     type: object
+  internal_auth.loginBody:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  internal_auth.prConfBody:
+    properties:
+      new_password:
+        type: string
+      token:
+        type: string
+    type: object
+  internal_auth.prReqBody:
+    properties:
+      email:
+        type: string
+    type: object
+  internal_auth.sessionResponse:
+    properties:
+      email:
+        type: string
+      email_verified:
+        type: boolean
+      name:
+        type: string
+      role:
+        type: string
+      user_id:
+        type: string
+    type: object
+  internal_auth.signupBody:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+  internal_auth.verifyEmailBody:
+    properties:
+      token:
+        type: string
+    type: object
   internal_catalog.ProductView:
     properties:
       brand_id:
@@ -89,6 +135,19 @@ definitions:
       status:
         type: string
     type: object
+  internal_me.meResponse:
+    properties:
+      email:
+        type: string
+      email_verified:
+        type: boolean
+      name:
+        type: string
+      role:
+        type: string
+      user_id:
+        type: string
+    type: object
   internal_shipping.Quote:
     properties:
       applied_cost_ghs_minor:
@@ -106,6 +165,191 @@ info:
   title: Rue Cosmetics API
   version: 0.1.0
 paths:
+  /auth/google/callback:
+    get:
+      responses:
+        "302":
+          description: Found
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: Handle Google OAuth callback
+      tags:
+      - auth
+  /auth/google/start:
+    get:
+      responses:
+        "302":
+          description: redirect to Google
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: Begin Google OAuth login
+      tags:
+      - auth
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Login payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_auth.loginBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_auth.sessionResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: Log in with email and password
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: Log out (clear session)
+      tags:
+      - auth
+  /auth/password-reset/confirm:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Token + new password
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_auth.prConfBody'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: Confirm password reset with token
+      tags:
+      - auth
+  /auth/password-reset/request:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Email payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_auth.prReqBody'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: Request a password-reset email
+      tags:
+      - auth
+  /auth/session:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_auth.sessionResponse'
+        "204":
+          description: no active session
+      summary: Get current session
+      tags:
+      - auth
+  /auth/signup:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Signup payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_auth.signupBody'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_auth.sessionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: Sign up with email and password
+      tags:
+      - auth
+  /auth/verify-email:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Token payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_auth.verifyEmailBody'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: Verify email by token
+      tags:
+      - auth
+  /auth/verify-email/resend:
+    post:
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: Resend verification email
+      tags:
+      - auth
   /brands:
     get:
       produces:
@@ -159,6 +403,22 @@ paths:
       summary: Health check
       tags:
       - meta
+  /me:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_me.meResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: Get the current user
+      tags:
+      - me
   /products:
     get:
       parameters:
