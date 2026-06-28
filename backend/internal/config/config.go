@@ -20,6 +20,9 @@ type Config struct {
 	GoogleRedirectURL    string   `envconfig:"GOOGLE_REDIRECT_URL" default:"http://localhost:8080/api/v1/auth/google/callback"`
 	EmailAllowlist       []string `envconfig:"EMAIL_ALLOWLIST" default:""`
 	FrontendBaseURL      string   `envconfig:"FRONTEND_BASE_URL" default:"http://localhost:5173"`
+	PaystackSecretKey    string   `envconfig:"PAYSTACK_SECRET_KEY" default:""`
+	PaystackBaseURL      string   `envconfig:"PAYSTACK_BASE_URL" default:"https://api.paystack.co"`
+	PaystackCallbackURL  string   `envconfig:"PAYSTACK_CALLBACK_URL" default:"http://localhost:5173/checkout/return"`
 }
 
 func Load() (*Config, error) {
