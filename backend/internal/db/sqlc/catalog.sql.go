@@ -7,6 +7,8 @@ package sqlc
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 const countProducts = `-- name: CountProducts :one
@@ -37,6 +39,35 @@ func (q *Queries) CountProducts(ctx context.Context, arg CountProductsParams) (i
 	var count int64
 	err := row.Scan(&count)
 	return count, err
+}
+
+const getProductByID = `-- name: GetProductByID :one
+SELECT id, slug, name, brand_id, category_id, price_ghs_minor, was_price_ghs_minor,
+       tone, size, rating, review_count, tags, image_path, created_at
+FROM products
+WHERE id = $1
+`
+
+func (q *Queries) GetProductByID(ctx context.Context, id uuid.UUID) (Product, error) {
+	row := q.db.QueryRow(ctx, getProductByID, id)
+	var i Product
+	err := row.Scan(
+		&i.ID,
+		&i.Slug,
+		&i.Name,
+		&i.BrandID,
+		&i.CategoryID,
+		&i.PriceGhsMinor,
+		&i.WasPriceGhsMinor,
+		&i.Tone,
+		&i.Size,
+		&i.Rating,
+		&i.ReviewCount,
+		&i.Tags,
+		&i.ImagePath,
+		&i.CreatedAt,
+	)
+	return i, err
 }
 
 const getProductBySlug = `-- name: GetProductBySlug :one

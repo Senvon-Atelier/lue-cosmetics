@@ -14,6 +14,12 @@ SELECT id, slug, name, brand_id, category_id, price_ghs_minor, was_price_ghs_min
 FROM products
 WHERE slug = $1;
 
+-- name: GetProductByID :one
+SELECT id, slug, name, brand_id, category_id, price_ghs_minor, was_price_ghs_minor,
+       tone, size, rating, review_count, tags, image_path, created_at
+FROM products
+WHERE id = $1;
+
 -- name: CountProducts :one
 SELECT count(*)
 FROM products p

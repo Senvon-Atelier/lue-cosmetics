@@ -2,7 +2,10 @@ package catalog
 
 import (
 	"context"
+	"errors"
 
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/oti-adjei/ruecosmetics/internal/db"
 	sqlcq "github.com/oti-adjei/ruecosmetics/internal/db/sqlc"
 )
@@ -14,6 +17,9 @@ type Repository struct {
 func NewRepository(pool db.Pool) *Repository {
 	return &Repository{q: sqlcq.New(pool)}
 }
+
+// ErrNotFound is returned when a product lookup fails.
+var ErrNotFound = errors.New("catalog: not found")
 
 type ListProductsParams struct {
 	CategorySlug string
@@ -49,6 +55,14 @@ func (r *Repository) ListBrands(ctx context.Context) ([]sqlcq.Brand, error) {
 
 func (r *Repository) GetProductBySlug(ctx context.Context, slug string) (sqlcq.Product, error) {
 	return r.q.GetProductBySlug(ctx, slug)
+}
+
+func (r *Repository) GetProductByID(ctx context.Context, id uuid.UUID) (sqlcq.Product, error) {
+	p, err := r.q.GetProductByID(ctx, id)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return sqlcq.Product{}, ErrNotFound
+	}
+	return p, err
 }
 
 func (r *Repository) ListProducts(ctx context.Context, p ListProductsParams) (ProductsPage, error) {

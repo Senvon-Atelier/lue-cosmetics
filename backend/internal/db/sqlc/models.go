@@ -17,6 +17,24 @@ type Brand struct {
 	Name string
 }
 
+type Cart struct {
+	ID         uuid.UUID
+	UserID     pgtype.UUID
+	GuestToken *string
+	CreatedAt  pgtype.Timestamptz
+	UpdatedAt  pgtype.Timestamptz
+}
+
+type CartItem struct {
+	ID                uuid.UUID
+	CartID            uuid.UUID
+	ProductID         uuid.UUID
+	Qty               int32
+	UnitPriceGhsMinor int64
+	CreatedAt         pgtype.Timestamptz
+	UpdatedAt         pgtype.Timestamptz
+}
+
 type Category struct {
 	ID        uuid.UUID
 	Slug      string
