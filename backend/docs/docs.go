@@ -333,6 +333,190 @@ const docTemplate = `{
                 }
             }
         },
+        "/cart": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cart"
+                ],
+                "summary": "Get the caller's cart (mints a guest cart on first call)",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_cart.cartResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/cart/items": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cart"
+                ],
+                "summary": "Add an item to the cart (upserts: qty is summed on conflict)",
+                "parameters": [
+                    {
+                        "description": "Item payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_cart.postItemBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_cart.cartResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+                        }
+                    }
+                }
+            }
+        },
+        "/cart/items/{id}": {
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cart"
+                ],
+                "summary": "Remove an item from the cart",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Cart item id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cart"
+                ],
+                "summary": "Update an item's qty",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Cart item id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Qty payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_cart.patchItemBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_cart.cartResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+                        }
+                    }
+                }
+            }
+        },
+        "/cart/merge": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cart"
+                ],
+                "summary": "Merge a guest cart into the user's cart (auth required)",
+                "parameters": [
+                    {
+                        "description": "Guest token from localStorage",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_cart.mergeRequestBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_cart.cartResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+                        }
+                    }
+                }
+            }
+        },
         "/categories": {
             "get": {
                 "produces": [
@@ -657,6 +841,91 @@ const docTemplate = `{
             "properties": {
                 "token": {
                     "type": "string"
+                }
+            }
+        },
+        "internal_cart.cartItemResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "line_total_ghs_minor": {
+                    "type": "integer"
+                },
+                "product_id": {
+                    "type": "string"
+                },
+                "product_image_path": {
+                    "type": "string"
+                },
+                "product_name": {
+                    "type": "string"
+                },
+                "product_slug": {
+                    "type": "string"
+                },
+                "qty": {
+                    "type": "integer"
+                },
+                "unit_price_ghs_minor": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_cart.cartResponse": {
+            "type": "object",
+            "properties": {
+                "cart_id": {
+                    "type": "string"
+                },
+                "free_shipping_remainder_ghs_minor": {
+                    "type": "integer"
+                },
+                "guest_token": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_cart.cartItemResponse"
+                    }
+                },
+                "shipping_cost_ghs_minor": {
+                    "type": "integer"
+                },
+                "subtotal_ghs_minor": {
+                    "type": "integer"
+                },
+                "total_ghs_minor": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_cart.mergeRequestBody": {
+            "type": "object",
+            "properties": {
+                "guest_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_cart.patchItemBody": {
+            "type": "object",
+            "properties": {
+                "qty": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_cart.postItemBody": {
+            "type": "object",
+            "properties": {
+                "product_id": {
+                    "type": "string"
+                },
+                "qty": {
+                    "type": "integer"
                 }
             }
         },

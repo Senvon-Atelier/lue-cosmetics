@@ -62,6 +62,61 @@ definitions:
       token:
         type: string
     type: object
+  internal_cart.cartItemResponse:
+    properties:
+      id:
+        type: string
+      line_total_ghs_minor:
+        type: integer
+      product_id:
+        type: string
+      product_image_path:
+        type: string
+      product_name:
+        type: string
+      product_slug:
+        type: string
+      qty:
+        type: integer
+      unit_price_ghs_minor:
+        type: integer
+    type: object
+  internal_cart.cartResponse:
+    properties:
+      cart_id:
+        type: string
+      free_shipping_remainder_ghs_minor:
+        type: integer
+      guest_token:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/internal_cart.cartItemResponse'
+        type: array
+      shipping_cost_ghs_minor:
+        type: integer
+      subtotal_ghs_minor:
+        type: integer
+      total_ghs_minor:
+        type: integer
+    type: object
+  internal_cart.mergeRequestBody:
+    properties:
+      guest_token:
+        type: string
+    type: object
+  internal_cart.patchItemBody:
+    properties:
+      qty:
+        type: integer
+    type: object
+  internal_cart.postItemBody:
+    properties:
+      product_id:
+        type: string
+      qty:
+        type: integer
+    type: object
   internal_catalog.ProductView:
     properties:
       brand_id:
@@ -368,6 +423,125 @@ paths:
       summary: List brands
       tags:
       - catalog
+  /cart:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_cart.cartResponse'
+      summary: Get the caller's cart (mints a guest cart on first call)
+      tags:
+      - cart
+  /cart/items:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Item payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_cart.postItemBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_cart.cartResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: 'Add an item to the cart (upserts: qty is summed on conflict)'
+      tags:
+      - cart
+  /cart/items/{id}:
+    delete:
+      parameters:
+      - description: Cart item id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: Remove an item from the cart
+      tags:
+      - cart
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Cart item id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Qty payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_cart.patchItemBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_cart.cartResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: Update an item's qty
+      tags:
+      - cart
+  /cart/merge:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Guest token from localStorage
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_cart.mergeRequestBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_cart.cartResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: Merge a guest cart into the user's cart (auth required)
+      tags:
+      - cart
   /categories:
     get:
       produces:
