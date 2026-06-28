@@ -55,6 +55,32 @@ type OauthAccount struct {
 	CreatedAt         pgtype.Timestamptz
 }
 
+type Order struct {
+	ID                    uuid.UUID
+	UserID                uuid.UUID
+	Status                string
+	SubtotalGhsMinor      int64
+	ShippingGhsMinor      int64
+	TotalGhsMinor         int64
+	PaystackReference     string
+	PaystackTransactionID *string
+	ShippingAddress       []byte
+	CreatedAt             pgtype.Timestamptz
+	UpdatedAt             pgtype.Timestamptz
+}
+
+type OrderItem struct {
+	ID                   uuid.UUID
+	OrderID              uuid.UUID
+	ProductID            uuid.UUID
+	Qty                  int32
+	UnitPriceGhsMinor    int64
+	ProductNameSnapshot  string
+	ProductBrandSnapshot string
+	ProductImageSnapshot string
+	CreatedAt            pgtype.Timestamptz
+}
+
 type PasswordCredential struct {
 	UserID       uuid.UUID
 	PasswordHash string
