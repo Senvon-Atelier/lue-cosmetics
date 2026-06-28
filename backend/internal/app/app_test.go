@@ -44,6 +44,9 @@ func TestApplicationNewWiresPool(t *testing.T) {
 	if a.Auth == nil {
 		t.Error("nil Auth")
 	}
+	if a.Cart == nil {
+		t.Error("nil Cart")
+	}
 	if a.Email == nil {
 		t.Error("nil Email")
 	}

@@ -6,6 +6,8 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/oti-adjei/ruecosmetics/internal/auth"
+	"github.com/oti-adjei/ruecosmetics/internal/cart"
+	"github.com/oti-adjei/ruecosmetics/internal/catalog"
 	"github.com/oti-adjei/ruecosmetics/internal/config"
 	"github.com/oti-adjei/ruecosmetics/internal/db"
 	"github.com/oti-adjei/ruecosmetics/internal/email"
@@ -18,6 +20,7 @@ type Application struct {
 	Logger   *zap.Logger
 	Shipping *shipping.Service
 	Auth     *auth.Service
+	Cart     *cart.Service
 	Email    email.Sender
 }
 
@@ -36,7 +39,8 @@ func New(ctx context.Context, cfg *config.Config) (*Application, error) {
 	sender := email.LogSender{Log: logger}
 	repo := auth.NewRepository(pool)
 	authSvc := auth.NewService(repo, logger, sender, cfg.EmailAllowlist)
-	return &Application{Config: cfg, Pool: pool, Logger: logger, Shipping: ship, Auth: authSvc, Email: sender}, nil
+	cartSvc := cart.NewService(cart.NewRepository(pool), catalog.NewRepository(pool), ship, logger)
+	return &Application{Config: cfg, Pool: pool, Logger: logger, Shipping: ship, Auth: authSvc, Cart: cartSvc, Email: sender}, nil
 }
 
 func (a *Application) Close() {

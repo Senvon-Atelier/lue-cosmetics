@@ -327,3 +327,145 @@ func TestService_RemoveItem_Happy_EmptiesCart(t *testing.T) {
 			removeView.FreeShippingRemainderGhsMinor)
 	}
 }
+
+// ── MergeGuestCart ──────────────────────────────────────────────────────────
+
+func TestService_MergeGuestCart_EmptyToken_ReturnsUserCart(t *testing.T) {
+	ctx, pool, cleanup := testsupport.StartPool(t, "../../migrations")
+	defer cleanup()
+	svc := newCartService(t, pool)
+	userID := seedTestUser(t, ctx, pool, "empty-token@merge.test")
+	productID := seedTestProduct(t, ctx, pool)
+
+	if _, err := svc.AddItem(ctx, CartIdentity{UserID: userID}, productID, 2); err != nil {
+		t.Fatalf("AddItem: %v", err)
+	}
+
+	view, err := svc.MergeGuestCart(ctx, userID, "")
+	if err != nil {
+		t.Fatalf("MergeGuestCart: %v", err)
+	}
+	if len(view.Items) != 1 || view.Items[0].Qty != 2 {
+		t.Errorf("user cart should be unchanged; got %+v", view.Items)
+	}
+}
+
+func TestService_MergeGuestCart_UnknownToken_IsNoop(t *testing.T) {
+	ctx, pool, cleanup := testsupport.StartPool(t, "../../migrations")
+	defer cleanup()
+	svc := newCartService(t, pool)
+	userID := seedTestUser(t, ctx, pool, "unknown-token@merge.test")
+	productID := seedTestProduct(t, ctx, pool)
+
+	if _, err := svc.AddItem(ctx, CartIdentity{UserID: userID}, productID, 3); err != nil {
+		t.Fatalf("AddItem: %v", err)
+	}
+
+	view, err := svc.MergeGuestCart(ctx, userID, uuid.NewString())
+	if err != nil {
+		t.Fatalf("MergeGuestCart: %v", err)
+	}
+	if len(view.Items) != 1 || view.Items[0].Qty != 3 {
+		t.Errorf("user cart should be unchanged on unknown token; got %+v", view.Items)
+	}
+}
+
+func TestService_MergeGuestCart_AddsNewProducts(t *testing.T) {
+	ctx, pool, cleanup := testsupport.StartPool(t, "../../migrations")
+	defer cleanup()
+	svc := newCartService(t, pool)
+	userID := seedTestUser(t, ctx, pool, "addsnew@merge.test")
+	p1 := seedTestProduct(t, ctx, pool)
+	p2 := seedTestProduct(t, ctx, pool)
+
+	// Guest cart with both products.
+	_, gtoken, err := svc.GetOrCreate(ctx, CartIdentity{})
+	if err != nil {
+		t.Fatalf("guest GetOrCreate: %v", err)
+	}
+	gid := CartIdentity{GuestToken: gtoken}
+	if _, err := svc.AddItem(ctx, gid, p1, 1); err != nil {
+		t.Fatalf("guest add p1: %v", err)
+	}
+	if _, err := svc.AddItem(ctx, gid, p2, 4); err != nil {
+		t.Fatalf("guest add p2: %v", err)
+	}
+
+	view, err := svc.MergeGuestCart(ctx, userID, gtoken)
+	if err != nil {
+		t.Fatalf("MergeGuestCart: %v", err)
+	}
+	if len(view.Items) != 2 {
+		t.Fatalf("user cart len = %d, want 2; items=%+v", len(view.Items), view.Items)
+	}
+	got := map[uuid.UUID]int32{}
+	for _, it := range view.Items {
+		got[it.ProductID] = it.Qty
+	}
+	if got[p1] != 1 || got[p2] != 4 {
+		t.Errorf("qty map = %v, want p1=1 p2=4", got)
+	}
+}
+
+func TestService_MergeGuestCart_SumsQtyAndKeepsUserPrice(t *testing.T) {
+	ctx, pool, cleanup := testsupport.StartPool(t, "../../migrations")
+	defer cleanup()
+	svc := newCartService(t, pool)
+	userID := seedTestUser(t, ctx, pool, "sumprice@merge.test")
+	productID := seedTestProduct(t, ctx, pool) // price 10000
+
+	// User cart: add 1 at price 10000 (snapshot).
+	if _, err := svc.AddItem(ctx, CartIdentity{UserID: userID}, productID, 1); err != nil {
+		t.Fatalf("user AddItem: %v", err)
+	}
+
+	// Bump price to 99999 so guest snapshot will be different.
+	updateProductPrice(t, ctx, pool, productID, 99999)
+
+	_, gtoken, err := svc.GetOrCreate(ctx, CartIdentity{})
+	if err != nil {
+		t.Fatalf("guest GetOrCreate: %v", err)
+	}
+	gid := CartIdentity{GuestToken: gtoken}
+	if _, err := svc.AddItem(ctx, gid, productID, 2); err != nil {
+		t.Fatalf("guest AddItem: %v", err)
+	}
+
+	view, err := svc.MergeGuestCart(ctx, userID, gtoken)
+	if err != nil {
+		t.Fatalf("MergeGuestCart: %v", err)
+	}
+	if len(view.Items) != 1 {
+		t.Fatalf("len(Items) = %d, want 1", len(view.Items))
+	}
+	if view.Items[0].Qty != 3 {
+		t.Errorf("qty = %d, want 3 (1 user + 2 guest)", view.Items[0].Qty)
+	}
+	if view.Items[0].UnitPriceGhsMinor != 10000 {
+		t.Errorf("unit price = %d, want 10000 (user's price wins)", view.Items[0].UnitPriceGhsMinor)
+	}
+}
+
+func TestService_MergeGuestCart_DeletesGuestCart(t *testing.T) {
+	ctx, pool, cleanup := testsupport.StartPool(t, "../../migrations")
+	defer cleanup()
+	svc := newCartService(t, pool)
+	repo := NewRepository(pool)
+	userID := seedTestUser(t, ctx, pool, "delguest@merge.test")
+	productID := seedTestProduct(t, ctx, pool)
+
+	_, gtoken, err := svc.GetOrCreate(ctx, CartIdentity{})
+	if err != nil {
+		t.Fatalf("guest GetOrCreate: %v", err)
+	}
+	if _, err := svc.AddItem(ctx, CartIdentity{GuestToken: gtoken}, productID, 1); err != nil {
+		t.Fatalf("guest AddItem: %v", err)
+	}
+
+	if _, err := svc.MergeGuestCart(ctx, userID, gtoken); err != nil {
+		t.Fatalf("MergeGuestCart: %v", err)
+	}
+	if _, err := repo.GetCartByGuestToken(ctx, gtoken); !errors.Is(err, ErrNotFound) {
+		t.Errorf("expected guest cart deleted (ErrNotFound), got %v", err)
+	}
+}

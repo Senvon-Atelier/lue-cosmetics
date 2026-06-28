@@ -49,10 +49,10 @@ func (h *Handlers) Mount(r chi.Router) {
 	r.Delete("/cart/items/{id}", h.deleteItem)
 }
 
-// MountAuthGated is a placeholder for Bundle 3 (POST /cart/merge). Left empty
-// here so cmd/api can call it unconditionally once the wiring lands.
+// MountAuthGated registers POST /cart/merge. The route requires an active
+// session (the caller is the merge destination's user_id).
 func (h *Handlers) MountAuthGated(r chi.Router) {
-	// Bundle 3 will register POST /cart/merge here.
+	r.Post("/cart/merge", h.merge)
 }
 
 // resolveIdentity picks (in order): a valid session cookie → guest cookie →
@@ -247,6 +247,45 @@ func (h *Handlers) patchItem(w http.ResponseWriter, r *http.Request) {
 		httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "update failed", nil)
 		return
 	}
+	httpx.WriteJSON(w, http.StatusOK, viewToResponse(view))
+}
+
+type mergeRequestBody struct {
+	GuestToken string `json:"guest_token"`
+}
+
+// merge godoc
+//
+// @Summary  Merge a guest cart into the user's cart (auth required)
+// @Tags     cart
+// @Accept   json
+// @Produce  json
+// @Param    body body mergeRequestBody true "Guest token from localStorage"
+// @Success  200 {object} cartResponse
+// @Failure  400 {object} httpx.ErrorEnvelope
+// @Failure  401 {object} httpx.ErrorEnvelope
+// @Router   /cart/merge [post]
+func (h *Handlers) merge(w http.ResponseWriter, r *http.Request) {
+	userID, ok := auth.GetUserID(r.Context())
+	if !ok {
+		httpx.WriteError(w, http.StatusUnauthorized, httpx.CodeUnauthorized, "authentication required", nil)
+		return
+	}
+	var body mergeRequestBody
+	if err := httpx.ReadJSON(r, &body); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, httpx.CodeBadRequest, "invalid body", nil)
+		return
+	}
+	view, err := h.Svc.MergeGuestCart(r.Context(), userID, body.GuestToken)
+	if err != nil {
+		logging.From(r.Context(), h.Svc.Log).Error("cart: merge", zap.Error(err))
+		httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "merge failed", nil)
+		return
+	}
+	// Always clear the guest cookie after a merge call (even on no-op): the
+	// frontend's localStorage drives whether to call again, and a successful
+	// merge means the guest cart is gone server-side.
+	ClearGuestCookie(w, h.CookieDomain, h.Secure)
 	httpx.WriteJSON(w, http.StatusOK, viewToResponse(view))
 }
 

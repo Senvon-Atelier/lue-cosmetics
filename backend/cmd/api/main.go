@@ -13,6 +13,7 @@ import (
 	"go.uber.org/zap"
 	"github.com/oti-adjei/ruecosmetics/internal/app"
 	"github.com/oti-adjei/ruecosmetics/internal/auth"
+	"github.com/oti-adjei/ruecosmetics/internal/cart"
 	"github.com/oti-adjei/ruecosmetics/internal/catalog"
 	"github.com/oti-adjei/ruecosmetics/internal/config"
 	"github.com/oti-adjei/ruecosmetics/internal/health"
@@ -70,11 +71,15 @@ func run() error {
 		authHandlers.FrontendBaseURL = cfg.FrontendBaseURL
 		authHandlers.Mount(api) // public: /auth/signup, /auth/login, /auth/logout, /auth/session, /auth/google/start, /auth/google/callback
 
+		cartHandlers := cart.NewHandlers(a.Cart, a.Auth, cfg.SessionCookieName, cfg.SessionCookieDomain, secure)
+		cartHandlers.Mount(api) // public: GET /cart, POST/PATCH/DELETE /cart/items
+
 		// Auth-gated routes (one Group with RequireSession middleware)
 		api.Group(func(r chi.Router) {
 			r.Use(authHandlers.RequireSession)
 			me.NewHandlers().Mount(r)       // GET /me
 			authHandlers.MountAuthGated(r)  // POST /auth/verify-email/resend
+			cartHandlers.MountAuthGated(r)  // POST /cart/merge
 		})
 	})
 

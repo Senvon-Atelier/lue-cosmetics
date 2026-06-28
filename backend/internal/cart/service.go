@@ -9,9 +9,11 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"go.uber.org/zap"
 
 	"github.com/oti-adjei/ruecosmetics/internal/catalog"
+	"github.com/oti-adjei/ruecosmetics/internal/db"
 	sqlcq "github.com/oti-adjei/ruecosmetics/internal/db/sqlc"
 	"github.com/oti-adjei/ruecosmetics/internal/logging"
 	"github.com/oti-adjei/ruecosmetics/internal/shipping"
@@ -167,6 +169,89 @@ func (s *Service) RemoveItem(ctx context.Context, id CartIdentity, itemID uuid.U
 		return View{}, err
 	}
 	return s.buildView(ctx, cart)
+}
+
+// MergeGuestCart upserts each item from the guest cart into the user cart by
+// product_id (summing qty; keeping the user's existing unit_price_ghs_minor
+// when both rows exist). Deletes the guest cart on success. Returns the
+// resulting user cart View.
+//
+// Idempotent: if the guest token is empty, or doesn't resolve to a cart
+// (already merged, expired, never existed), returns the user's current cart
+// view with no error. The frontend can call this unconditionally after login
+// without tracking whether a merge already happened.
+func (s *Service) MergeGuestCart(ctx context.Context, userID uuid.UUID, guestToken string) (View, error) {
+	log := logging.From(ctx, s.Log)
+
+	userCart, _, err := s.resolveOrCreate(ctx, CartIdentity{UserID: userID})
+	if err != nil {
+		log.Error("cart merge: resolve user cart", zap.Error(err))
+		return View{}, err
+	}
+
+	if guestToken == "" {
+		return s.buildView(ctx, userCart)
+	}
+
+	guestCart, err := s.Repo.GetCartByGuestToken(ctx, guestToken)
+	if errors.Is(err, ErrNotFound) {
+		return s.buildView(ctx, userCart)
+	}
+	if err != nil {
+		log.Error("cart merge: lookup guest cart", zap.Error(err))
+		return View{}, err
+	}
+
+	// Defensive: a guest cart should never have a user_id, but if for some
+	// reason this guest_token resolves to a row already owned by a user, do
+	// NOT touch it — that would silently merge another user's cart.
+	if guestCart.UserID.Valid {
+		return s.buildView(ctx, userCart)
+	}
+
+	if err := db.WithTx(ctx, s.Repo.Pool(), func(tx pgx.Tx) error {
+		q := sqlcq.New(tx)
+		items, err := q.ListCartItems(ctx, guestCart.ID)
+		if err != nil {
+			return err
+		}
+		for _, it := range items {
+			existing, err := q.GetCartItemByProduct(ctx, sqlcq.GetCartItemByProductParams{
+				CartID:    userCart.ID,
+				ProductID: it.ProductID,
+			})
+			switch {
+			case err == nil:
+				// User already has this product — sum qty; keep user's price.
+				if _, err := q.SetCartItemQty(ctx, sqlcq.SetCartItemQtyParams{
+					ID:     existing.ID,
+					CartID: userCart.ID,
+					Qty:    existing.Qty + it.Qty,
+				}); err != nil {
+					return err
+				}
+			case errors.Is(err, pgx.ErrNoRows):
+				// Insert with the guest item's qty + snapshot price.
+				if _, err := q.UpsertCartItemAddQty(ctx, sqlcq.UpsertCartItemAddQtyParams{
+					CartID:            userCart.ID,
+					ProductID:         it.ProductID,
+					Qty:               it.Qty,
+					UnitPriceGhsMinor: it.UnitPriceGhsMinor,
+				}); err != nil {
+					return err
+				}
+			default:
+				return err
+			}
+		}
+		// Cascades to cart_items via FK.
+		return q.DeleteCart(ctx, guestCart.ID)
+	}); err != nil {
+		log.Error("cart merge: tx", zap.Error(err))
+		return View{}, err
+	}
+
+	return s.buildView(ctx, userCart)
 }
 
 // ── internal helpers ────────────────────────────────────────────────────────
