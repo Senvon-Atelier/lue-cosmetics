@@ -9,6 +9,38 @@ import (
 	"github.com/oti-adjei/ruecosmetics/internal/testsupport"
 )
 
+// seedTestProduct creates a test product with associated brand and category.
+// Returns the product ID for use in cart item operations.
+func seedTestProduct(t *testing.T, ctx context.Context, pool db.Pool) uuid.UUID {
+	t.Helper()
+	brandID := uuid.New()
+	categoryID := uuid.New()
+	productID := uuid.New()
+
+	_, err := pool.Exec(ctx,
+		"INSERT INTO brands (id, slug, name) VALUES ($1, $2, $3)",
+		brandID, "test-brand-"+brandID.String()[:8], "Test Brand")
+	if err != nil {
+		t.Fatalf("seed brand: %v", err)
+	}
+
+	_, err = pool.Exec(ctx,
+		"INSERT INTO categories (id, slug, label) VALUES ($1, $2, $3)",
+		categoryID, "test-cat-"+categoryID.String()[:8], "Test Category")
+	if err != nil {
+		t.Fatalf("seed category: %v", err)
+	}
+
+	_, err = pool.Exec(ctx,
+		"INSERT INTO products (id, slug, name, brand_id, category_id, price_ghs_minor) VALUES ($1, $2, $3, $4, $5, $6)",
+		productID, "test-prod-"+productID.String()[:8], "Test Product", brandID, categoryID, int64(10000))
+	if err != nil {
+		t.Fatalf("seed product: %v", err)
+	}
+
+	return productID
+}
+
 func TestRepository_GetCartByUserID(t *testing.T) {
 	url, stop := testsupport.StartPostgres(t)
 	defer stop()
@@ -275,30 +307,8 @@ func TestRepository_ListCartItems(t *testing.T) {
 	}
 
 	// Create some products first
-	productID1 := uuid.New()
-	productID2 := uuid.New()
-	brandID := uuid.New()
-	categoryID := uuid.New()
-
-	_, err = pool.Exec(ctx, "INSERT INTO brands (id, slug, name) VALUES ($1, 'brand1', 'Brand 1')", brandID)
-	if err != nil {
-		t.Fatalf("create brand: %v", err)
-	}
-
-	_, err = pool.Exec(ctx, "INSERT INTO categories (id, slug, label, sort_order) VALUES ($1, 'cat1', 'Category 1', 0)", categoryID)
-	if err != nil {
-		t.Fatalf("create category: %v", err)
-	}
-
-	_, err = pool.Exec(ctx, "INSERT INTO products (id, slug, name, brand_id, category_id, price_ghs_minor) VALUES ($1, 'prod1', 'Product 1', $2, $3, 10000)", productID1, brandID, categoryID)
-	if err != nil {
-		t.Fatalf("create product1: %v", err)
-	}
-
-	_, err = pool.Exec(ctx, "INSERT INTO products (id, slug, name, brand_id, category_id, price_ghs_minor) VALUES ($1, 'prod2', 'Product 2', $2, $3, 20000)", productID2, brandID, categoryID)
-	if err != nil {
-		t.Fatalf("create product2: %v", err)
-	}
+	productID1 := seedTestProduct(t, ctx, pool)
+	productID2 := seedTestProduct(t, ctx, pool)
 
 	item1, err := repo.UpsertCartItemAddQty(ctx, cart.ID, productID1, 2, 10000)
 	if err != nil {
@@ -352,24 +362,7 @@ func TestRepository_UpsertCartItemAddQty(t *testing.T) {
 	}
 
 	// Create a product first
-	productID := uuid.New()
-	brandID := uuid.New()
-	categoryID := uuid.New()
-
-	_, err = pool.Exec(ctx, "INSERT INTO brands (id, slug, name) VALUES ($1, 'brand1', 'Brand 1')", brandID)
-	if err != nil {
-		t.Fatalf("create brand: %v", err)
-	}
-
-	_, err = pool.Exec(ctx, "INSERT INTO categories (id, slug, label, sort_order) VALUES ($1, 'cat1', 'Category 1', 0)", categoryID)
-	if err != nil {
-		t.Fatalf("create category: %v", err)
-	}
-
-	_, err = pool.Exec(ctx, "INSERT INTO products (id, slug, name, brand_id, category_id, price_ghs_minor) VALUES ($1, 'prod1', 'Product 1', $2, $3, 10000)", productID, brandID, categoryID)
-	if err != nil {
-		t.Fatalf("create product: %v", err)
-	}
+	productID := seedTestProduct(t, ctx, pool)
 
 	// Insert new item
 	item, err := repo.UpsertCartItemAddQty(ctx, cart.ID, productID, 2, 10000)
@@ -424,24 +417,7 @@ func TestRepository_SetCartItemQty(t *testing.T) {
 	}
 
 	// Create a product first
-	productID := uuid.New()
-	brandID := uuid.New()
-	categoryID := uuid.New()
-
-	_, err = pool.Exec(ctx, "INSERT INTO brands (id, slug, name) VALUES ($1, 'brand1', 'Brand 1')", brandID)
-	if err != nil {
-		t.Fatalf("create brand: %v", err)
-	}
-
-	_, err = pool.Exec(ctx, "INSERT INTO categories (id, slug, label, sort_order) VALUES ($1, 'cat1', 'Category 1', 0)", categoryID)
-	if err != nil {
-		t.Fatalf("create category: %v", err)
-	}
-
-	_, err = pool.Exec(ctx, "INSERT INTO products (id, slug, name, brand_id, category_id, price_ghs_minor) VALUES ($1, 'prod1', 'Product 1', $2, $3, 10000)", productID, brandID, categoryID)
-	if err != nil {
-		t.Fatalf("create product: %v", err)
-	}
+	productID := seedTestProduct(t, ctx, pool)
 
 	// Insert an item
 	item, err := repo.UpsertCartItemAddQty(ctx, cart.ID, productID, 2, 10000)
@@ -489,24 +465,7 @@ func TestRepository_DeleteCartItem(t *testing.T) {
 	}
 
 	// Create a product first
-	productID := uuid.New()
-	brandID := uuid.New()
-	categoryID := uuid.New()
-
-	_, err = pool.Exec(ctx, "INSERT INTO brands (id, slug, name) VALUES ($1, 'brand1', 'Brand 1')", brandID)
-	if err != nil {
-		t.Fatalf("create brand: %v", err)
-	}
-
-	_, err = pool.Exec(ctx, "INSERT INTO categories (id, slug, label, sort_order) VALUES ($1, 'cat1', 'Category 1', 0)", categoryID)
-	if err != nil {
-		t.Fatalf("create category: %v", err)
-	}
-
-	_, err = pool.Exec(ctx, "INSERT INTO products (id, slug, name, brand_id, category_id, price_ghs_minor) VALUES ($1, 'prod1', 'Product 1', $2, $3, 10000)", productID, brandID, categoryID)
-	if err != nil {
-		t.Fatalf("create product: %v", err)
-	}
+	productID := seedTestProduct(t, ctx, pool)
 
 	// Insert an item
 	item, err := repo.UpsertCartItemAddQty(ctx, cart.ID, productID, 2, 10000)
@@ -566,24 +525,7 @@ func TestRepository_GetCartItemByID(t *testing.T) {
 	}
 
 	// Create a product first
-	productID := uuid.New()
-	brandID := uuid.New()
-	categoryID := uuid.New()
-
-	_, err = pool.Exec(ctx, "INSERT INTO brands (id, slug, name) VALUES ($1, 'brand1', 'Brand 1')", brandID)
-	if err != nil {
-		t.Fatalf("create brand: %v", err)
-	}
-
-	_, err = pool.Exec(ctx, "INSERT INTO categories (id, slug, label, sort_order) VALUES ($1, 'cat1', 'Category 1', 0)", categoryID)
-	if err != nil {
-		t.Fatalf("create category: %v", err)
-	}
-
-	_, err = pool.Exec(ctx, "INSERT INTO products (id, slug, name, brand_id, category_id, price_ghs_minor) VALUES ($1, 'prod1', 'Product 1', $2, $3, 10000)", productID, brandID, categoryID)
-	if err != nil {
-		t.Fatalf("create product: %v", err)
-	}
+	productID := seedTestProduct(t, ctx, pool)
 
 	// Add item to cart1
 	item1, err := repo.UpsertCartItemAddQty(ctx, cart1.ID, productID, 2, 10000)
@@ -688,24 +630,7 @@ func TestRepository_GetCartItemByProduct(t *testing.T) {
 	}
 
 	// Create a product first
-	productID := uuid.New()
-	brandID := uuid.New()
-	categoryID := uuid.New()
-
-	_, err = pool.Exec(ctx, "INSERT INTO brands (id, slug, name) VALUES ($1, 'brand1', 'Brand 1')", brandID)
-	if err != nil {
-		t.Fatalf("create brand: %v", err)
-	}
-
-	_, err = pool.Exec(ctx, "INSERT INTO categories (id, slug, label, sort_order) VALUES ($1, 'cat1', 'Category 1', 0)", categoryID)
-	if err != nil {
-		t.Fatalf("create category: %v", err)
-	}
-
-	_, err = pool.Exec(ctx, "INSERT INTO products (id, slug, name, brand_id, category_id, price_ghs_minor) VALUES ($1, 'prod1', 'Product 1', $2, $3, 10000)", productID, brandID, categoryID)
-	if err != nil {
-		t.Fatalf("create product: %v", err)
-	}
+	productID := seedTestProduct(t, ctx, pool)
 
 	// Item doesn't exist yet
 	_, err = repo.GetCartItemByProduct(ctx, cart.ID, productID)
@@ -727,5 +652,105 @@ func TestRepository_GetCartItemByProduct(t *testing.T) {
 
 	if item.ProductID != productID {
 		t.Errorf("expected product_id %s, got %s", productID, item.ProductID)
+	}
+}
+
+func TestRepository_SetCartItemQty_WrongCartID_ReturnsErrNotFound(t *testing.T) {
+	url, stop := testsupport.StartPostgres(t)
+	defer stop()
+
+	testsupport.Migrate(t, url, "../../migrations")
+
+	ctx := context.Background()
+	pool, err := db.NewPool(ctx, url)
+	if err != nil {
+		t.Fatalf("start pool: %v", err)
+	}
+	defer pool.Close()
+
+	repo := NewRepository(pool)
+
+	// Create two guest carts
+	token1 := uuid.New().String()
+	cart1, err := repo.CreateCartForGuest(ctx, token1)
+	if err != nil {
+		t.Fatalf("create cart1: %v", err)
+	}
+
+	token2 := uuid.New().String()
+	cart2, err := repo.CreateCartForGuest(ctx, token2)
+	if err != nil {
+		t.Fatalf("create cart2: %v", err)
+	}
+
+	// Create a product and add it to cart1
+	productID := seedTestProduct(t, ctx, pool)
+	item1, err := repo.UpsertCartItemAddQty(ctx, cart1.ID, productID, 2, 10000)
+	if err != nil {
+		t.Fatalf("upsert item1: %v", err)
+	}
+
+	// Try to set qty on item1 using cart2's ID (IDOR scenario)
+	err = repo.SetCartItemQty(ctx, item1.ID, cart2.ID, 5)
+	if err != ErrNotFound {
+		t.Errorf("expected ErrNotFound when setting qty on item from different cart, got %v", err)
+	}
+
+	// Verify the actual item in cart1 still has its original qty (unchanged)
+	fetched, err := repo.GetCartItemByID(ctx, item1.ID, cart1.ID)
+	if err != nil {
+		t.Fatalf("get item1: %v", err)
+	}
+
+	if fetched.Qty != 2 {
+		t.Errorf("expected original qty 2 after cross-cart attempt, got %d", fetched.Qty)
+	}
+}
+
+func TestRepository_DeleteCartItem_WrongCartID_ReturnsErrNotFound(t *testing.T) {
+	url, stop := testsupport.StartPostgres(t)
+	defer stop()
+
+	testsupport.Migrate(t, url, "../../migrations")
+
+	ctx := context.Background()
+	pool, err := db.NewPool(ctx, url)
+	if err != nil {
+		t.Fatalf("start pool: %v", err)
+	}
+	defer pool.Close()
+
+	repo := NewRepository(pool)
+
+	// Create two guest carts
+	token1 := uuid.New().String()
+	cart1, err := repo.CreateCartForGuest(ctx, token1)
+	if err != nil {
+		t.Fatalf("create cart1: %v", err)
+	}
+
+	token2 := uuid.New().String()
+	cart2, err := repo.CreateCartForGuest(ctx, token2)
+	if err != nil {
+		t.Fatalf("create cart2: %v", err)
+	}
+
+	// Create a product and add it to cart1
+	productID := seedTestProduct(t, ctx, pool)
+	item1, err := repo.UpsertCartItemAddQty(ctx, cart1.ID, productID, 2, 10000)
+	if err != nil {
+		t.Fatalf("upsert item1: %v", err)
+	}
+
+	// Try to delete item1 using cart2's ID (IDOR scenario)
+	err = repo.DeleteCartItem(ctx, item1.ID, cart2.ID)
+	if err != ErrNotFound {
+		t.Errorf("expected ErrNotFound when deleting item from different cart, got %v", err)
+	}
+
+	// Verify the actual item still exists in cart1
+	_, err = repo.GetCartItemByID(ctx, item1.ID, cart1.ID)
+	if err != nil {
+		t.Errorf("expected item to still exist after cross-cart delete attempt, got %v", err)
 	}
 }

@@ -55,7 +55,7 @@ func (q *Queries) DeleteCart(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
-const deleteCartItem = `-- name: DeleteCartItem :exec
+const deleteCartItem = `-- name: DeleteCartItem :execrows
 DELETE FROM cart_items WHERE id = $1 AND cart_id = $2
 `
 
@@ -64,9 +64,12 @@ type DeleteCartItemParams struct {
 	CartID uuid.UUID
 }
 
-func (q *Queries) DeleteCartItem(ctx context.Context, arg DeleteCartItemParams) error {
-	_, err := q.db.Exec(ctx, deleteCartItem, arg.ID, arg.CartID)
-	return err
+func (q *Queries) DeleteCartItem(ctx context.Context, arg DeleteCartItemParams) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteCartItem, arg.ID, arg.CartID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const getCartByGuestToken = `-- name: GetCartByGuestToken :one
@@ -190,7 +193,7 @@ func (q *Queries) ListCartItems(ctx context.Context, cartID uuid.UUID) ([]CartIt
 	return items, nil
 }
 
-const setCartItemQty = `-- name: SetCartItemQty :exec
+const setCartItemQty = `-- name: SetCartItemQty :execrows
 UPDATE cart_items SET qty = $3, updated_at = now()
 WHERE id = $1 AND cart_id = $2
 `
@@ -201,9 +204,12 @@ type SetCartItemQtyParams struct {
 	Qty    int32
 }
 
-func (q *Queries) SetCartItemQty(ctx context.Context, arg SetCartItemQtyParams) error {
-	_, err := q.db.Exec(ctx, setCartItemQty, arg.ID, arg.CartID, arg.Qty)
-	return err
+func (q *Queries) SetCartItemQty(ctx context.Context, arg SetCartItemQtyParams) (int64, error) {
+	result, err := q.db.Exec(ctx, setCartItemQty, arg.ID, arg.CartID, arg.Qty)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const touchCart = `-- name: TouchCart :exec

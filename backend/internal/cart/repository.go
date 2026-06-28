@@ -88,9 +88,23 @@ func (r *Repository) UpsertCartItemAddQty(ctx context.Context, cartID, productID
 }
 
 func (r *Repository) SetCartItemQty(ctx context.Context, itemID, cartID uuid.UUID, qty int32) error {
-	return r.q.SetCartItemQty(ctx, sqlcq.SetCartItemQtyParams{ID: itemID, CartID: cartID, Qty: qty})
+	n, err := r.q.SetCartItemQty(ctx, sqlcq.SetCartItemQtyParams{ID: itemID, CartID: cartID, Qty: qty})
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return ErrNotFound
+	}
+	return nil
 }
 
 func (r *Repository) DeleteCartItem(ctx context.Context, itemID, cartID uuid.UUID) error {
-	return r.q.DeleteCartItem(ctx, sqlcq.DeleteCartItemParams{ID: itemID, CartID: cartID})
+	n, err := r.q.DeleteCartItem(ctx, sqlcq.DeleteCartItemParams{ID: itemID, CartID: cartID})
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return ErrNotFound
+	}
+	return nil
 }

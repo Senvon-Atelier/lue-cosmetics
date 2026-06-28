@@ -39,9 +39,9 @@ ON CONFLICT (cart_id, product_id) DO UPDATE
 SET qty = cart_items.qty + EXCLUDED.qty, updated_at = now()
 RETURNING id, cart_id, product_id, qty, unit_price_ghs_minor, created_at, updated_at;
 
--- name: SetCartItemQty :exec
+-- name: SetCartItemQty :execrows
 UPDATE cart_items SET qty = $3, updated_at = now()
 WHERE id = $1 AND cart_id = $2;
 
--- name: DeleteCartItem :exec
+-- name: DeleteCartItem :execrows
 DELETE FROM cart_items WHERE id = $1 AND cart_id = $2;
