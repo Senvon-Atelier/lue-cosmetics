@@ -48,17 +48,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const refreshCart = async () => {
     setState((prev) => ({ ...prev, isLoading: true }));
     try {
-      const cartResponse = await getCart<{ cart_id: string; guest_token?: string } & CartState>();
-      const { guest_token: guestToken, ...cartData } = cartResponse;
+      const cartResponse = await getCart();
+      const cartData = cartResponse.data;
 
       // Store guest token if present
-      if (guestToken) {
-        localStorage.setItem(GUEST_CART_KEY, guestToken);
+      if (cartData?.guest_token) {
+        localStorage.setItem(GUEST_CART_KEY, cartData.guest_token);
       }
 
       setState({
-        ...cartData,
-        guestToken: guestToken || null,
+        items: cartData?.items || [],
+        subtotalGhsMinor: cartData?.subtotal_ghs_minor || 0,
+        shippingCostGhsMinor: cartData?.shipping_cost_ghs_minor || 0,
+        totalGhsMinor: cartData?.total_ghs_minor || 0,
+        guestToken: cartData?.guest_token || null,
         isLoading: false,
       });
     } catch (error) {
@@ -107,7 +110,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     await refreshCart();
   };
 
-  const itemCount = state.items.reduce((sum, item) => sum + (item.qty || 0), 0);
+  const itemCount = (state.items || []).reduce((sum, item) => sum + (item.qty || 0), 0);
 
   return (
     <CartContext.Provider

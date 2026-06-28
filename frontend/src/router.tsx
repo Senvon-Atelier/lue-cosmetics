@@ -1,10 +1,23 @@
+import { useState } from 'react';
 import { createRouter, createRoute, createRootRoute, Outlet, Link, useParams } from '@tanstack/react-router';
 import { QueryProvider } from './features/shared/providers/query-provider';
 import { AuthProvider, useAuth } from './lib/auth/auth-provider';
-import { CartProvider } from './features/cart/cart-provider';
-import { Brand, Button } from './features/shared/ui';
+import { CartProvider, useCart } from './features/cart/cart-provider';
+import { Brand, Button, Icon } from './features/shared/ui';
 import { ShopPage } from './features/catalog/shop-page';
 import { ProductDetail } from './features/catalog/product-detail';
+import { CartDrawer } from './features/cart/cart-drawer';
+import { CartPage } from './features/cart/cart-page';
+import { CheckoutPage } from './features/checkout/checkout-page';
+import { CheckoutReturnPage } from './features/checkout/checkout-return';
+import { HomeHero } from './features/home/home-hero';
+import { CategoryRail } from './features/home/category-rail';
+import { FeaturedProducts } from './features/home/featured-products';
+import { PromiseSection } from './features/home/promise-section';
+import { JournalSection } from './features/home/journal-section';
+import { TestimonialsSection } from './features/home/testimonials-section';
+import { NewsletterSection } from './features/home/newsletter-section';
+import { AboutPage } from './features/content/about-page';
 
 // Root route with all providers
 const rootRoute = createRootRoute({
@@ -20,61 +33,145 @@ const rootRoute = createRootRoute({
 });
 
 function RootLayout() {
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-paper text-ink font-body">
-      <header className="border-b border-line-soft">
-        <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '1rem 2rem' }}>
-          <div className="flex items-center justify-between">
+      <header className="header">
+        <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '0 2rem' }}>
+          <div className="header-inner">
+            <nav className="header-nav">
+              <Link to={HomeRoute.to} className="header-nav-link">
+                Home
+              </Link>
+              <Link to={ShopRoute.to} className="header-nav-link">
+                Shop
+              </Link>
+              <Link to={AboutRoute.to} className="header-nav-link">
+                About
+              </Link>
+            </nav>
             <Link to={HomeRoute.to}>
               <Brand />
             </Link>
-            <nav className="flex gap-6">
-              <Link to={HomeRoute.to} className="[&.active]:font-semibold">
-                Home
-              </Link>
-              <Link to={ShopRoute.to} className="[&.active]:font-semibold">
-                Shop
-              </Link>
-              <AuthLink />
-            </nav>
+            <div className="header-actions">
+              <button className="header-icon-btn" aria-label="Search">
+                <Icon name="search" size={20} />
+              </button>
+              <AuthLinkHeader />
+              <CartTrigger onClick={() => setIsCartOpen(true)} />
+            </div>
           </div>
         </div>
       </header>
       <Outlet />
-      <footer className="border-t border-line-soft mt-16">
-        <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '2rem' }}>
-          <div className="text-center text-ink-muted text-sm">
-            © 2026 Rue Cosmetics Ghana · All rights reserved
+      <footer className="footer">
+        <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '0 2rem' }}>
+          <div className="footer-inner">
+            <div className="footer-brand">
+              <div className="footer-brand-logo">
+                <Brand />
+              </div>
+              <p className="footer-blurb">
+                Home of authentic beauty and wellness. A shelf of trusted names — and a few of our own — stocked in Accra, shipped across Ghana.
+              </p>
+              <div className="footer-socials">
+                <a href="#" className="footer-social-link" aria-label="Instagram">
+                  <Icon name="instagram" size={18} />
+                </a>
+                <a href="#" className="footer-social-link" aria-label="TikTok">
+                  <Icon name="tiktok" size={18} />
+                </a>
+                <a href="#" className="footer-social-link" aria-label="WhatsApp">
+                  <Icon name="whatsapp" size={18} />
+                </a>
+              </div>
+            </div>
+            <div className="footer-cols">
+              <div className="footer-col">
+                <h5>Shop</h5>
+                <ul>
+                  <li><Link to="/shop">All Products</Link></li>
+                  <li><Link to="/shop">Skincare</Link></li>
+                  <li><Link to="/shop">Haircare</Link></li>
+                  <li><Link to="/shop">Wellness</Link></li>
+                </ul>
+              </div>
+              <div className="footer-col">
+                <h5>Company</h5>
+                <ul>
+                  <li><Link to="/about">About Us</Link></li>
+                  <li><Link to="/about">Our Story</Link></li>
+                  <li><Link to="/about">Careers</Link></li>
+                </ul>
+              </div>
+              <div className="footer-col">
+                <h5>Help</h5>
+                <ul>
+                  <li><Link to="/account">My Account</Link></li>
+                  <li><Link to="/account">Order Status</Link></li>
+                  <li><Link to="/about">Contact Us</Link></li>
+                </ul>
+              </div>
+              <div className="footer-col">
+                <h5>Visit</h5>
+                <ul>
+                  <li>Spintex Road, Accra</li>
+                  <li>+233 20 123 4567</li>
+                  <li>Mon-Sat: 10am-7pm</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div className="footer-bottom">
+            <p>© 2026 Rue Cosmetics Ghana · All rights reserved</p>
+            <div className="footer-legal">
+              <a href="/legal/privacy">Privacy</a>
+              <a href="/legal/terms">Terms</a>
+              <a href="/legal/returns">Returns</a>
+            </div>
           </div>
         </div>
       </footer>
+      <CartDrawer open={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </div>
   );
 }
 
-function AuthLink() {
-  const { isAuthenticated, isAdmin } = useAuth();
-
-  if (isAdmin) {
-    return (
-      <Link to={AdminRoute.to} className="[&.active]:font-semibold">
-        Admin
-      </Link>
-    );
-  }
+function AuthLinkHeader() {
+  const { isAuthenticated } = useAuth();
 
   if (isAuthenticated) {
     return (
-      <Link to={AccountRoute.to} className="[&.active]:font-semibold">
-        Account
+      <Link to={AccountRoute.to} className="header-icon-btn" aria-label="Account">
+        <Icon name="user" size={20} />
       </Link>
     );
   }
 
   return (
-    <Link to={LoginRoute.to} className="[&.active]:font-semibold">
-      Login
+    <Link to={LoginRoute.to} className="header-icon-btn" aria-label="Account">
+      <Icon name="user" size={20} />
     </Link>
+  );
+}
+
+function CartTrigger({ onClick }: { onClick: () => void }) {
+  const { itemCount } = useCart();
+
+  return (
+    <button
+      onClick={onClick}
+      className="relative p-2 rounded-full hover:bg-lavender-50 transition-colors"
+      aria-label="Open cart"
+    >
+      <Icon name="bag" size={20} />
+      {itemCount > 0 && (
+        <span className="absolute -top-1 -right-1 w-5 h-5 bg-lavender-600 text-paper text-xs font-label font-medium rounded-full flex items-center justify-center">
+          {itemCount > 9 ? '9+' : itemCount}
+        </span>
+      )}
+    </button>
   );
 }
 
@@ -83,44 +180,14 @@ const HomeRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
   component: () => (
-    <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '2rem' }}>
-      <h1 className="font-display text-4xl mb-4">Rue Cosmetics</h1>
-      <p className="text-ink-muted mb-6">
-        Frontend foundation is complete. Phase 4 (Router Setup) is working.
-      </p>
-
-      <div className="space-y-4">
-        <div className="p-4 bg-lavender-50 rounded">
-          <h2 className="font-label font-semibold mb-2">✅ What's Working</h2>
-          <ul className="space-y-1 text-ink-soft">
-            <li>• Project scaffolding with Vite + React 18 + TypeScript</li>
-            <li>• Tailwind CSS v4 with Rue design tokens</li>
-            <li>• Shared UI components (Icon, Brand, Button, Placeholder)</li>
-            <li>• Orval-generated API client from backend OpenAPI spec</li>
-            <li>• Auth provider with session management</li>
-            <li>• Cart provider with guest/auth merge logic</li>
-            <li>• TanStack Query for data fetching</li>
-            <li>• TanStack Router with manual route setup</li>
-          </ul>
-        </div>
-
-        <div className="p-4 bg-lavender-100 rounded">
-          <h2 className="font-label font-semibold mb-2">🚧 Next Steps</h2>
-          <ul className="space-y-1 text-ink-soft">
-            <li>• Phase 5: Product catalog features (ProductCard, ShopPage)</li>
-            <li>• Phase 6: Cart & checkout flow</li>
-            <li>• Phase 7: Home page & marketing content</li>
-            <li>• Phase 8: Testing & deployment</li>
-          </ul>
-        </div>
-
-        <div className="flex gap-2">
-          <Link to={ShopRoute.to}>
-            <Button variant="primary">Shop Now</Button>
-          </Link>
-          <Button variant="outline">Learn More</Button>
-        </div>
-      </div>
+    <div className="min-h-screen bg-paper text-ink font-body">
+      <HomeHero />
+      <PromiseSection />
+      <CategoryRail />
+      <FeaturedProducts />
+      <JournalSection />
+      <TestimonialsSection />
+      <NewsletterSection />
     </div>
   ),
 });
@@ -280,11 +347,81 @@ function AdminComponent() {
   );
 }
 
+// Cart route
+const CartRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/cart',
+  component: () => (
+    <div className="min-h-screen bg-paper text-ink font-body">
+      <CartPage />
+    </div>
+  ),
+});
+
+// Checkout route (protected)
+const CheckoutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/checkout',
+  component: CheckoutComponent,
+});
+
+function CheckoutComponent() {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-paper text-ink font-body flex items-center justify-center">
+        <div className="text-ink-muted">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '2rem' }}>
+        <h1 className="font-display text-4xl mb-4">Login Required</h1>
+        <p className="text-ink-muted mb-6">Please log in to proceed with checkout.</p>
+        <Link to="/login">
+          <Button variant="primary">Go to Login</Button>
+        </Link>
+      </div>
+    );
+  }
+
+  return <CheckoutPage />;
+}
+
+// Checkout return route
+const CheckoutReturnRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/checkout/return',
+  component: () => (
+    <div className="min-h-screen bg-paper text-ink font-body">
+      <CheckoutReturnPage />
+    </div>
+  ),
+});
+
+// About route
+const AboutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/about',
+  component: () => (
+    <div className="min-h-screen bg-paper text-ink font-body">
+      <AboutPage />
+    </div>
+  ),
+});
+
 // Create route tree
 const routeTree = rootRoute.addChildren([
   HomeRoute,
   ShopRoute,
   ProductDetailRoute,
+  CartRoute,
+  CheckoutRoute,
+  CheckoutReturnRoute,
+  AboutRoute,
   LoginRoute,
   AccountRoute,
   AdminRoute,

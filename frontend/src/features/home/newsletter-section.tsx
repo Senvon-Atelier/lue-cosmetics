@@ -1,0 +1,34 @@
+import { Button } from '../shared/ui/button';
+
+export function NewsletterSection() {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Newsletter signup logic would go here
+    console.log('Newsletter signup submitted');
+  };
+
+  return (
+    <section className="section nl">
+      <div className="wrap nl-wrap">
+        <div>
+          <div className="eyebrow">Join the list</div>
+          <h2
+            className="font-display"
+            style={{ fontSize: 'clamp(32px, 5vw, 64px)', fontWeight: 400, lineHeight: 1.2 }}
+          >
+            Quiet emails.
+            <br />
+            <em>Good things</em> inside.
+          </h2>
+        </div>
+        <form className="nl-form" onSubmit={handleSubmit}>
+          <input type="email" placeholder="you@somewhere.com" />
+          <Button type="submit" variant="primary" icon="arrow" iconPosition="right">
+            Subscribe
+          </Button>
+          <p className="nl-fine">One email a month. Unsubscribe whenever.</p>
+        </form>
+      </div>
+    </section>
+  );
+}
