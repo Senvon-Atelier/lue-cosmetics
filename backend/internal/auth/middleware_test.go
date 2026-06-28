@@ -3,11 +3,14 @@ package auth_test
 import (
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/oti-adjei/ruecosmetics/internal/auth"
+	"github.com/oti-adjei/ruecosmetics/internal/testsupport"
 )
 
 // stubHandler records whether it was called and what UserID it saw.
@@ -75,13 +78,7 @@ func TestRequireSession_ValidToken_InjectsContext(t *testing.T) {
 		t.Fatalf("signup failed: %d %s", rr.Code, rr.Body.String())
 	}
 	// Extract cookie.
-	var sessionCookie *http.Cookie
-	for _, c := range rr.Result().Cookies() {
-		if c.Name == "rue_session" {
-			sessionCookie = c
-			break
-		}
-	}
+	sessionCookie := testsupport.FindCookie(rr.Result(), "rue_session")
 	if sessionCookie == nil {
 		t.Fatal("no session cookie from signup")
 	}
@@ -118,13 +115,7 @@ func TestRequireRole_WrongRole_Returns403(t *testing.T) {
 	if rr.Code != http.StatusCreated {
 		t.Fatalf("signup: %d", rr.Code)
 	}
-	var sessionCookie *http.Cookie
-	for _, c := range rr.Result().Cookies() {
-		if c.Name == "rue_session" {
-			sessionCookie = c
-			break
-		}
-	}
+	sessionCookie := testsupport.FindCookie(rr.Result(), "rue_session")
 
 	stub := &stubHandler{}
 	r := chi.NewRouter()
@@ -144,6 +135,63 @@ func TestRequireRole_WrongRole_Returns403(t *testing.T) {
 	}
 }
 
+// TestRequireSession_RolledExpiry_RefreshesCookie verifies that when GetSession
+// rolls the DB expiry forward (remaining < 29 days), RequireSession re-emits
+// the browser cookie with a fresh Expires/MaxAge.
+func TestRequireSession_RolledExpiry_RefreshesCookie(t *testing.T) {
+	svc, _, cleanup := newService(t)
+	defer cleanup()
+
+	h := auth.NewHandlers(svc, "rue_session", "", false)
+	signupRR := postJSON(t, routerWith(h), "/auth/signup", map[string]string{
+		"email": "roll@mw.test", "password": "hunter22", "name": "Roll",
+	})
+	if signupRR.Code != http.StatusCreated {
+		t.Fatalf("signup: %d %s", signupRR.Code, signupRR.Body.String())
+	}
+	sessionCookie := testsupport.FindCookie(signupRR.Result(), "rue_session")
+	if sessionCookie == nil {
+		t.Fatal("no session cookie from signup")
+	}
+
+	// Advance the service clock so the session appears to have only 1 day left
+	// (well below the 29-day roll threshold), which will trigger a roll.
+	svc.Now = func() time.Time { return time.Now().Add(29 * 24 * time.Hour) }
+
+	mwRouter := chi.NewRouter()
+	mwRouter.Use(h.RequireSession)
+	mwRouter.Get("/probe", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	req := httptest.NewRequest(http.MethodGet, "/probe", nil)
+	req.AddCookie(sessionCookie)
+	rrProbe := httptest.NewRecorder()
+	mwRouter.ServeHTTP(rrProbe, req)
+
+	if rrProbe.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d: %s", rrProbe.Code, rrProbe.Body.String())
+	}
+
+	// The response must contain a fresh Set-Cookie header for rue_session.
+	refreshed := testsupport.FindCookie(rrProbe.Result(), "rue_session")
+	if refreshed == nil {
+		t.Fatal("RequireSession did not re-emit the session cookie after rolling expiry")
+	}
+	if refreshed.MaxAge <= 0 && refreshed.Expires.IsZero() {
+		t.Error("refreshed cookie has no valid MaxAge or Expires")
+	}
+	// Confirm the cookie value is unchanged (same token).
+	if refreshed.Value != sessionCookie.Value {
+		t.Errorf("refreshed cookie token changed: got %q want %q", refreshed.Value, sessionCookie.Value)
+	}
+	// Confirm Set-Cookie header contains "rue_session" (redundant but explicit).
+	setCookie := rrProbe.Header().Get("Set-Cookie")
+	if !strings.Contains(setCookie, "rue_session=") {
+		t.Errorf("Set-Cookie header missing rue_session: %s", setCookie)
+	}
+}
+
 func TestRequireRole_MatchingRole_Passes(t *testing.T) {
 	h, cleanup := newHandlers(t)
 	defer cleanup()
@@ -155,13 +203,7 @@ func TestRequireRole_MatchingRole_Passes(t *testing.T) {
 	if rr.Code != http.StatusCreated {
 		t.Fatalf("signup: %d", rr.Code)
 	}
-	var sessionCookie *http.Cookie
-	for _, c := range rr.Result().Cookies() {
-		if c.Name == "rue_session" {
-			sessionCookie = c
-			break
-		}
-	}
+	sessionCookie := testsupport.FindCookie(rr.Result(), "rue_session")
 
 	stub := &stubHandler{}
 	r := chi.NewRouter()

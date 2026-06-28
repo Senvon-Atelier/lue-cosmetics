@@ -27,6 +27,11 @@ var (
 const DefaultSessionLifetime = 30 * 24 * time.Hour
 const sessionRollThreshold = 24 * time.Hour
 
+const (
+	emailVerifyTTL   = 24 * time.Hour
+	passwordResetTTL = 1 * time.Hour
+)
+
 type Service struct {
 	Repo            *Repository
 	Email           email.Sender
@@ -155,7 +160,7 @@ func (s *Service) Signup(ctx context.Context, in SignupInput, ip net.IP, ua stri
 			UserID:    result.UserID,
 			Kind:      "email_verify",
 			TokenHash: verifyHash[:],
-			ExpiresAt: pgtype.Timestamptz{Time: s.Now().Add(24 * time.Hour), Valid: true},
+			ExpiresAt: pgtype.Timestamptz{Time: s.Now().Add(emailVerifyTTL), Valid: true},
 		})
 		_ = s.Email.Send(ctx, in.Email, "verify_email", map[string]any{
 			"token": verifyRaw, "name": in.Name,
@@ -245,6 +250,8 @@ type SessionView struct {
 	Email, Name   string
 	Role          string
 	EmailVerified bool
+	Rolled        bool      // true when GetSession rolled the DB expiry forward
+	NewExpires    time.Time // the new expiry when Rolled=true
 }
 
 func (s *Service) GetSession(ctx context.Context, rawToken string) (SessionView, error) {
@@ -270,8 +277,13 @@ func (s *Service) GetSession(ctx context.Context, rawToken string) (SessionView,
 	// Best-effort touch; ignore errors (cookie still valid even if write fails).
 	now := s.Now()
 	_ = s.Repo.RefreshSessionLastUsed(ctx, sess.ID)
+	rolled := false
+	var newExpires time.Time
 	if sess.ExpiresAt.Time.Sub(now) < s.SessionLifetime-sessionRollThreshold {
-		_ = s.Repo.RollSessionExpiry(ctx, sess.ID, now.Add(s.SessionLifetime))
+		newExpires = now.Add(s.SessionLifetime)
+		if err := s.Repo.RollSessionExpiry(ctx, sess.ID, newExpires); err == nil {
+			rolled = true
+		}
 	}
 	return SessionView{
 		SessionID:     sess.ID,
@@ -280,6 +292,8 @@ func (s *Service) GetSession(ctx context.Context, rawToken string) (SessionView,
 		Name:          user.Name,
 		Role:          primaryRole(roles),
 		EmailVerified: user.EmailVerified,
+		Rolled:        rolled,
+		NewExpires:    newExpires,
 	}, nil
 }
 
@@ -420,7 +434,7 @@ func (s *Service) ResendVerification(ctx context.Context, userID uuid.UUID, emai
 		UserID:    userID,
 		Kind:      "email_verify",
 		TokenHash: h[:],
-		ExpiresAt: pgtype.Timestamptz{Time: s.Now().Add(24 * time.Hour), Valid: true},
+		ExpiresAt: pgtype.Timestamptz{Time: s.Now().Add(emailVerifyTTL), Valid: true},
 	})
 	if err != nil {
 		return err
@@ -448,12 +462,14 @@ func (s *Service) RequestPasswordReset(ctx context.Context, emailAddr string) {
 		UserID:    user.ID,
 		Kind:      "password_reset",
 		TokenHash: h[:],
-		ExpiresAt: pgtype.Timestamptz{Time: s.Now().Add(1 * time.Hour), Valid: true},
+		ExpiresAt: pgtype.Timestamptz{Time: s.Now().Add(passwordResetTTL), Valid: true},
 	}); err != nil {
 		s.Log.ErrorContext(ctx, "password-reset token insert", "err", err)
 		return
 	}
-	_ = s.Email.Send(ctx, emailAddr, "password_reset", map[string]any{"token": raw})
+	if err := s.Email.Send(ctx, emailAddr, "password_reset", map[string]any{"token": raw}); err != nil {
+		s.Log.ErrorContext(ctx, "password-reset email send", "err", err)
+	}
 }
 
 // ConfirmPasswordReset validates the reset token, rotates the password, marks

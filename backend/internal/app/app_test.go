@@ -2,8 +2,6 @@ package app_test
 
 import (
 	"context"
-	"os"
-	"path/filepath"
 	"testing"
 	"time"
 
@@ -20,11 +18,7 @@ func TestApplicationNewWiresPool(t *testing.T) {
 	// Write a valid shipping config to a temp dir so app.New doesn't need the
 	// file to exist at the relative default path (which doesn't resolve from
 	// the test's working directory).
-	tmpDir := t.TempDir()
-	shipPath := filepath.Join(tmpDir, "shipping_config.json")
-	if err := os.WriteFile(shipPath, []byte(`{"flat_rate_ghs_minor":2500,"free_over_ghs_minor":50000}`), 0644); err != nil {
-		t.Fatalf("write shipping config: %v", err)
-	}
+	shipPath := testsupport.WriteShippingConfig(t, 2500, 50000)
 
 	cfg := &config.Config{
 		Port:               0,

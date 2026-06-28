@@ -102,13 +102,7 @@ func TestServerBootsAndHealthzReturnsOK(t *testing.T) {
 	if resp.StatusCode != 201 {
 		t.Fatalf("signup code = %d", resp.StatusCode)
 	}
-	var sessionCookie *http.Cookie
-	for _, c := range resp.Cookies() {
-		if c.Name == "rue_session" {
-			sessionCookie = c
-			break
-		}
-	}
+	sessionCookie := testsupport.FindCookie(resp, "rue_session")
 	defer resp.Body.Close()
 	_, _ = io.Copy(io.Discard, resp.Body)
 	if sessionCookie == nil {

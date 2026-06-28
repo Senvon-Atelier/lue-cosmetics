@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/oti-adjei/ruecosmetics/internal/auth"
+	"github.com/oti-adjei/ruecosmetics/internal/testsupport"
 )
 
 // stubValidator is a test double for IDTokenValidator that returns a fixed Payload.
@@ -136,15 +137,11 @@ func TestHandlerLogoutClearsCookieAndReturns204(t *testing.T) {
 	srr := postJSON(t, router, "/auth/signup", map[string]string{
 		"email": "eve@handler.test", "password": "hunter22",
 	})
-	cookie := ""
-	for _, c := range srr.Result().Cookies() {
-		if c.Name == "rue_session" {
-			cookie = c.Name + "=" + c.Value
-		}
-	}
-	if cookie == "" {
+	found := testsupport.FindCookie(srr.Result(), "rue_session")
+	if found == nil {
 		t.Fatal("no session cookie from signup")
 	}
+	cookie := found.Name + "=" + found.Value
 
 	req := httptest.NewRequest(http.MethodPost, "/auth/logout", nil)
 	req.Header.Set("Cookie", cookie)
@@ -171,15 +168,11 @@ func TestHandlerSessionWithValidCookieReturns200(t *testing.T) {
 	srr := postJSON(t, router, "/auth/signup", map[string]string{
 		"email": "frank@handler.test", "password": "hunter22", "name": "Frank",
 	})
-	cookie := ""
-	for _, c := range srr.Result().Cookies() {
-		if c.Name == "rue_session" {
-			cookie = c.Name + "=" + c.Value
-		}
-	}
-	if cookie == "" {
+	sc2 := testsupport.FindCookie(srr.Result(), "rue_session")
+	if sc2 == nil {
 		t.Fatal("no session cookie from signup")
 	}
+	cookie := sc2.Name + "=" + sc2.Value
 
 	req := httptest.NewRequest(http.MethodGet, "/auth/session", nil)
 	req.Header.Set("Cookie", cookie)

@@ -16,6 +16,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/oti-adjei/ruecosmetics/internal/auth"
 	"github.com/oti-adjei/ruecosmetics/internal/me"
+	"github.com/oti-adjei/ruecosmetics/internal/testsupport"
 )
 
 // ── router builder ───────────────────────────────────────────────────────────
@@ -66,10 +67,8 @@ func signupAndGetCookie(t *testing.T, router http.Handler, email string) *http.C
 	if rr.Code != http.StatusCreated {
 		t.Fatalf("signup(%s) = %d, want 201; body: %s", email, rr.Code, rr.Body.String())
 	}
-	for _, c := range rr.Result().Cookies() {
-		if c.Name == "rue_session" {
-			return c
-		}
+	if c := testsupport.FindCookie(rr.Result(), "rue_session"); c != nil {
+		return c
 	}
 	t.Fatalf("signup(%s): no rue_session cookie", email)
 	return nil
@@ -129,10 +128,8 @@ func TestRBACMatrix(t *testing.T) {
 		if lrr.Code != http.StatusOK {
 			t.Fatalf("admin login = %d; body: %s", lrr.Code, lrr.Body.String())
 		}
-		for _, c := range lrr.Result().Cookies() {
-			if c.Name == "rue_session" {
-				return c
-			}
+		if c := testsupport.FindCookie(lrr.Result(), "rue_session"); c != nil {
+			return c
 		}
 		t.Fatal("admin login: no session cookie")
 		return nil
@@ -244,13 +241,7 @@ func TestMustBeAdmin_AdminContext(t *testing.T) {
 	if lrr.Code != http.StatusOK {
 		t.Fatalf("login = %d", lrr.Code)
 	}
-	var adminCookie *http.Cookie
-	for _, c := range lrr.Result().Cookies() {
-		if c.Name == "rue_session" {
-			adminCookie = c
-			break
-		}
-	}
+	adminCookie := testsupport.FindCookie(lrr.Result(), "rue_session")
 	if adminCookie == nil {
 		t.Fatal("no session cookie")
 	}
@@ -297,13 +288,7 @@ func TestMustBeAdmin_NonAdminContext(t *testing.T) {
 		t.Fatalf("signup = %d", rr.Code)
 	}
 
-	var customerCookie *http.Cookie
-	for _, c := range rr.Result().Cookies() {
-		if c.Name == "rue_session" {
-			customerCookie = c
-			break
-		}
-	}
+	customerCookie := testsupport.FindCookie(rr.Result(), "rue_session")
 	if customerCookie == nil {
 		t.Fatal("no session cookie")
 	}

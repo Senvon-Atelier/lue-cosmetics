@@ -28,6 +28,10 @@ func (h *Handlers) RequireSession(next http.Handler) http.Handler {
 			httpx.WriteError(w, http.StatusUnauthorized, httpx.CodeUnauthorized, "authentication required", nil)
 			return
 		}
+		// If GetSession rolled the DB expiry forward, refresh the browser cookie too.
+		if view.Rolled {
+			h.setSessionCookie(w, c.Value, view.NewExpires)
+		}
 		ctx := context.WithValue(r.Context(), sessionKey, view)
 		ctx = context.WithValue(ctx, userIDKey, view.UserID)
 		ctx = context.WithValue(ctx, roleKey, view.Role)
