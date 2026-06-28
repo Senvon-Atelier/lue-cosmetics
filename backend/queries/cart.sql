@@ -45,3 +45,7 @@ WHERE id = $1 AND cart_id = $2;
 
 -- name: DeleteCartItem :execrows
 DELETE FROM cart_items WHERE id = $1 AND cart_id = $2;
+
+-- name: DeleteCartItemsByUserID :exec
+DELETE FROM cart_items
+WHERE cart_id IN (SELECT id FROM carts WHERE user_id = $1);

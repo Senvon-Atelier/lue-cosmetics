@@ -8,6 +8,9 @@ SELECT id, slug, name
 FROM brands
 ORDER BY name ASC;
 
+-- name: GetBrandByID :one
+SELECT id, slug, name FROM brands WHERE id = $1;
+
 -- name: GetProductBySlug :one
 SELECT id, slug, name, brand_id, category_id, price_ghs_minor, was_price_ghs_minor,
        tone, size, rating, review_count, tags, image_path, created_at

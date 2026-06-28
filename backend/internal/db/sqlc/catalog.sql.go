@@ -41,6 +41,17 @@ func (q *Queries) CountProducts(ctx context.Context, arg CountProductsParams) (i
 	return count, err
 }
 
+const getBrandByID = `-- name: GetBrandByID :one
+SELECT id, slug, name FROM brands WHERE id = $1
+`
+
+func (q *Queries) GetBrandByID(ctx context.Context, id uuid.UUID) (Brand, error) {
+	row := q.db.QueryRow(ctx, getBrandByID, id)
+	var i Brand
+	err := row.Scan(&i.ID, &i.Slug, &i.Name)
+	return i, err
+}
+
 const getProductByID = `-- name: GetProductByID :one
 SELECT id, slug, name, brand_id, category_id, price_ghs_minor, was_price_ghs_minor,
        tone, size, rating, review_count, tags, image_path, created_at

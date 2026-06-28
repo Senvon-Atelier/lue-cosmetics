@@ -53,6 +53,14 @@ func (r *Repository) ListBrands(ctx context.Context) ([]sqlcq.Brand, error) {
 	return r.q.ListBrands(ctx)
 }
 
+func (r *Repository) GetBrandByID(ctx context.Context, id uuid.UUID) (sqlcq.Brand, error) {
+	b, err := r.q.GetBrandByID(ctx, id)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return sqlcq.Brand{}, ErrNotFound
+	}
+	return b, err
+}
+
 func (r *Repository) GetProductBySlug(ctx context.Context, slug string) (sqlcq.Product, error) {
 	return r.q.GetProductBySlug(ctx, slug)
 }
