@@ -113,7 +113,9 @@ const HomeRoute = createRoute({
         </div>
 
         <div className="flex gap-2">
-          <Button variant="primary">Shop Now</Button>
+          <Link to={ShopRoute.to}>
+            <Button variant="primary">Shop Now</Button>
+          </Link>
           <Button variant="outline">Learn More</Button>
         </div>
       </div>
