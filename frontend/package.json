@@ -12,7 +12,7 @@
     "test:e2e": "playwright test",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "typecheck": "tsc --noEmit",
-    "orval": "orval orval.config.ts"
+    "orval": "orval"
   },
   "dependencies": {
     "react": "^18.3.1",

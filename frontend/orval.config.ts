@@ -20,5 +20,12 @@ export default defineConfig({
     operations: {
       credentials: 'include',
     },
+    // Override axios instance
+    override: {
+      axios: {
+        output: './src/lib/api/client.ts',
+        name: 'apiClient',
+      },
+    },
   },
 });
