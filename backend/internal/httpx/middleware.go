@@ -2,10 +2,12 @@ package httpx
 
 import (
 	"context"
-	"log/slog"
 	"net/http"
 
+	"go.uber.org/zap"
+
 	"github.com/google/uuid"
+	"github.com/oti-adjei/ruecosmetics/internal/logging"
 )
 
 type ctxKey int
@@ -31,15 +33,37 @@ func GetRequestID(ctx context.Context) string {
 	return ""
 }
 
-func Recovery(logger *slog.Logger) func(http.Handler) http.Handler {
+// RequestLogger creates a per-request *zap.Logger scoped with the request_id
+// from context (set by RequestID middleware) and stashes it on r.Context()
+// via logging.WithLogger. Downstream code should call logging.From(ctx, base)
+// to retrieve it.
+//
+// RequestLogger MUST be installed AFTER RequestID so the request_id is in
+// context.
+func RequestLogger(base *zap.Logger) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			fields := []zap.Field{}
+			if rid := GetRequestID(ctx); rid != "" {
+				fields = append(fields, zap.String("request_id", rid))
+			}
+			reqLog := base.With(fields...)
+			ctx = logging.WithLogger(ctx, reqLog)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}
+
+func Recovery(base *zap.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			defer func() {
 				if rec := recover(); rec != nil {
-					logger.ErrorContext(r.Context(), "panic recovered",
-						slog.Any("panic", rec),
-						slog.String("request_id", GetRequestID(r.Context())),
-						slog.String("path", r.URL.Path),
+					log := logging.From(r.Context(), base)
+					log.Error("panic recovered",
+						zap.Any("panic", rec),
+						zap.String("path", r.URL.Path),
 					)
 					WriteError(w, http.StatusInternalServerError, CodeInternal, "internal server error", nil)
 				}

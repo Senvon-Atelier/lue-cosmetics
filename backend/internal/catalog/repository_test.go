@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"testing"
-	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/oti-adjei/ruecosmetics/internal/catalog"
@@ -66,17 +65,9 @@ func seedSmall(t *testing.T, pool db.Pool) {
 
 func newRepo(t *testing.T) (*catalog.Repository, db.Pool, func()) {
 	t.Helper()
-	url, stop := testsupport.StartPostgres(t)
-	testsupport.Migrate(t, url, "../../migrations")
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-	pool, err := db.NewPool(ctx, url)
-	if err != nil {
-		stop()
-		t.Fatalf("pool: %v", err)
-	}
+	_, pool, cleanup := testsupport.StartPool(t, "../../migrations")
 	seedSmall(t, pool)
-	return catalog.NewRepository(pool), pool, func() { pool.Close(); stop() }
+	return catalog.NewRepository(pool), pool, cleanup
 }
 
 func TestListCategoriesAndBrands(t *testing.T) {

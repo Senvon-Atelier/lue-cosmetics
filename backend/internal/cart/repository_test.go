@@ -42,21 +42,12 @@ func seedTestProduct(t *testing.T, ctx context.Context, pool db.Pool) uuid.UUID 
 }
 
 func TestRepository_GetCartByUserID(t *testing.T) {
-	url, stop := testsupport.StartPostgres(t)
-	defer stop()
-
-	testsupport.Migrate(t, url, "../../migrations")
-
-	ctx := context.Background()
-	pool, err := db.NewPool(ctx, url)
-	if err != nil {
-		t.Fatalf("start pool: %v", err)
-	}
-	defer pool.Close()
+	ctx, pool, cleanup := testsupport.StartPool(t, "../../migrations")
+	defer cleanup()
 
 	// First create a user
 	userID := uuid.New()
-	_, err = pool.Exec(ctx, "INSERT INTO users (id, email, name) VALUES ($1, 'test@example.com', 'Test User')", userID)
+	_, err := pool.Exec(ctx, "INSERT INTO users (id, email, name) VALUES ($1, 'test@example.com', 'Test User')", userID)
 	if err != nil {
 		t.Fatalf("create user: %v", err)
 	}
@@ -95,24 +86,15 @@ func TestRepository_GetCartByUserID(t *testing.T) {
 }
 
 func TestRepository_GetCartByGuestToken(t *testing.T) {
-	url, stop := testsupport.StartPostgres(t)
-	defer stop()
-
-	testsupport.Migrate(t, url, "../../migrations")
-
-	ctx := context.Background()
-	pool, err := db.NewPool(ctx, url)
-	if err != nil {
-		t.Fatalf("start pool: %v", err)
-	}
-	defer pool.Close()
+	ctx, pool, cleanup := testsupport.StartPool(t, "../../migrations")
+	defer cleanup()
 
 	repo := NewRepository(pool)
 
 	token := uuid.New().String()
 
 	// Cart doesn't exist yet
-	_, err = repo.GetCartByGuestToken(ctx, token)
+	_, err := repo.GetCartByGuestToken(ctx, token)
 	if err != ErrNotFound {
 		t.Errorf("expected ErrNotFound, got %v", err)
 	}
@@ -143,21 +125,12 @@ func TestRepository_GetCartByGuestToken(t *testing.T) {
 }
 
 func TestRepository_CreateCartForUser(t *testing.T) {
-	url, stop := testsupport.StartPostgres(t)
-	defer stop()
-
-	testsupport.Migrate(t, url, "../../migrations")
-
-	ctx := context.Background()
-	pool, err := db.NewPool(ctx, url)
-	if err != nil {
-		t.Fatalf("start pool: %v", err)
-	}
-	defer pool.Close()
+	ctx, pool, cleanup := testsupport.StartPool(t, "../../migrations")
+	defer cleanup()
 
 	// First create a user
 	userID := uuid.New()
-	_, err = pool.Exec(ctx, "INSERT INTO users (id, email, name) VALUES ($1, 'test@example.com', 'Test User')", userID)
+	_, err := pool.Exec(ctx, "INSERT INTO users (id, email, name) VALUES ($1, 'test@example.com', 'Test User')", userID)
 	if err != nil {
 		t.Fatalf("create user: %v", err)
 	}
@@ -183,17 +156,8 @@ func TestRepository_CreateCartForUser(t *testing.T) {
 }
 
 func TestRepository_CreateCartForGuest(t *testing.T) {
-	url, stop := testsupport.StartPostgres(t)
-	defer stop()
-
-	testsupport.Migrate(t, url, "../../migrations")
-
-	ctx := context.Background()
-	pool, err := db.NewPool(ctx, url)
-	if err != nil {
-		t.Fatalf("start pool: %v", err)
-	}
-	defer pool.Close()
+	ctx, pool, cleanup := testsupport.StartPool(t, "../../migrations")
+	defer cleanup()
 
 	repo := NewRepository(pool)
 
@@ -218,17 +182,8 @@ func TestRepository_CreateCartForGuest(t *testing.T) {
 }
 
 func TestRepository_CHECK_constraint(t *testing.T) {
-	url, stop := testsupport.StartPostgres(t)
-	defer stop()
-
-	testsupport.Migrate(t, url, "../../migrations")
-
-	ctx := context.Background()
-	pool, err := db.NewPool(ctx, url)
-	if err != nil {
-		t.Fatalf("start pool: %v", err)
-	}
-	defer pool.Close()
+	ctx, pool, cleanup := testsupport.StartPool(t, "../../migrations")
+	defer cleanup()
 
 	// Test 1: Insert with both user_id and guest_token NULL should fail
 	t.Run("both null fails", func(t *testing.T) {
@@ -275,17 +230,8 @@ func TestRepository_CHECK_constraint(t *testing.T) {
 }
 
 func TestRepository_ListCartItems(t *testing.T) {
-	url, stop := testsupport.StartPostgres(t)
-	defer stop()
-
-	testsupport.Migrate(t, url, "../../migrations")
-
-	ctx := context.Background()
-	pool, err := db.NewPool(ctx, url)
-	if err != nil {
-		t.Fatalf("start pool: %v", err)
-	}
-	defer pool.Close()
+	ctx, pool, cleanup := testsupport.StartPool(t, "../../migrations")
+	defer cleanup()
 
 	repo := NewRepository(pool)
 
@@ -340,17 +286,8 @@ func TestRepository_ListCartItems(t *testing.T) {
 }
 
 func TestRepository_UpsertCartItemAddQty(t *testing.T) {
-	url, stop := testsupport.StartPostgres(t)
-	defer stop()
-
-	testsupport.Migrate(t, url, "../../migrations")
-
-	ctx := context.Background()
-	pool, err := db.NewPool(ctx, url)
-	if err != nil {
-		t.Fatalf("start pool: %v", err)
-	}
-	defer pool.Close()
+	ctx, pool, cleanup := testsupport.StartPool(t, "../../migrations")
+	defer cleanup()
 
 	repo := NewRepository(pool)
 
@@ -395,17 +332,8 @@ func TestRepository_UpsertCartItemAddQty(t *testing.T) {
 }
 
 func TestRepository_SetCartItemQty(t *testing.T) {
-	url, stop := testsupport.StartPostgres(t)
-	defer stop()
-
-	testsupport.Migrate(t, url, "../../migrations")
-
-	ctx := context.Background()
-	pool, err := db.NewPool(ctx, url)
-	if err != nil {
-		t.Fatalf("start pool: %v", err)
-	}
-	defer pool.Close()
+	ctx, pool, cleanup := testsupport.StartPool(t, "../../migrations")
+	defer cleanup()
 
 	repo := NewRepository(pool)
 
@@ -443,17 +371,8 @@ func TestRepository_SetCartItemQty(t *testing.T) {
 }
 
 func TestRepository_DeleteCartItem(t *testing.T) {
-	url, stop := testsupport.StartPostgres(t)
-	defer stop()
-
-	testsupport.Migrate(t, url, "../../migrations")
-
-	ctx := context.Background()
-	pool, err := db.NewPool(ctx, url)
-	if err != nil {
-		t.Fatalf("start pool: %v", err)
-	}
-	defer pool.Close()
+	ctx, pool, cleanup := testsupport.StartPool(t, "../../migrations")
+	defer cleanup()
 
 	repo := NewRepository(pool)
 
@@ -497,17 +416,8 @@ func TestRepository_DeleteCartItem(t *testing.T) {
 }
 
 func TestRepository_GetCartItemByID(t *testing.T) {
-	url, stop := testsupport.StartPostgres(t)
-	defer stop()
-
-	testsupport.Migrate(t, url, "../../migrations")
-
-	ctx := context.Background()
-	pool, err := db.NewPool(ctx, url)
-	if err != nil {
-		t.Fatalf("start pool: %v", err)
-	}
-	defer pool.Close()
+	ctx, pool, cleanup := testsupport.StartPool(t, "../../migrations")
+	defer cleanup()
 
 	repo := NewRepository(pool)
 
@@ -547,17 +457,8 @@ func TestRepository_GetCartItemByID(t *testing.T) {
 }
 
 func TestRepository_TouchCart(t *testing.T) {
-	url, stop := testsupport.StartPostgres(t)
-	defer stop()
-
-	testsupport.Migrate(t, url, "../../migrations")
-
-	ctx := context.Background()
-	pool, err := db.NewPool(ctx, url)
-	if err != nil {
-		t.Fatalf("start pool: %v", err)
-	}
-	defer pool.Close()
+	ctx, pool, cleanup := testsupport.StartPool(t, "../../migrations")
+	defer cleanup()
 
 	repo := NewRepository(pool)
 
@@ -575,17 +476,8 @@ func TestRepository_TouchCart(t *testing.T) {
 }
 
 func TestRepository_DeleteCart(t *testing.T) {
-	url, stop := testsupport.StartPostgres(t)
-	defer stop()
-
-	testsupport.Migrate(t, url, "../../migrations")
-
-	ctx := context.Background()
-	pool, err := db.NewPool(ctx, url)
-	if err != nil {
-		t.Fatalf("start pool: %v", err)
-	}
-	defer pool.Close()
+	ctx, pool, cleanup := testsupport.StartPool(t, "../../migrations")
+	defer cleanup()
 
 	repo := NewRepository(pool)
 
@@ -609,17 +501,8 @@ func TestRepository_DeleteCart(t *testing.T) {
 }
 
 func TestRepository_GetCartItemByProduct(t *testing.T) {
-	url, stop := testsupport.StartPostgres(t)
-	defer stop()
-
-	testsupport.Migrate(t, url, "../../migrations")
-
-	ctx := context.Background()
-	pool, err := db.NewPool(ctx, url)
-	if err != nil {
-		t.Fatalf("start pool: %v", err)
-	}
-	defer pool.Close()
+	ctx, pool, cleanup := testsupport.StartPool(t, "../../migrations")
+	defer cleanup()
 
 	repo := NewRepository(pool)
 
@@ -656,17 +539,8 @@ func TestRepository_GetCartItemByProduct(t *testing.T) {
 }
 
 func TestRepository_SetCartItemQty_WrongCartID_ReturnsErrNotFound(t *testing.T) {
-	url, stop := testsupport.StartPostgres(t)
-	defer stop()
-
-	testsupport.Migrate(t, url, "../../migrations")
-
-	ctx := context.Background()
-	pool, err := db.NewPool(ctx, url)
-	if err != nil {
-		t.Fatalf("start pool: %v", err)
-	}
-	defer pool.Close()
+	ctx, pool, cleanup := testsupport.StartPool(t, "../../migrations")
+	defer cleanup()
 
 	repo := NewRepository(pool)
 
@@ -708,17 +582,8 @@ func TestRepository_SetCartItemQty_WrongCartID_ReturnsErrNotFound(t *testing.T) 
 }
 
 func TestRepository_DeleteCartItem_WrongCartID_ReturnsErrNotFound(t *testing.T) {
-	url, stop := testsupport.StartPostgres(t)
-	defer stop()
-
-	testsupport.Migrate(t, url, "../../migrations")
-
-	ctx := context.Background()
-	pool, err := db.NewPool(ctx, url)
-	if err != nil {
-		t.Fatalf("start pool: %v", err)
-	}
-	defer pool.Close()
+	ctx, pool, cleanup := testsupport.StartPool(t, "../../migrations")
+	defer cleanup()
 
 	repo := NewRepository(pool)
 

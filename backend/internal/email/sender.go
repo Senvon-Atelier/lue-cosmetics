@@ -5,7 +5,8 @@ package email
 
 import (
 	"context"
-	"log/slog"
+
+	"go.uber.org/zap"
 )
 
 type Sender interface {
@@ -13,10 +14,10 @@ type Sender interface {
 }
 
 type LogSender struct {
-	Log *slog.Logger
+	Log *zap.Logger
 }
 
 func (s LogSender) Send(ctx context.Context, to, template string, data map[string]any) error {
-	s.Log.InfoContext(ctx, "email (stubbed)", "to", to, "template", template, "data", data)
+	s.Log.Info("email (stubbed)", zap.String("to", to), zap.String("template", template), zap.Any("data", data))
 	return nil
 }

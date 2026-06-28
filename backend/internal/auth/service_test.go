@@ -3,11 +3,11 @@ package auth_test
 import (
 	"context"
 	"errors"
-	"io"
-	"log/slog"
 	"net"
 	"strings"
 	"testing"
+
+	"go.uber.org/zap"
 
 	"github.com/oti-adjei/ruecosmetics/internal/auth"
 	"github.com/oti-adjei/ruecosmetics/internal/db"
@@ -17,19 +17,12 @@ import (
 
 func newService(t *testing.T) (*auth.Service, db.Pool, func()) {
 	t.Helper()
-	url, stop := testsupport.StartPostgres(t)
-	testsupport.Migrate(t, url, "../../migrations")
-	ctx := context.Background()
-	pool, err := db.NewPool(ctx, url)
-	if err != nil {
-		stop()
-		t.Fatalf("pool: %v", err)
-	}
-	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	_, pool, cleanup := testsupport.StartPool(t, "../../migrations")
+	logger := zap.NewNop()
 	repo := auth.NewRepository(pool)
 	svc := auth.NewService(repo, logger, email.LogSender{Log: logger}, nil)
 	svc.Params = auth.TestParams // fast hashes in tests
-	return svc, pool, func() { pool.Close(); stop() }
+	return svc, pool, cleanup
 }
 
 func TestSignupCreatesUserSessionAndAutoVerifies(t *testing.T) {

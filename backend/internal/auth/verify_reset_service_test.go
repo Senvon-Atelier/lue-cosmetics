@@ -5,10 +5,10 @@ package auth_test
 import (
 	"context"
 	"errors"
-	"io"
-	"log/slog"
 	"net"
 	"testing"
+
+	"go.uber.org/zap"
 
 	"github.com/oti-adjei/ruecosmetics/internal/auth"
 	"github.com/oti-adjei/ruecosmetics/internal/db"
@@ -33,20 +33,13 @@ func (s *capturingSender) Send(_ context.Context, to, template string, data map[
 // tokens can be captured for verification/reset round-trip tests.
 func newServiceWithCapture(t *testing.T) (*auth.Service, db.Pool, *capturingSender, func()) {
 	t.Helper()
-	url, stop := testsupport.StartPostgres(t)
-	testsupport.Migrate(t, url, "../../migrations")
-	ctx := context.Background()
-	pool, err := db.NewPool(ctx, url)
-	if err != nil {
-		stop()
-		t.Fatalf("pool: %v", err)
-	}
-	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	_, pool, cleanup := testsupport.StartPool(t, "../../migrations")
+	logger := zap.NewNop()
 	repo := auth.NewRepository(pool)
 	cap := &capturingSender{}
 	svc := auth.NewService(repo, logger, cap, nil)
 	svc.Params = auth.TestParams
-	return svc, pool, cap, func() { pool.Close(); stop() }
+	return svc, pool, cap, cleanup
 }
 
 // findCall returns the first captured send call matching the template, or nil.

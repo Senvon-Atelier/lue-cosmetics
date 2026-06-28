@@ -10,6 +10,7 @@ require (
 	github.com/pressly/goose/v3 v3.22.1
 	github.com/swaggo/swag v1.16.4
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.33.0
+	go.uber.org/zap v1.28.0
 	golang.org/x/crypto v0.53.0
 	golang.org/x/oauth2 v0.36.0
 	google.golang.org/api v0.286.0

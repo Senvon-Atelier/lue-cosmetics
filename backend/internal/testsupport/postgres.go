@@ -6,10 +6,13 @@ import (
 	"database/sql"
 	"path/filepath"
 	"testing"
+	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
+
+	"github.com/oti-adjei/ruecosmetics/internal/db"
 )
 
 // StartPostgres launches an ephemeral Postgres 16 container scoped to the test t.
@@ -54,4 +57,26 @@ func Migrate(t *testing.T, url, migrationsRelPath string) {
 	if err := goose.UpContext(context.Background(), sqlDB, migDir); err != nil {
 		t.Fatalf("up: %v", err)
 	}
+}
+
+// StartPool returns a fully ready (migrated, connected) pgxpool against an
+// ephemeral Postgres. migrationsRelPath is interpreted from the calling
+// test's working directory (e.g., "../../migrations" from internal/cart/).
+// The returned cleanup closes the pool then terminates the container.
+func StartPool(t *testing.T, migrationsRelPath string) (context.Context, db.Pool, func()) {
+	t.Helper()
+	url, stop := StartPostgres(t)
+	Migrate(t, url, migrationsRelPath)
+	connectCtx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+	pool, err := db.NewPool(connectCtx, url)
+	if err != nil {
+		stop()
+		t.Fatalf("StartPool: NewPool: %v", err)
+	}
+	cleanup := func() {
+		pool.Close()
+		stop()
+	}
+	return context.Background(), pool, cleanup
 }

@@ -3,7 +3,6 @@ package auth
 import (
 	"context"
 	"errors"
-	"log/slog"
 	"net"
 	"net/netip"
 	"strings"
@@ -12,9 +11,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
+	"go.uber.org/zap"
 	"github.com/oti-adjei/ruecosmetics/internal/db"
 	sqlcq "github.com/oti-adjei/ruecosmetics/internal/db/sqlc"
 	"github.com/oti-adjei/ruecosmetics/internal/email"
+	"github.com/oti-adjei/ruecosmetics/internal/logging"
 )
 
 var (
@@ -35,14 +36,14 @@ const (
 type Service struct {
 	Repo            *Repository
 	Email           email.Sender
-	Log             *slog.Logger
+	Log             *zap.Logger
 	Params          Params
 	Allowlist       []string
 	SessionLifetime time.Duration
 	Now             func() time.Time
 }
 
-func NewService(repo *Repository, log *slog.Logger, sender email.Sender, allowlist []string) *Service {
+func NewService(repo *Repository, log *zap.Logger, sender email.Sender, allowlist []string) *Service {
 	return &Service{
 		Repo:            repo,
 		Log:             log,
@@ -449,12 +450,12 @@ func (s *Service) RequestPasswordReset(ctx context.Context, emailAddr string) {
 	emailAddr = strings.TrimSpace(strings.ToLower(emailAddr))
 	user, err := s.Repo.GetUserByEmail(ctx, emailAddr)
 	if err != nil {
-		s.Log.InfoContext(ctx, "password-reset request for unknown email", "email", emailAddr)
+		logging.From(ctx, s.Log).Info("password-reset request for unknown email", zap.String("email", emailAddr))
 		return
 	}
 	raw, err := NewToken()
 	if err != nil {
-		s.Log.ErrorContext(ctx, "password-reset token gen", "err", err)
+		logging.From(ctx, s.Log).Error("password-reset token gen", zap.Error(err))
 		return
 	}
 	h := HashToken(raw)
@@ -464,11 +465,11 @@ func (s *Service) RequestPasswordReset(ctx context.Context, emailAddr string) {
 		TokenHash: h[:],
 		ExpiresAt: pgtype.Timestamptz{Time: s.Now().Add(passwordResetTTL), Valid: true},
 	}); err != nil {
-		s.Log.ErrorContext(ctx, "password-reset token insert", "err", err)
+		logging.From(ctx, s.Log).Error("password-reset token insert", zap.Error(err))
 		return
 	}
 	if err := s.Email.Send(ctx, emailAddr, "password_reset", map[string]any{"token": raw}); err != nil {
-		s.Log.ErrorContext(ctx, "password-reset email send", "err", err)
+		logging.From(ctx, s.Log).Error("password-reset email send", zap.Error(err))
 	}
 }
 

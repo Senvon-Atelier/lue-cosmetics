@@ -7,13 +7,12 @@ package auth_test
 //   POST /auth/password-reset/confirm
 
 import (
-	"context"
-	"io"
-	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"go.uber.org/zap"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/oti-adjei/ruecosmetics/internal/auth"
@@ -24,21 +23,14 @@ import (
 // newHandlersWithCapture builds Handlers backed by a capturing email sender.
 func newHandlersWithCapture(t *testing.T) (*auth.Handlers, *capturingSender, db.Pool, func()) {
 	t.Helper()
-	url, stop := testsupport.StartPostgres(t)
-	testsupport.Migrate(t, url, "../../migrations")
-	ctx := context.Background()
-	pool, err := db.NewPool(ctx, url)
-	if err != nil {
-		stop()
-		t.Fatalf("pool: %v", err)
-	}
-	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	_, pool, cleanup := testsupport.StartPool(t, "../../migrations")
+	logger := zap.NewNop()
 	repo := auth.NewRepository(pool)
 	cap := &capturingSender{}
 	svc := auth.NewService(repo, logger, cap, nil)
 	svc.Params = auth.TestParams
 	h := auth.NewHandlers(svc, "rue_session", "", false)
-	return h, cap, pool, func() { pool.Close(); stop() }
+	return h, cap, pool, cleanup
 }
 
 // routerWithGated builds a router that includes both public and auth-gated routes.

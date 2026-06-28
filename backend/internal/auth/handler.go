@@ -7,8 +7,11 @@ import (
 	"strings"
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/oti-adjei/ruecosmetics/internal/httpx"
+	"github.com/oti-adjei/ruecosmetics/internal/logging"
 )
 
 type Handlers struct {
@@ -82,7 +85,7 @@ func (h *Handlers) signup(w http.ResponseWriter, r *http.Request) {
 		httpx.WriteError(w, http.StatusBadRequest, httpx.CodeValidation, "invalid email or password (min 8 chars)", nil)
 		return
 	case err != nil:
-		h.Svc.Log.ErrorContext(r.Context(), "signup", "err", err)
+		logging.From(r.Context(), h.Svc.Log).Error("signup", zap.Error(err))
 		httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "signup failed", nil)
 		return
 	}
@@ -122,7 +125,7 @@ func (h *Handlers) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		h.Svc.Log.ErrorContext(r.Context(), "login", "err", err)
+		logging.From(r.Context(), h.Svc.Log).Error("login", zap.Error(err))
 		httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "login failed", nil)
 		return
 	}

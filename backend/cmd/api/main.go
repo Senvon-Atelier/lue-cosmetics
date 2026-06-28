@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"go.uber.org/zap"
 	"github.com/oti-adjei/ruecosmetics/internal/app"
 	"github.com/oti-adjei/ruecosmetics/internal/auth"
 	"github.com/oti-adjei/ruecosmetics/internal/catalog"
@@ -48,6 +49,7 @@ func run() error {
 	r := chi.NewRouter()
 	r.Use(httpx.Recovery(a.Logger))
 	r.Use(httpx.RequestID)
+	r.Use(httpx.RequestLogger(a.Logger))
 	r.Use(httpx.CORS(cfg.CORSOrigins))
 
 	// /healthz stays at the root for uptime monitoring.
@@ -84,7 +86,7 @@ func run() error {
 
 	errCh := make(chan error, 1)
 	go func() {
-		a.Logger.Info("server starting", "addr", srv.Addr)
+		a.Logger.Info("server starting", zap.String("addr", srv.Addr))
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			errCh <- err
 		}

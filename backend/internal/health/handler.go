@@ -5,8 +5,11 @@ import (
 	"net/http"
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/oti-adjei/ruecosmetics/internal/app"
 	"github.com/oti-adjei/ruecosmetics/internal/httpx"
+	"github.com/oti-adjei/ruecosmetics/internal/logging"
 )
 
 type response struct {
@@ -28,7 +31,7 @@ func Handler(a *app.Application) http.HandlerFunc {
 		ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
 		defer cancel()
 		if err := a.Pool.Ping(ctx); err != nil {
-			a.Logger.WarnContext(ctx, "healthz: db ping failed", "err", err)
+			logging.From(ctx, a.Logger).Warn("healthz: db ping failed", zap.Error(err))
 			httpx.WriteError(w, http.StatusServiceUnavailable, httpx.CodeInternal, "db unavailable", nil)
 			return
 		}

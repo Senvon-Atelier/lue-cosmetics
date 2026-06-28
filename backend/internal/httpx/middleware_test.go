@@ -1,12 +1,12 @@
 package httpx_test
 
 import (
-	"io"
-	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"go.uber.org/zap"
 
 	"github.com/oti-adjei/ruecosmetics/internal/httpx"
 )
@@ -44,7 +44,7 @@ func TestRequestIDGeneratesWhenMissing(t *testing.T) {
 }
 
 func TestRecoveryReturnsEnvelope(t *testing.T) {
-	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	logger := zap.NewNop()
 	h := httpx.Recovery(logger)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		panic("boom")
 	}))

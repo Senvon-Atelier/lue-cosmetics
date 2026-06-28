@@ -1,27 +1,32 @@
 package app_test
 
 import (
-	"log/slog"
 	"testing"
+
+	"go.uber.org/zap/zapcore"
 
 	"github.com/oti-adjei/ruecosmetics/internal/app"
 )
 
-func TestNewLoggerLevels(t *testing.T) {
+func TestNewLoggerHonorsLevel(t *testing.T) {
 	cases := []struct {
-		in   string
-		want slog.Level
+		in     string
+		enable zapcore.Level
+		deny   zapcore.Level
 	}{
-		{"debug", slog.LevelDebug},
-		{"info", slog.LevelInfo},
-		{"warn", slog.LevelWarn},
-		{"error", slog.LevelError},
-		{"garbage", slog.LevelInfo},
+		{"debug", zapcore.DebugLevel, -1},
+		{"info", zapcore.InfoLevel, zapcore.DebugLevel},
+		{"warn", zapcore.WarnLevel, zapcore.InfoLevel},
+		{"error", zapcore.ErrorLevel, zapcore.WarnLevel},
+		{"garbage", zapcore.InfoLevel, zapcore.DebugLevel}, // unknown → info default
 	}
 	for _, c := range cases {
 		l := app.NewLogger(c.in, "development")
-		if !l.Enabled(nil, c.want) {
-			t.Errorf("level %s: not enabled at want %v", c.in, c.want)
+		if !l.Core().Enabled(c.enable) {
+			t.Errorf("level=%s: expected %v to be enabled", c.in, c.enable)
+		}
+		if c.deny >= 0 && l.Core().Enabled(c.deny) {
+			t.Errorf("level=%s: did not expect %v to be enabled", c.in, c.deny)
 		}
 	}
 }

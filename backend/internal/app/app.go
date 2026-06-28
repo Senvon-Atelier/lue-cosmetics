@@ -2,7 +2,8 @@ package app
 
 import (
 	"context"
-	"log/slog"
+
+	"go.uber.org/zap"
 
 	"github.com/oti-adjei/ruecosmetics/internal/auth"
 	"github.com/oti-adjei/ruecosmetics/internal/config"
@@ -14,7 +15,7 @@ import (
 type Application struct {
 	Config   *config.Config
 	Pool     db.Pool
-	Logger   *slog.Logger
+	Logger   *zap.Logger
 	Shipping *shipping.Service
 	Auth     *auth.Service
 	Email    email.Sender

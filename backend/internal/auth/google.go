@@ -7,7 +7,10 @@ import (
 	"net/http"
 	"net/url"
 
+	"go.uber.org/zap"
+
 	"github.com/oti-adjei/ruecosmetics/internal/httpx"
+	"github.com/oti-adjei/ruecosmetics/internal/logging"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/idtoken"
@@ -144,7 +147,7 @@ func (h *Handlers) googleCallback(w http.ResponseWriter, r *http.Request) {
 
 	tok, err := cfg.Exchange(r.Context(), code)
 	if err != nil {
-		h.Svc.Log.ErrorContext(r.Context(), "oauth exchange", "err", err)
+		logging.From(r.Context(), h.Svc.Log).Error("oauth exchange", zap.Error(err))
 		httpx.WriteError(w, http.StatusBadRequest, httpx.CodeValidation, "code exchange failed", nil)
 		return
 	}
@@ -159,7 +162,7 @@ func (h *Handlers) googleCallback(w http.ResponseWriter, r *http.Request) {
 	}
 	payload, err := validator.Validate(r.Context(), idToken, h.GoogleClientID)
 	if err != nil {
-		h.Svc.Log.ErrorContext(r.Context(), "id token", "err", err)
+		logging.From(r.Context(), h.Svc.Log).Error("id token", zap.Error(err))
 		httpx.WriteError(w, http.StatusBadRequest, httpx.CodeValidation, "invalid id_token", nil)
 		return
 	}
@@ -169,7 +172,7 @@ func (h *Handlers) googleCallback(w http.ResponseWriter, r *http.Request) {
 	}
 	res, err := h.Svc.LoginWithGoogle(r.Context(), payload.Subject, payload.Email, payload.Name, clientIP(r), r.UserAgent())
 	if err != nil {
-		h.Svc.Log.ErrorContext(r.Context(), "login with google", "err", err)
+		logging.From(r.Context(), h.Svc.Log).Error("login with google", zap.Error(err))
 		httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "login failed", nil)
 		return
 	}
