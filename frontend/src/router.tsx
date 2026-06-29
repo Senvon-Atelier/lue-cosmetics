@@ -1,12 +1,10 @@
-import { useState } from 'react';
-import { createRouter, createRoute, createRootRoute, Outlet, Link, useParams } from '@tanstack/react-router';
+import { createRouter, createRoute, createRootRoute, Outlet, useParams } from '@tanstack/react-router';
 import { QueryProvider } from './features/shared/providers/query-provider';
-import { AuthProvider, useAuth } from './lib/auth/auth-provider';
-import { CartProvider, useCart } from './features/cart/cart-provider';
-import { Brand, Button, Icon } from './features/shared/ui';
+import { AuthProvider } from './lib/auth/auth-provider';
+import { CartProvider } from './features/cart/cart-provider';
+import { RootLayout, CheckoutLayout } from './features/shared/layouts';
 import { ShopPage } from './features/catalog/shop-page';
 import { ProductDetail } from './features/catalog/product-detail';
-import { CartDrawer } from './features/cart/cart-drawer';
 import { CartPage } from './features/cart/cart-page';
 import { CheckoutPage } from './features/checkout/checkout-page';
 import { CheckoutReturnPage } from './features/checkout/checkout-return';
@@ -18,169 +16,41 @@ import { JournalSection } from './features/home/journal-section';
 import { TestimonialsSection } from './features/home/testimonials-section';
 import { NewsletterSection } from './features/home/newsletter-section';
 import { AboutPage } from './features/content/about-page';
+import { useAuth } from './lib/auth/auth-provider';
 
-// Root route with all providers
+// Root route with all providers (no layout)
 const rootRoute = createRootRoute({
   component: () => (
     <QueryProvider>
       <AuthProvider>
         <CartProvider>
-          <RootLayout />
+          <Outlet />
         </CartProvider>
       </AuthProvider>
     </QueryProvider>
   ),
 });
 
-function RootLayout() {
-  const [isCartOpen, setIsCartOpen] = useState(false);
-
-  return (
-    <div className="min-h-screen bg-paper text-ink font-body">
-      <header className="header">
-        <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '0 2rem' }}>
-          <div className="header-inner">
-            <nav className="header-nav">
-              <Link to={HomeRoute.to} className="header-nav-link">
-                Home
-              </Link>
-              <Link to={ShopRoute.to} className="header-nav-link">
-                Shop
-              </Link>
-              <Link to={AboutRoute.to} className="header-nav-link">
-                About
-              </Link>
-            </nav>
-            <Link to={HomeRoute.to}>
-              <Brand />
-            </Link>
-            <div className="header-actions">
-              <button className="header-icon-btn" aria-label="Search">
-                <Icon name="search" size={20} />
-              </button>
-              <AuthLinkHeader />
-              <CartTrigger onClick={() => setIsCartOpen(true)} />
-            </div>
-          </div>
-        </div>
-      </header>
-      <Outlet />
-      <footer className="footer">
-        <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '0 2rem' }}>
-          <div className="footer-inner">
-            <div className="footer-brand">
-              <div className="footer-brand-logo">
-                <Brand />
-              </div>
-              <p className="footer-blurb">
-                Home of authentic beauty and wellness. A shelf of trusted names — and a few of our own — stocked in Accra, shipped across Ghana.
-              </p>
-              <div className="footer-socials">
-                <a href="#" className="footer-social-link" aria-label="Instagram">
-                  <Icon name="instagram" size={18} />
-                </a>
-                <a href="#" className="footer-social-link" aria-label="TikTok">
-                  <Icon name="tiktok" size={18} />
-                </a>
-                <a href="#" className="footer-social-link" aria-label="WhatsApp">
-                  <Icon name="whatsapp" size={18} />
-                </a>
-              </div>
-            </div>
-            <div className="footer-cols">
-              <div className="footer-col">
-                <h5>Shop</h5>
-                <ul>
-                  <li><Link to="/shop">All Products</Link></li>
-                  <li><Link to="/shop">Skincare</Link></li>
-                  <li><Link to="/shop">Haircare</Link></li>
-                  <li><Link to="/shop">Wellness</Link></li>
-                </ul>
-              </div>
-              <div className="footer-col">
-                <h5>Company</h5>
-                <ul>
-                  <li><Link to="/about">About Us</Link></li>
-                  <li><Link to="/about">Our Story</Link></li>
-                  <li><Link to="/about">Careers</Link></li>
-                </ul>
-              </div>
-              <div className="footer-col">
-                <h5>Help</h5>
-                <ul>
-                  <li><Link to="/account">My Account</Link></li>
-                  <li><Link to="/account">Order Status</Link></li>
-                  <li><Link to="/about">Contact Us</Link></li>
-                </ul>
-              </div>
-              <div className="footer-col">
-                <h5>Visit</h5>
-                <ul>
-                  <li>Spintex Road, Accra</li>
-                  <li>+233 20 123 4567</li>
-                  <li>Mon-Sat: 10am-7pm</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div className="footer-bottom">
-            <p>© 2026 Rue Cosmetics Ghana · All rights reserved</p>
-            <div className="footer-legal">
-              <a href="/legal/privacy">Privacy</a>
-              <a href="/legal/terms">Terms</a>
-              <a href="/legal/returns">Returns</a>
-            </div>
-          </div>
-        </div>
-      </footer>
-      <CartDrawer open={isCartOpen} onClose={() => setIsCartOpen(false)} />
-    </div>
-  );
-}
-
-function AuthLinkHeader() {
-  const { isAuthenticated } = useAuth();
-
-  if (isAuthenticated) {
-    return (
-      <Link to={AccountRoute.to} className="header-icon-btn" aria-label="Account">
-        <Icon name="user" size={20} />
-      </Link>
-    );
-  }
-
-  return (
-    <Link to={LoginRoute.to} className="header-icon-btn" aria-label="Account">
-      <Icon name="user" size={20} />
-    </Link>
-  );
-}
-
-function CartTrigger({ onClick }: { onClick: () => void }) {
-  const { itemCount } = useCart();
-
-  return (
-    <button
-      onClick={onClick}
-      className="relative p-2 rounded-full hover:bg-lavender-50 transition-colors"
-      aria-label="Open cart"
-    >
-      <Icon name="bag" size={20} />
-      {itemCount > 0 && (
-        <span className="absolute -top-1 -right-1 w-5 h-5 bg-lavender-600 text-paper text-xs font-label font-medium rounded-full flex items-center justify-center">
-          {itemCount > 9 ? '9+' : itemCount}
-        </span>
-      )}
-    </button>
-  );
-}
-
-// Home route
-const HomeRoute = createRoute({
+// Marketing layout route (RootLayout: Header + Footer + CartDrawer)
+const marketingLayoutRoute = createRoute({
   getParentRoute: () => rootRoute,
+  id: '_marketing',
+  component: RootLayout,
+});
+
+// Checkout layout route (Brand + minimal chrome)
+const checkoutLayoutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  id: '_checkout',
+  component: CheckoutLayout,
+});
+
+// Home route (child of marketing layout)
+const HomeRoute = createRoute({
+  getParentRoute: () => marketingLayoutRoute,
   path: '/',
   component: () => (
-    <div className="min-h-screen bg-paper text-ink font-body">
+    <div>
       <HomeHero />
       <PromiseSection />
       <CategoryRail />
@@ -192,9 +62,9 @@ const HomeRoute = createRoute({
   ),
 });
 
-// Shop route
+// Shop route (child of marketing layout)
 const ShopRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => marketingLayoutRoute,
   path: '/shop',
   component: () => (
     <div className="min-h-screen bg-paper text-ink font-body">
@@ -207,15 +77,15 @@ const ShopRoute = createRoute({
   ),
 });
 
-// Product detail route
+// Product detail route (child of marketing layout)
 const ProductDetailRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => marketingLayoutRoute,
   path: '/shop/$slug',
   component: ProductDetailComponent,
 });
 
 function ProductDetailComponent() {
-  const { slug } = useParams({ from: '/shop/$slug' });
+  const { slug } = useParams({ from: '/_marketing/shop/$slug' });
   return (
     <div className="min-h-screen bg-paper text-ink font-body">
       <ProductDetail slug={slug || ''} />
@@ -223,9 +93,48 @@ function ProductDetailComponent() {
   );
 }
 
-// Login route
+// Cart route (child of marketing layout)
+const CartRoute = createRoute({
+  getParentRoute: () => marketingLayoutRoute,
+  path: '/cart',
+  component: () => (
+    <div className="min-h-screen bg-paper text-ink font-body">
+      <CartPage />
+    </div>
+  ),
+});
+
+// Checkout routes (children of checkout layout)
+const CheckoutRoute = createRoute({
+  getParentRoute: () => checkoutLayoutRoute,
+  path: '/checkout',
+  component: CheckoutPage,
+});
+
+const CheckoutReturnRoute = createRoute({
+  getParentRoute: () => checkoutLayoutRoute,
+  path: '/checkout/return',
+  component: () => (
+    <div className="min-h-screen bg-paper text-ink font-body">
+      <CheckoutReturnPage />
+    </div>
+  ),
+});
+
+// About route (child of marketing layout)
+const AboutRoute = createRoute({
+  getParentRoute: () => marketingLayoutRoute,
+  path: '/about',
+  component: () => (
+    <div className="min-h-screen bg-paper text-ink font-body">
+      <AboutPage />
+    </div>
+  ),
+});
+
+// Login route (child of marketing layout)
 const LoginRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => marketingLayoutRoute,
   path: '/login',
   component: () => (
     <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '2rem' }}>
@@ -236,9 +145,9 @@ const LoginRoute = createRoute({
   ),
 });
 
-// Account route (protected)
+// Account route (protected, child of marketing layout)
 const AccountRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => marketingLayoutRoute,
   path: '/account',
   component: AccountComponent,
 });
@@ -287,9 +196,9 @@ function AccountComponent() {
   );
 }
 
-// Admin route (protected + admin only)
+// Admin route (protected + admin only, child of marketing layout)
 const AdminRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => marketingLayoutRoute,
   path: '/admin',
   component: AdminComponent,
 });
@@ -347,84 +256,19 @@ function AdminComponent() {
   );
 }
 
-// Cart route
-const CartRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/cart',
-  component: () => (
-    <div className="min-h-screen bg-paper text-ink font-body">
-      <CartPage />
-    </div>
-  ),
-});
-
-// Checkout route (protected)
-const CheckoutRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/checkout',
-  component: CheckoutComponent,
-});
-
-function CheckoutComponent() {
-  const { isAuthenticated, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-paper text-ink font-body flex items-center justify-center">
-        <div className="text-ink-muted">Loading...</div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '2rem' }}>
-        <h1 className="font-display text-4xl mb-4">Login Required</h1>
-        <p className="text-ink-muted mb-6">Please log in to proceed with checkout.</p>
-        <Link to="/login">
-          <Button variant="primary">Go to Login</Button>
-        </Link>
-      </div>
-    );
-  }
-
-  return <CheckoutPage />;
-}
-
-// Checkout return route
-const CheckoutReturnRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/checkout/return',
-  component: () => (
-    <div className="min-h-screen bg-paper text-ink font-body">
-      <CheckoutReturnPage />
-    </div>
-  ),
-});
-
-// About route
-const AboutRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/about',
-  component: () => (
-    <div className="min-h-screen bg-paper text-ink font-body">
-      <AboutPage />
-    </div>
-  ),
-});
-
 // Create route tree
 const routeTree = rootRoute.addChildren([
-  HomeRoute,
-  ShopRoute,
-  ProductDetailRoute,
-  CartRoute,
-  CheckoutRoute,
-  CheckoutReturnRoute,
-  AboutRoute,
-  LoginRoute,
-  AccountRoute,
-  AdminRoute,
+  marketingLayoutRoute.addChildren([
+    HomeRoute,
+    ShopRoute,
+    ProductDetailRoute,
+    CartRoute,
+    AboutRoute,
+    LoginRoute,
+    AccountRoute,
+    AdminRoute,
+  ]),
+  checkoutLayoutRoute.addChildren([CheckoutRoute, CheckoutReturnRoute]),
 ]);
 
 // Create the router with route tree

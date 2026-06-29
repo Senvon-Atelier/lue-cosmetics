@@ -167,7 +167,7 @@ export function CheckoutPage() {
   const total = (subtotalGhsMinor || 0) + shippingCost;
 
   return (
-    <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '2rem' }}>
+    <>
       <div className="mb-6">
         <h1 className="font-display text-4xl mb-2">Checkout</h1>
         <p className="text-ink-muted">Complete your delivery details below</p>
@@ -358,6 +358,6 @@ export function CheckoutPage() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

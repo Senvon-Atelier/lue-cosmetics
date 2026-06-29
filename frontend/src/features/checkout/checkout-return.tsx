@@ -141,50 +141,46 @@ export function CheckoutReturnPage() {
   const orderTotal = sessionStorage.getItem('order_total');
 
   return (
-    <div className="min-h-screen bg-paper text-ink font-body">
-      <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '2rem' }}>
-        <div className="max-w-lg mx-auto text-center pt-16">
-          <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6">
-            <Icon name="check" size={40} className="text-green-600" />
-          </div>
+    <div className="max-w-lg mx-auto text-center pt-16">
+      <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6">
+        <Icon name="check" size={40} className="text-green-600" />
+      </div>
 
-          <h1 className="font-display text-4xl mb-4">Order Confirmed!</h1>
-          <p className="text-lg text-ink-soft mb-6">
-            Thank you for your order. We've sent a confirmation email with your order details.
-          </p>
+      <h1 className="font-display text-4xl mb-4">Order Confirmed!</h1>
+      <p className="text-lg text-ink-soft mb-6">
+        Thank you for your order. We've sent a confirmation email with your order details.
+      </p>
 
-          <div className="bg-lavender-50 rounded-lg p-6 mb-6 text-left">
-            <div className="flex justify-between mb-2">
-              <span className="text-ink-muted">Reference:</span>
-              <span className="font-label font-mono">{reference}</span>
-            </div>
-            {orderTotal && (
-              <div className="flex justify-between">
-                <span className="text-ink-muted">Total Paid:</span>
-                <span className="font-label font-semibold">{orderTotal} GHS</span>
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-3">
-            <Button onClick={() => navigate({ to: '/account' })} className="w-full">
-              View Order Details
-            </Button>
-            <Button onClick={() => navigate({ to: '/shop' })} variant="outline" className="w-full">
-              Continue Shopping
-            </Button>
-          </div>
-
-          <div className="mt-8 p-4 bg-cream rounded-lg">
-            <h3 className="font-label font-semibold mb-2">What happens next?</h3>
-            <ul className="text-sm text-ink-soft space-y-1">
-              <li>• You'll receive an order confirmation email shortly</li>
-              <li>• We'll prepare your items for delivery</li>
-              <li>• You'll receive another email when your order ships</li>
-              <li>• Track your order status in your account</li>
-            </ul>
-          </div>
+      <div className="bg-lavender-50 rounded-lg p-6 mb-6 text-left">
+        <div className="flex justify-between mb-2">
+          <span className="text-ink-muted">Reference:</span>
+          <span className="font-label font-mono">{reference}</span>
         </div>
+        {orderTotal && (
+          <div className="flex justify-between">
+            <span className="text-ink-muted">Total Paid:</span>
+            <span className="font-label font-semibold">{orderTotal} GHS</span>
+          </div>
+        )}
+      </div>
+
+      <div className="space-y-3">
+        <Button onClick={() => navigate({ to: '/account' })} className="w-full">
+          View Order Details
+        </Button>
+        <Button onClick={() => navigate({ to: '/shop' })} variant="outline" className="w-full">
+          Continue Shopping
+        </Button>
+      </div>
+
+      <div className="mt-8 p-4 bg-cream rounded-lg">
+        <h3 className="font-label font-semibold mb-2">What happens next?</h3>
+        <ul className="text-sm text-ink-soft space-y-1">
+          <li>• You'll receive an order confirmation email shortly</li>
+          <li>• We'll prepare your items for delivery</li>
+          <li>• You'll receive another email when your order ships</li>
+          <li>• Track your order status in your account</li>
+        </ul>
       </div>
     </div>
   );
