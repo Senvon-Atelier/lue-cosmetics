@@ -11,6 +11,20 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type Address struct {
+	ID        uuid.UUID
+	UserID    uuid.UUID
+	Label     string
+	Line1     string
+	Line2     string
+	City      string
+	Region    string
+	Phone     string
+	IsDefault bool
+	CreatedAt pgtype.Timestamptz
+	UpdatedAt pgtype.Timestamptz
+}
+
 type Brand struct {
 	ID   uuid.UUID
 	Slug string
