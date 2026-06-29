@@ -24,6 +24,7 @@ const (
 	CodeInternal      = "internal_error"
 	CodeValidation    = "validation_failed"
 	CodeNotConfigured = "not_configured"
+	CodeUpstream      = "upstream_error"
 )
 
 func WriteError(w http.ResponseWriter, status int, code, message string, fields map[string]string) {

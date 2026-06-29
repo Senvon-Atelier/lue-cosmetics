@@ -538,6 +538,103 @@
                 }
             }
         },
+        "/checkout/init": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "checkout"
+                ],
+                "summary": "Initialize a Paystack-hosted checkout for the caller's cart",
+                "parameters": [
+                    {
+                        "description": "Shipping address + method",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_orders.initCheckoutBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_orders.initCheckoutResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+                        }
+                    }
+                }
+            }
+        },
+        "/checkout/verify/{reference}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "checkout"
+                ],
+                "summary": "Verify a checkout (poll path) — calls Paystack verify and converges with the webhook",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Paystack reference, e.g. RUE-XXXXXXXX",
+                        "name": "reference",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_orders.verifyCheckoutResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+                        }
+                    }
+                }
+            }
+        },
         "/healthz": {
             "get": {
                 "description": "Verifies the service is up and the database is reachable.",
@@ -731,6 +828,37 @@
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+                        }
+                    }
+                }
+            }
+        },
+        "/webhooks/paystack": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "checkout"
+                ],
+                "summary": "Paystack webhook receiver (public, HMAC-verified)",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
                         }
@@ -1050,6 +1178,65 @@
                     "type": "string"
                 },
                 "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_orders.ShippingAddress": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "line1": {
+                    "type": "string"
+                },
+                "line2": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "region": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_orders.initCheckoutBody": {
+            "type": "object",
+            "properties": {
+                "shipping_address": {
+                    "$ref": "#/definitions/internal_orders.ShippingAddress"
+                },
+                "shipping_method": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_orders.initCheckoutResponse": {
+            "type": "object",
+            "properties": {
+                "authorization_url": {
+                    "type": "string"
+                },
+                "order_id": {
+                    "type": "string"
+                },
+                "reference": {
+                    "type": "string"
+                },
+                "total_ghs_minor": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_orders.verifyCheckoutResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
                     "type": "string"
                 }
             }

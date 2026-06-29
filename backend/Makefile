@@ -4,7 +4,7 @@ dev:
 	air
 
 test:
-	go test ./... -timeout=300s
+	go test ./... -timeout=600s
 
 openapi:
 	$(shell go env GOPATH)/bin/swag init -g cmd/api/main.go -o docs --parseInternal --parseDependency

@@ -19,6 +19,7 @@ import (
 	"github.com/oti-adjei/ruecosmetics/internal/health"
 	"github.com/oti-adjei/ruecosmetics/internal/httpx"
 	"github.com/oti-adjei/ruecosmetics/internal/me"
+	"github.com/oti-adjei/ruecosmetics/internal/orders"
 	"github.com/oti-adjei/ruecosmetics/internal/shipping"
 )
 
@@ -74,12 +75,16 @@ func run() error {
 		cartHandlers := cart.NewHandlers(a.Cart, a.Auth, cfg.SessionCookieName, cfg.SessionCookieDomain, secure)
 		cartHandlers.Mount(api) // public: GET /cart, POST/PATCH/DELETE /cart/items
 
+		ordersHandlers := orders.NewHandlers(a.Orders, cfg.PaystackSecretKey, a.Logger)
+		ordersHandlers.MountPublic(api) // public: POST /webhooks/paystack
+
 		// Auth-gated routes (one Group with RequireSession middleware)
 		api.Group(func(r chi.Router) {
 			r.Use(authHandlers.RequireSession)
 			me.NewHandlers().Mount(r)       // GET /me
 			authHandlers.MountAuthGated(r)  // POST /auth/verify-email/resend
 			cartHandlers.MountAuthGated(r)  // POST /cart/merge
+			ordersHandlers.MountAuthGated(r) // POST /checkout/init, GET /checkout/verify/{reference}
 		})
 	})
 

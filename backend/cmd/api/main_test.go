@@ -1,11 +1,16 @@
 package main_test
 
 import (
+	"bytes"
 	"context"
+	"crypto/hmac"
+	"crypto/sha512"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -41,6 +46,28 @@ func TestServerBootsAndHealthzReturnsOK(t *testing.T) {
 		t.Fatalf("shipping config abs: %v", err)
 	}
 
+	// Stubbed Paystack server. Started BEFORE the binary so its URL is in env.
+	const paystackSecret = "sk_test_smoke"
+	paystackStub := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.Method == http.MethodPost && r.URL.Path == "/transaction/initialize":
+			var in struct {
+				Reference string `json:"reference"`
+			}
+			_ = json.NewDecoder(r.Body).Decode(&in)
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = fmt.Fprintf(w, `{"status":true,"data":{"authorization_url":%q,"access_code":"AC","reference":%q}}`,
+				"https://stub.paystack.test/checkout/"+in.Reference, in.Reference)
+		case r.Method == http.MethodGet && strings.HasPrefix(r.URL.Path, "/transaction/verify/"):
+			ref := strings.TrimPrefix(r.URL.Path, "/transaction/verify/")
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = fmt.Fprintf(w, `{"status":true,"data":{"reference":%q,"status":"success","amount":12500,"currency":"GHS","id":1234567}}`, ref)
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}))
+	defer paystackStub.Close()
+
 	cmd := exec.Command(bin)
 	cmd.Env = append(os.Environ(),
 		"PORT=18080",
@@ -49,6 +76,8 @@ func TestServerBootsAndHealthzReturnsOK(t *testing.T) {
 		"CORS_ORIGINS=http://localhost:5173",
 		"LOG_LEVEL=debug",
 		"SHIPPING_CONFIG_PATH="+shipConfigPath,
+		"PAYSTACK_BASE_URL="+paystackStub.URL,
+		"PAYSTACK_SECRET_KEY="+paystackSecret,
 	)
 	cmd.Stdout = io.Discard
 	cmd.Stderr = io.Discard
@@ -245,5 +274,96 @@ func TestServerBootsAndHealthzReturnsOK(t *testing.T) {
 	}
 	if cartView.Items[0].Qty != 2 {
 		t.Errorf("merged item qty = %d, want 2", cartView.Items[0].Qty)
+	}
+
+	// ---- Checkout smoke: init → simulated signed webhook → DB-asserts ----
+
+	// 6. POST /api/v1/checkout/init with a stub shipping_address.
+	checkoutInitBody := `{
+		"shipping_address": {
+			"line1": "1 Smoke Lane",
+			"city": "Accra",
+			"region": "Greater Accra",
+			"phone": "+233200000000",
+			"label": "Home"
+		},
+		"shipping_method": "standard"
+	}`
+	initReq, _ := http.NewRequest("POST", serverURL+"/api/v1/checkout/init", strings.NewReader(checkoutInitBody))
+	initReq.Header.Set("Content-Type", "application/json")
+	initReq.AddCookie(mergeSession)
+	resp, err = http.DefaultClient.Do(initReq)
+	if err != nil {
+		t.Fatalf("POST /checkout/init: %v", err)
+	}
+	if resp.StatusCode != 200 {
+		body, _ := io.ReadAll(resp.Body)
+		_ = resp.Body.Close()
+		t.Fatalf("POST /checkout/init status = %d, want 200; body: %s", resp.StatusCode, body)
+	}
+	var initResp struct {
+		OrderID          string `json:"order_id"`
+		Reference        string `json:"reference"`
+		AuthorizationURL string `json:"authorization_url"`
+		TotalGhsMinor    int64  `json:"total_ghs_minor"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&initResp); err != nil {
+		t.Fatalf("decode /checkout/init: %v", err)
+	}
+	_ = resp.Body.Close()
+	if !strings.HasPrefix(initResp.AuthorizationURL, paystackStub.URL) &&
+		!strings.HasPrefix(initResp.AuthorizationURL, "https://stub.paystack.test") {
+		t.Errorf("authorization_url = %q, want stub-prefixed", initResp.AuthorizationURL)
+	}
+	if !strings.HasPrefix(initResp.Reference, "RUE-") {
+		t.Errorf("reference = %q, want RUE-XXXXXXXX", initResp.Reference)
+	}
+
+	// 7. Simulate a signed Paystack webhook for that reference.
+	webhookBody := []byte(fmt.Sprintf(
+		`{"event":"charge.success","data":{"reference":"%s","status":"success","amount":%d,"id":1234567}}`,
+		initResp.Reference, initResp.TotalGhsMinor))
+	mac := hmac.New(sha512.New, []byte(paystackSecret))
+	mac.Write(webhookBody)
+	signature := hex.EncodeToString(mac.Sum(nil))
+
+	whReq, _ := http.NewRequest("POST", serverURL+"/api/v1/webhooks/paystack", bytes.NewReader(webhookBody))
+	whReq.Header.Set("Content-Type", "application/json")
+	whReq.Header.Set("x-paystack-signature", signature)
+	resp, err = http.DefaultClient.Do(whReq)
+	if err != nil {
+		t.Fatalf("POST /webhooks/paystack: %v", err)
+	}
+	if resp.StatusCode != 200 {
+		body, _ := io.ReadAll(resp.Body)
+		_ = resp.Body.Close()
+		t.Fatalf("webhook status = %d, want 200; body: %s", resp.StatusCode, body)
+	}
+	_ = resp.Body.Close()
+
+	// 8. DB-asserts via the side pool: order status = paid, cart_items empty.
+	var orderStatus string
+	if err := pool.QueryRow(ctx,
+		"SELECT status FROM orders WHERE paystack_reference = $1", initResp.Reference).Scan(&orderStatus); err != nil {
+		t.Fatalf("query order status: %v", err)
+	}
+	if orderStatus != "paid" {
+		t.Errorf("DB order status = %q, want paid", orderStatus)
+	}
+
+	// Fetch the user_id of the order to assert cart_items cleared for them.
+	var orderUserID uuid.UUID
+	if err := pool.QueryRow(ctx,
+		"SELECT user_id FROM orders WHERE paystack_reference = $1", initResp.Reference).Scan(&orderUserID); err != nil {
+		t.Fatalf("query order user: %v", err)
+	}
+	var cartItemCount int
+	if err := pool.QueryRow(ctx,
+		"SELECT count(*) FROM cart_items ci JOIN carts c ON ci.cart_id = c.id WHERE c.user_id = $1",
+		orderUserID).Scan(&cartItemCount); err != nil {
+		t.Fatalf("count cart_items: %v", err)
+	}
+	if cartItemCount != 0 {
+		t.Errorf("post-webhook cart_items = %d, want 0", cartItemCount)
 	}
 }

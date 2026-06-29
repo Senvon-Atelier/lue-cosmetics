@@ -11,6 +11,8 @@ import (
 	"github.com/oti-adjei/ruecosmetics/internal/config"
 	"github.com/oti-adjei/ruecosmetics/internal/db"
 	"github.com/oti-adjei/ruecosmetics/internal/email"
+	"github.com/oti-adjei/ruecosmetics/internal/orders"
+	"github.com/oti-adjei/ruecosmetics/internal/payments/paystack"
 	"github.com/oti-adjei/ruecosmetics/internal/shipping"
 )
 
@@ -22,6 +24,8 @@ type Application struct {
 	Auth     *auth.Service
 	Cart     *cart.Service
 	Email    email.Sender
+	Orders   *orders.Service
+	Paystack *paystack.Client
 }
 
 func New(ctx context.Context, cfg *config.Config) (*Application, error) {
@@ -36,11 +40,44 @@ func New(ctx context.Context, cfg *config.Config) (*Application, error) {
 		return nil, err
 	}
 	ship := shipping.New(shipCfg)
-	sender := email.LogSender{Log: logger}
-	repo := auth.NewRepository(pool)
-	authSvc := auth.NewService(repo, logger, sender, cfg.EmailAllowlist)
-	cartSvc := cart.NewService(cart.NewRepository(pool), catalog.NewRepository(pool), ship, logger)
-	return &Application{Config: cfg, Pool: pool, Logger: logger, Shipping: ship, Auth: authSvc, Cart: cartSvc, Email: sender}, nil
+
+	// Email Sender chain: LogSender (default) → ResendSender (if configured) →
+	// AllowlistSender (always the outermost wrapper).
+	renderer, rerr := email.NewRenderer()
+	if rerr != nil {
+		pool.Close()
+		return nil, rerr
+	}
+	var inner email.Sender = email.LogSender{Log: logger}
+	if resendSender, sendErr := email.NewResendSender(cfg.ResendAPIKey, cfg.ResendFromEmail, renderer, logger); sendErr == nil {
+		inner = resendSender
+	}
+	mailSender := email.NewAllowlistSender(inner, cfg.EmailAllowlist, logger)
+
+	catalogRepo := catalog.NewRepository(pool)
+
+	authRepo := auth.NewRepository(pool)
+	authSvc := auth.NewService(authRepo, logger, mailSender, cfg.EmailAllowlist)
+	cartSvc := cart.NewService(cart.NewRepository(pool), catalogRepo, ship, logger)
+
+	paystackClient := paystack.NewClient(cfg.PaystackBaseURL, cfg.PaystackSecretKey)
+	ordersSvc := orders.NewService(
+		orders.NewRepository(pool),
+		cartSvc, catalogRepo, ship, paystackClient, mailSender, pool, logger,
+		cfg.PaystackCallbackURL,
+	)
+
+	return &Application{
+		Config:   cfg,
+		Pool:     pool,
+		Logger:   logger,
+		Shipping: ship,
+		Auth:     authSvc,
+		Cart:     cartSvc,
+		Email:    mailSender,
+		Orders:   ordersSvc,
+		Paystack: paystackClient,
+	}, nil
 }
 
 func (a *Application) Close() {
