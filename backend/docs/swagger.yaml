@@ -16,6 +16,66 @@ definitions:
       error:
         $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorBody'
     type: object
+  internal_addresses.addressResponse:
+    properties:
+      city:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      is_default:
+        type: boolean
+      label:
+        type: string
+      line1:
+        type: string
+      line2:
+        type: string
+      phone:
+        type: string
+      region:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  internal_addresses.createAddressRequest:
+    properties:
+      city:
+        type: string
+      label:
+        type: string
+      line1:
+        type: string
+      line2:
+        type: string
+      phone:
+        type: string
+      region:
+        type: string
+    type: object
+  internal_addresses.listAddressesResponse:
+    properties:
+      addresses:
+        items:
+          $ref: '#/definitions/internal_addresses.addressResponse'
+        type: array
+    type: object
+  internal_addresses.patchAddressRequest:
+    properties:
+      city:
+        type: string
+      label:
+        type: string
+      line1:
+        type: string
+      line2:
+        type: string
+      phone:
+        type: string
+      region:
+        type: string
+    type: object
   internal_auth.loginBody:
     properties:
       email:
@@ -695,6 +755,157 @@ paths:
       summary: Get the current user
       tags:
       - me
+  /me/addresses:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_addresses.listAddressesResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: List addresses
+      tags:
+      - addresses
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Address data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_addresses.createAddressRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_addresses.addressResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: Create an address
+      tags:
+      - addresses
+  /me/addresses/{id}:
+    delete:
+      parameters:
+      - description: Address ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: Delete an address
+      tags:
+      - addresses
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Address ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Patch data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_addresses.patchAddressRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_addresses.addressResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: Update an address
+      tags:
+      - addresses
+  /me/addresses/{id}/default:
+    post:
+      parameters:
+      - description: Address ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_addresses.addressResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: Set an address as default
+      tags:
+      - addresses
   /products:
     get:
       parameters:

@@ -13,6 +13,7 @@ import (
 	"go.uber.org/zap"
 	"github.com/oti-adjei/ruecosmetics/internal/app"
 	"github.com/oti-adjei/ruecosmetics/internal/auth"
+	"github.com/oti-adjei/ruecosmetics/internal/addresses"
 	"github.com/oti-adjei/ruecosmetics/internal/cart"
 	"github.com/oti-adjei/ruecosmetics/internal/catalog"
 	"github.com/oti-adjei/ruecosmetics/internal/config"
@@ -85,6 +86,9 @@ func run() error {
 			authHandlers.MountAuthGated(r)  // POST /auth/verify-email/resend
 			cartHandlers.MountAuthGated(r)  // POST /cart/merge
 			ordersHandlers.MountAuthGated(r) // POST /checkout/init, GET /checkout/verify/{reference}
+
+			addressesHandlers := addresses.NewHandlers(a.Addresses, a.Logger)
+			addressesHandlers.Mount(r) // POST/GET/PATCH/DELETE /me/addresses*, POST /me/addresses/{id}/default
 		})
 	})
 

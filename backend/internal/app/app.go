@@ -5,6 +5,7 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/oti-adjei/ruecosmetics/internal/addresses"
 	"github.com/oti-adjei/ruecosmetics/internal/auth"
 	"github.com/oti-adjei/ruecosmetics/internal/cart"
 	"github.com/oti-adjei/ruecosmetics/internal/catalog"
@@ -17,15 +18,16 @@ import (
 )
 
 type Application struct {
-	Config   *config.Config
-	Pool     db.Pool
-	Logger   *zap.Logger
-	Shipping *shipping.Service
-	Auth     *auth.Service
-	Cart     *cart.Service
-	Email    email.Sender
-	Orders   *orders.Service
-	Paystack *paystack.Client
+	Config    *config.Config
+	Pool      db.Pool
+	Logger    *zap.Logger
+	Shipping  *shipping.Service
+	Auth      *auth.Service
+	Cart      *cart.Service
+	Email     email.Sender
+	Orders    *orders.Service
+	Addresses *addresses.Service
+	Paystack  *paystack.Client
 }
 
 func New(ctx context.Context, cfg *config.Config) (*Application, error) {
@@ -67,16 +69,20 @@ func New(ctx context.Context, cfg *config.Config) (*Application, error) {
 		cfg.PaystackCallbackURL,
 	)
 
+	addressesRepo := addresses.NewRepository(pool)
+	addressesSvc := addresses.NewService(addressesRepo, pool, logger)
+
 	return &Application{
-		Config:   cfg,
-		Pool:     pool,
-		Logger:   logger,
-		Shipping: ship,
-		Auth:     authSvc,
-		Cart:     cartSvc,
-		Email:    mailSender,
-		Orders:   ordersSvc,
-		Paystack: paystackClient,
+		Config:    cfg,
+		Pool:      pool,
+		Logger:    logger,
+		Shipping:  ship,
+		Auth:      authSvc,
+		Cart:      cartSvc,
+		Email:     mailSender,
+		Orders:    ordersSvc,
+		Addresses: addressesSvc,
+		Paystack:  paystackClient,
 	}, nil
 }
 

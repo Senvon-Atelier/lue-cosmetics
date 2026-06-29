@@ -366,4 +366,256 @@ func TestServerBootsAndHealthzReturnsOK(t *testing.T) {
 	if cartItemCount != 0 {
 		t.Errorf("post-webhook cart_items = %d, want 0", cartItemCount)
 	}
+
+	// ---- Addresses smoke: create → list → set default → patch → delete default auto-promote → delete-last → empty-list ----
+
+	// 9. POST /api/v1/me/addresses with a full address payload.
+	createAddrBody := `{
+		"label": "Home",
+		"line1": "123 Main Street",
+		"line2": "Apt 4B",
+		"city": "Accra",
+		"region": "Greater Accra",
+		"phone": "0201234567"
+	}`
+	createAddrReq, _ := http.NewRequest("POST", serverURL+"/api/v1/me/addresses", strings.NewReader(createAddrBody))
+	createAddrReq.Header.Set("Content-Type", "application/json")
+	createAddrReq.AddCookie(mergeSession)
+	resp, err = http.DefaultClient.Do(createAddrReq)
+	if err != nil {
+		t.Fatalf("POST /me/addresses: %v", err)
+	}
+	if resp.StatusCode != 201 {
+		body, _ := io.ReadAll(resp.Body)
+		_ = resp.Body.Close()
+		t.Fatalf("POST /me/addresses status = %d, want 201; body: %s", resp.StatusCode, body)
+	}
+	var createAddrResp struct {
+		ID        string `json:"id"`
+		Label     string `json:"label"`
+		IsDefault bool   `json:"is_default"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&createAddrResp); err != nil {
+		t.Fatalf("decode /me/addresses POST: %v", err)
+	}
+	_ = resp.Body.Close()
+	firstAddrID := createAddrResp.ID
+	if !createAddrResp.IsDefault {
+		t.Error("first address should be default")
+	}
+
+	// 10. POST /api/v1/me/addresses with a second address payload.
+	createAddrBody2 := `{
+		"label": "Work",
+		"line1": "456 Work Street",
+		"line2": "",
+		"city": "Accra",
+		"region": "Greater Accra",
+		"phone": "0209876543"
+	}`
+	createAddrReq2, _ := http.NewRequest("POST", serverURL+"/api/v1/me/addresses", strings.NewReader(createAddrBody2))
+	createAddrReq2.Header.Set("Content-Type", "application/json")
+	createAddrReq2.AddCookie(mergeSession)
+	resp, err = http.DefaultClient.Do(createAddrReq2)
+	if err != nil {
+		t.Fatalf("POST /me/addresses (second): %v", err)
+	}
+	if resp.StatusCode != 201 {
+		body, _ := io.ReadAll(resp.Body)
+		_ = resp.Body.Close()
+		t.Fatalf("POST /me/addresses (second) status = %d, want 201; body: %s", resp.StatusCode, body)
+	}
+	var createAddrResp2 struct {
+		ID        string `json:"id"`
+		Label     string `json:"label"`
+		IsDefault bool   `json:"is_default"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&createAddrResp2); err != nil {
+		t.Fatalf("decode /me/addresses POST (second): %v", err)
+	}
+	_ = resp.Body.Close()
+	secondAddrID := createAddrResp2.ID
+	if createAddrResp2.IsDefault {
+		t.Error("second address should not be default")
+	}
+
+	// 11. GET /api/v1/me/addresses — assert 2 entries, default (first) is first in the list.
+	listAddrReq, _ := http.NewRequest("GET", serverURL+"/api/v1/me/addresses", nil)
+	listAddrReq.AddCookie(mergeSession)
+	resp, err = http.DefaultClient.Do(listAddrReq)
+	if err != nil {
+		t.Fatalf("GET /me/addresses: %v", err)
+	}
+	if resp.StatusCode != 200 {
+		t.Fatalf("GET /me/addresses status = %d, want 200", resp.StatusCode)
+	}
+	var listAddrResp struct {
+		Addresses []struct {
+			ID        string `json:"id"`
+			Label     string `json:"label"`
+			IsDefault bool   `json:"is_default"`
+		} `json:"addresses"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&listAddrResp); err != nil {
+		t.Fatalf("decode /me/addresses GET: %v", err)
+	}
+	_ = resp.Body.Close()
+	if len(listAddrResp.Addresses) != 2 {
+		t.Fatalf("GET /me/addresses count = %d, want 2", len(listAddrResp.Addresses))
+	}
+	if !listAddrResp.Addresses[0].IsDefault || listAddrResp.Addresses[0].ID != firstAddrID {
+		t.Error("first address should be default and first in list")
+	}
+	if listAddrResp.Addresses[1].IsDefault {
+		t.Error("second address should not be default")
+	}
+
+	// 12. POST /api/v1/me/addresses/{id}/default on second address.
+	setDefaultReq, _ := http.NewRequest("POST", serverURL+"/api/v1/me/addresses/"+secondAddrID+"/default", nil)
+	setDefaultReq.AddCookie(mergeSession)
+	resp, err = http.DefaultClient.Do(setDefaultReq)
+	if err != nil {
+		t.Fatalf("POST /me/addresses/{id}/default: %v", err)
+	}
+	if resp.StatusCode != 200 {
+		body, _ := io.ReadAll(resp.Body)
+		_ = resp.Body.Close()
+		t.Fatalf("POST /me/addresses/{id}/default status = %d, want 200; body: %s", resp.StatusCode, body)
+	}
+	_ = resp.Body.Close()
+
+	// 13. GET /api/v1/me/addresses again — assert second address is now first (default ordering).
+	listAddrReq2, _ := http.NewRequest("GET", serverURL+"/api/v1/me/addresses", nil)
+	listAddrReq2.AddCookie(mergeSession)
+	resp, err = http.DefaultClient.Do(listAddrReq2)
+	if err != nil {
+		t.Fatalf("GET /me/addresses (after set default): %v", err)
+	}
+	if resp.StatusCode != 200 {
+		t.Fatalf("GET /me/addresses (after set default) status = %d, want 200", resp.StatusCode)
+	}
+	var listAddrResp2 struct {
+		Addresses []struct {
+			ID        string `json:"id"`
+			IsDefault bool   `json:"is_default"`
+		} `json:"addresses"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&listAddrResp2); err != nil {
+		t.Fatalf("decode /me/addresses GET (after set default): %v", err)
+	}
+	_ = resp.Body.Close()
+	if len(listAddrResp2.Addresses) != 2 {
+		t.Fatalf("GET /me/addresses (after set default) count = %d, want 2", len(listAddrResp2.Addresses))
+	}
+	if !listAddrResp2.Addresses[0].IsDefault || listAddrResp2.Addresses[0].ID != secondAddrID {
+		t.Error("second address should be default and first in list after SetDefault")
+	}
+
+	// 14. PATCH /api/v1/me/addresses/{id} with {"label": "Office"}.
+	patchAddrBody := `{"label": "Office"}`
+	patchAddrReq, _ := http.NewRequest("PATCH", serverURL+"/api/v1/me/addresses/"+firstAddrID, strings.NewReader(patchAddrBody))
+	patchAddrReq.Header.Set("Content-Type", "application/json")
+	patchAddrReq.AddCookie(mergeSession)
+	resp, err = http.DefaultClient.Do(patchAddrReq)
+	if err != nil {
+		t.Fatalf("PATCH /me/addresses/{id}: %v", err)
+	}
+	if resp.StatusCode != 200 {
+		body, _ := io.ReadAll(resp.Body)
+		_ = resp.Body.Close()
+		t.Fatalf("PATCH /me/addresses/{id} status = %d, want 200; body: %s", resp.StatusCode, body)
+	}
+	var patchAddrResp struct {
+		Label string `json:"label"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&patchAddrResp); err != nil {
+		t.Fatalf("decode /me/addresses PATCH: %v", err)
+	}
+	_ = resp.Body.Close()
+	if patchAddrResp.Label != "Office" {
+		t.Errorf("PATCH /me/addresses/{id} label = %s, want Office", patchAddrResp.Label)
+	}
+
+	// 15. DELETE /api/v1/me/addresses/{id} (deleting the current default).
+	deleteAddrReq, _ := http.NewRequest("DELETE", serverURL+"/api/v1/me/addresses/"+secondAddrID, nil)
+	deleteAddrReq.AddCookie(mergeSession)
+	resp, err = http.DefaultClient.Do(deleteAddrReq)
+	if err != nil {
+		t.Fatalf("DELETE /me/addresses/{id}: %v", err)
+	}
+	if resp.StatusCode != 204 {
+		body, _ := io.ReadAll(resp.Body)
+		_ = resp.Body.Close()
+		t.Fatalf("DELETE /me/addresses/{id} status = %d, want 204; body: %s", resp.StatusCode, body)
+	}
+	_ = resp.Body.Close()
+
+	// 16. GET /api/v1/me/addresses — assert only the first address remains, and it's now is_default=true (auto-promoted).
+	listAddrReq3, _ := http.NewRequest("GET", serverURL+"/api/v1/me/addresses", nil)
+	listAddrReq3.AddCookie(mergeSession)
+	resp, err = http.DefaultClient.Do(listAddrReq3)
+	if err != nil {
+		t.Fatalf("GET /me/addresses (after delete default): %v", err)
+	}
+	if resp.StatusCode != 200 {
+		t.Fatalf("GET /me/addresses (after delete default) status = %d, want 200", resp.StatusCode)
+	}
+	var listAddrResp3 struct {
+		Addresses []struct {
+			ID        string `json:"id"`
+			Label     string `json:"label"`
+			IsDefault bool   `json:"is_default"`
+		} `json:"addresses"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&listAddrResp3); err != nil {
+		t.Fatalf("decode /me/addresses GET (after delete default): %v", err)
+	}
+	_ = resp.Body.Close()
+	if len(listAddrResp3.Addresses) != 1 {
+		t.Fatalf("GET /me/addresses (after delete default) count = %d, want 1", len(listAddrResp3.Addresses))
+	}
+	if !listAddrResp3.Addresses[0].IsDefault {
+		t.Error("remaining address should be auto-promoted to default after default deletion")
+	}
+	if listAddrResp3.Addresses[0].Label != "Office" {
+		t.Errorf("remaining address label = %s, want Office", listAddrResp3.Addresses[0].Label)
+	}
+
+	// 17. DELETE /api/v1/me/addresses/{id} (delete the last address).
+	deleteAddrReq2, _ := http.NewRequest("DELETE", serverURL+"/api/v1/me/addresses/"+firstAddrID, nil)
+	deleteAddrReq2.AddCookie(mergeSession)
+	resp, err = http.DefaultClient.Do(deleteAddrReq2)
+	if err != nil {
+		t.Fatalf("DELETE /me/addresses/{id} (last): %v", err)
+	}
+	if resp.StatusCode != 204 {
+		body, _ := io.ReadAll(resp.Body)
+		_ = resp.Body.Close()
+		t.Fatalf("DELETE /me/addresses/{id} (last) status = %d, want 204; body: %s", resp.StatusCode, body)
+	}
+	_ = resp.Body.Close()
+
+	// 18. GET /api/v1/me/addresses — assert {addresses: []} (empty array, not null).
+	listAddrReq4, _ := http.NewRequest("GET", serverURL+"/api/v1/me/addresses", nil)
+	listAddrReq4.AddCookie(mergeSession)
+	resp, err = http.DefaultClient.Do(listAddrReq4)
+	if err != nil {
+		t.Fatalf("GET /me/addresses (empty): %v", err)
+	}
+	if resp.StatusCode != 200 {
+		t.Fatalf("GET /me/addresses (empty) status = %d, want 200", resp.StatusCode)
+	}
+	var listAddrResp4 struct {
+		Addresses []interface{} `json:"addresses"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&listAddrResp4); err != nil {
+		t.Fatalf("decode /me/addresses GET (empty): %v", err)
+	}
+	_ = resp.Body.Close()
+	if listAddrResp4.Addresses == nil {
+		t.Fatal("GET /me/addresses (empty): addresses field should be empty array, not null")
+	}
+	if len(listAddrResp4.Addresses) != 0 {
+		t.Fatalf("GET /me/addresses (empty) count = %d, want 0", len(listAddrResp4.Addresses))
+	}
 }
