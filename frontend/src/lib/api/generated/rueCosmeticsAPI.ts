@@ -138,6 +138,31 @@ export interface InternalMeMeResponse {
   user_id?: string;
 }
 
+export interface InternalOrdersShippingAddress {
+  city?: string;
+  label?: string;
+  line1?: string;
+  line2?: string;
+  phone?: string;
+  region?: string;
+}
+
+export interface InternalOrdersInitCheckoutBody {
+  shipping_address?: InternalOrdersShippingAddress;
+  shipping_method?: string;
+}
+
+export interface InternalOrdersInitCheckoutResponse {
+  authorization_url?: string;
+  order_id?: string;
+  reference?: string;
+  total_ghs_minor?: number;
+}
+
+export interface InternalOrdersVerifyCheckoutResponse {
+  status?: string;
+}
+
 export interface InternalShippingQuote {
   applied_cost_ghs_minor?: number;
   flat_rate_ghs_minor?: number;
@@ -377,6 +402,34 @@ export const getCategories = <
 };
 
 /**
+ * @summary Initialize a Paystack-hosted checkout for the caller's cart
+ */
+export const postCheckoutInit = <
+  TData = AxiosResponse<InternalOrdersInitCheckoutResponse>,
+>(
+  internalOrdersInitCheckoutBody: InternalOrdersInitCheckoutBody,
+  options?: AxiosRequestConfig,
+): Promise<TData> => {
+  return axios.default.post(
+    `/checkout/init`,
+    internalOrdersInitCheckoutBody,
+    options,
+  );
+};
+
+/**
+ * @summary Verify a checkout (poll path) — calls Paystack verify and converges with the webhook
+ */
+export const getCheckoutVerifyReference = <
+  TData = AxiosResponse<InternalOrdersVerifyCheckoutResponse>,
+>(
+  reference: string,
+  options?: AxiosRequestConfig,
+): Promise<TData> => {
+  return axios.default.get(`/checkout/verify/${reference}`, options);
+};
+
+/**
  * Verifies the service is up and the database is reachable.
  * @summary Health check
  */
@@ -435,6 +488,15 @@ export const getShippingQuote = <TData = AxiosResponse<InternalShippingQuote>>(
   });
 };
 
+/**
+ * @summary Paystack webhook receiver (public, HMAC-verified)
+ */
+export const postWebhooksPaystack = <TData = AxiosResponse<void>>(
+  options?: AxiosRequestConfig,
+): Promise<TData> => {
+  return axios.default.post(`/webhooks/paystack`, undefined, options);
+};
+
 export type GetAuthGoogleCallbackResult = AxiosResponse<unknown>;
 export type GetAuthGoogleStartResult = AxiosResponse<unknown>;
 export type PostAuthLoginResult = AxiosResponse<InternalAuthSessionResponse>;
@@ -453,8 +515,13 @@ export type DeleteCartItemsIdResult = AxiosResponse<void>;
 export type PatchCartItemsIdResult = AxiosResponse<InternalCartCartResponse>;
 export type PostCartMergeResult = AxiosResponse<InternalCartCartResponse>;
 export type GetCategoriesResult = AxiosResponse<InternalCatalogCategoryView[]>;
+export type PostCheckoutInitResult =
+  AxiosResponse<InternalOrdersInitCheckoutResponse>;
+export type GetCheckoutVerifyReferenceResult =
+  AxiosResponse<InternalOrdersVerifyCheckoutResponse>;
 export type GetHealthzResult = AxiosResponse<InternalHealthResponse>;
 export type GetMeResult = AxiosResponse<InternalMeMeResponse>;
 export type GetProductsResult = AxiosResponse<InternalCatalogProductsResponse>;
 export type GetProductsSlugResult = AxiosResponse<InternalCatalogProductView>;
 export type GetShippingQuoteResult = AxiosResponse<InternalShippingQuote>;
+export type PostWebhooksPaystackResult = AxiosResponse<void>;

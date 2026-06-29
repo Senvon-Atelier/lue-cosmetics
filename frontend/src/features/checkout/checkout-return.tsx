@@ -2,16 +2,15 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { Icon } from '../shared/ui/icons';
 import { Button } from '../shared/ui/button';
-import { getCheckoutVerify } from '../../lib/api/checkout-api';
+import { getCheckoutVerifyReference } from '../../lib/api/generated/rueCosmeticsAPI';
 import { useCart } from '../cart/cart-provider';
-import { formatPrice } from '../../lib/format/utils';
 
 export function CheckoutReturnPage() {
   const navigate = useNavigate();
   const [searchParams] = useState(() => new URLSearchParams(window.location.search));
-  const reference = searchParams.get('reference') as string | null;
-  const [status, setStatus] = useState<'verifying' | 'success' | 'failed'>('verifying');
-  const [orderTotal, setOrderTotal] = useState<string>('');
+  const reference = searchParams.get('reference');
+  const [status, setStatus] = useState<'verifying' | 'success' | 'failed' | 'pending' | 'timeout'>('verifying');
+  const [pollCount, setPollCount] = useState(0);
   const { refreshCart } = useCart();
 
   useEffect(() => {
@@ -20,38 +19,51 @@ export function CheckoutReturnPage() {
       return;
     }
 
+    let isMounted = true;
+    const maxPolls = 15; // 15 polls * 2s = 30s total polling budget
+    let currentPoll = 0;
+
     const verifyPayment = async () => {
       try {
-        const response = await getCheckoutVerify(reference);
-        if (response.status === 200) {
+        const response = await getCheckoutVerifyReference(reference);
+
+        if (!isMounted) return;
+
+        if (response.data?.status === 'paid') {
           setStatus('success');
-          const orderData = response.data as any;
-          if (orderData?.total_ghs_minor) {
-            setOrderTotal(formatPrice(orderData.total_ghs_minor));
-          }
-          // Refresh cart to clear items after successful payment
           await refreshCart();
+          return;
+        }
+
+        if (response.data?.status === 'pending') {
+          currentPoll++;
+          setPollCount(currentPoll);
+
+          if (currentPoll < maxPolls) {
+            // Poll again in 2 seconds
+            setTimeout(verifyPayment, 2000);
+          } else {
+            // Exceeded polling budget
+            setStatus('timeout');
+          }
         } else {
+          // Unexpected status
           setStatus('failed');
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Payment verification failed:', error);
-        setStatus('failed');
+        if (isMounted) {
+          setStatus('failed');
+        }
       }
     };
 
-    // Poll for verification
     verifyPayment();
 
-    // If still verifying after 30 seconds, show failed state
-    const timeout = setTimeout(() => {
-      if (status === 'verifying') {
-        setStatus('failed');
-      }
-    }, 30000);
-
-    return () => clearTimeout(timeout);
-  }, []);
+    return () => {
+      isMounted = false;
+    };
+  }, [reference]);
 
   if (status === 'verifying') {
     return (
@@ -60,6 +72,42 @@ export function CheckoutReturnPage() {
           <div className="w-16 h-16 border-4 border-lavender-600 border-t-transparent rounded-full animate-spin mb-4 mx-auto" />
           <h2 className="font-display text-2xl mb-2">Verifying your payment...</h2>
           <p className="text-ink-muted">Please wait while we confirm your order.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === 'pending') {
+    return (
+      <div className="min-h-screen bg-paper text-ink font-body flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-lavender-600 border-t-transparent rounded-full animate-spin mb-4 mx-auto" />
+          <h2 className="font-display text-2xl mb-2">Processing payment...</h2>
+          <p className="text-ink-muted">
+            Still verifying... {pollCount}/15
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === 'timeout') {
+    return (
+      <div className="min-h-screen bg-paper text-ink font-body flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <div className="w-16 h-16 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-4">
+            <Icon name="clock" size={32} className="text-yellow-600" />
+          </div>
+          <h2 className="font-display text-2xl mb-2">Still Processing</h2>
+          <p className="text-ink-muted mb-6">
+            Your payment is still being processed. Check your email for confirmation. We'll send your order details shortly.
+          </p>
+          <div className="flex gap-3 justify-center">
+            <Button onClick={() => navigate({ to: '/account' })}>My Account</Button>
+            <Button variant="outline" onClick={() => navigate({ to: '/shop' })}>
+              Continue Shopping
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -74,7 +122,9 @@ export function CheckoutReturnPage() {
           </div>
           <h2 className="font-display text-2xl mb-2">Payment Verification Failed</h2>
           <p className="text-ink-muted mb-6">
-            We couldn't verify your payment. Please contact support if you believe this is an error.
+            {!reference
+              ? 'No payment reference found. Please contact support if you believe this is an error.'
+              : 'We couldn\'t verify your payment. Please contact support if you believe this is an error.'}
           </p>
           <div className="flex gap-3 justify-center">
             <Button onClick={() => navigate({ to: '/cart' })}>Back to Cart</Button>
@@ -86,6 +136,9 @@ export function CheckoutReturnPage() {
       </div>
     );
   }
+
+  // Get order total from session storage (stored by checkout page)
+  const orderTotal = sessionStorage.getItem('order_total');
 
   return (
     <div className="min-h-screen bg-paper text-ink font-body">
@@ -108,7 +161,7 @@ export function CheckoutReturnPage() {
             {orderTotal && (
               <div className="flex justify-between">
                 <span className="text-ink-muted">Total Paid:</span>
-                <span className="font-label font-semibold">{orderTotal}</span>
+                <span className="font-label font-semibold">{orderTotal} GHS</span>
               </div>
             )}
           </div>
