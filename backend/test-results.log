@@ -1,0 +1,19 @@
+ok  	github.com/oti-adjei/ruecosmetics/cmd/api	33.792s
+?   	github.com/oti-adjei/ruecosmetics/docs	[no test files]
+ok  	github.com/oti-adjei/ruecosmetics/internal/addresses	274.096s
+ok  	github.com/oti-adjei/ruecosmetics/internal/app	(cached)
+ok  	github.com/oti-adjei/ruecosmetics/internal/auth	(cached)
+ok  	github.com/oti-adjei/ruecosmetics/internal/cart	(cached)
+ok  	github.com/oti-adjei/ruecosmetics/internal/catalog	(cached)
+ok  	github.com/oti-adjei/ruecosmetics/internal/config	(cached)
+ok  	github.com/oti-adjei/ruecosmetics/internal/db	(cached)
+?   	github.com/oti-adjei/ruecosmetics/internal/db/sqlc	[no test files]
+ok  	github.com/oti-adjei/ruecosmetics/internal/email	(cached)
+ok  	github.com/oti-adjei/ruecosmetics/internal/health	(cached)
+ok  	github.com/oti-adjei/ruecosmetics/internal/httpx	(cached)
+ok  	github.com/oti-adjei/ruecosmetics/internal/logging	(cached)
+ok  	github.com/oti-adjei/ruecosmetics/internal/me	64.166s
+ok  	github.com/oti-adjei/ruecosmetics/internal/orders	(cached)
+ok  	github.com/oti-adjei/ruecosmetics/internal/payments/paystack	(cached)
+ok  	github.com/oti-adjei/ruecosmetics/internal/shipping	(cached)
+?   	github.com/oti-adjei/ruecosmetics/internal/testsupport	[no test files]

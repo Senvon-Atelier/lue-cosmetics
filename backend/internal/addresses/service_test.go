@@ -1,6 +1,7 @@
 package addresses
 
 import (
+	"strings"
 	"sync"
 	"testing"
 
@@ -111,6 +112,14 @@ func TestCreate_TrimsAndDefaultsLabel(t *testing.T) {
 }
 
 func TestCreate_ValidationFailures(t *testing.T) {
+	// Use a single shared pool for all validation subtests
+	ctx, pool, cleanup := testsupport.StartPool(t, "../../migrations")
+	defer cleanup()
+
+	repo := NewRepository(pool)
+	svc := NewService(repo, pool, zap.NewNop())
+	userID := seedUser(t, ctx, pool, "user4a@example.com")
+
 	tests := []struct {
 		name    string
 		input   AddressInput
@@ -135,7 +144,7 @@ func TestCreate_ValidationFailures(t *testing.T) {
 		{
 			name: "overlong label",
 			input: AddressInput{
-				Label: string(make([]byte, 51)), Line1: "123 St", Line2: "",
+				Label: strings.Repeat("A", 51), Line1: "123 St", Line2: "",
 				City: "Accra", Region: "Greater Accra", Phone: "0201234567",
 			},
 			wantErr: ErrInvalidAddress,
@@ -152,13 +161,6 @@ func TestCreate_ValidationFailures(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx, pool, cleanup := testsupport.StartPool(t, "../../migrations")
-			defer cleanup()
-
-			repo := NewRepository(pool)
-			svc := NewService(repo, pool, zap.NewNop())
-			userID := seedUser(t, ctx, pool, "user4a@example.com")
-
 			_, err := svc.Create(ctx, userID, tt.input)
 			if err != tt.wantErr {
 				t.Errorf("expected error %v, got %v", tt.wantErr, err)
