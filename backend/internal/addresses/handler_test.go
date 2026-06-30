@@ -38,12 +38,47 @@ func newAddressesRouter(t *testing.T) (http.Handler, func()) {
 	r.Route("/api/v1", func(api chi.Router) {
 		api.Group(func(g chi.Router) {
 			g.Use(authH.RequireSession)
-			addrH.Mount(g) // /me/addresses*
+			g.Route("/me", func(meRouter chi.Router) {
+				addrH.Mount(meRouter) // /me/addresses*
+			})
 		})
 	})
 
 	return r, func() {
 		cleanup()
+	}
+}
+
+func TestMount_AttachesRelativeToMeSubrouter(t *testing.T) {
+	_, pool, cleanup := testsupport.StartPool(t, "../../migrations")
+	defer cleanup()
+
+	logger := zap.NewNop()
+	authRepo := auth.NewRepository(pool)
+	authSvc := auth.NewService(authRepo, logger, email.LogSender{Log: logger}, nil)
+	authSvc.Params = auth.TestParams
+	authH := auth.NewHandlers(authSvc, "rue_session", "", false)
+
+	addrH := NewHandlers(NewService(NewRepository(pool), pool, logger), logger)
+	r := chi.NewRouter()
+	authH.Mount(r)
+	r.Route("/api/v1", func(api chi.Router) {
+		api.Group(func(g chi.Router) {
+			g.Use(authH.RequireSession)
+			g.Route("/me", func(meRouter chi.Router) {
+				addrH.Mount(meRouter)
+			})
+		})
+	})
+
+	cookie := signupAndGetCookie(t, r)
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/me/addresses", nil)
+	req.AddCookie(cookie)
+	rr := httptest.NewRecorder()
+	r.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Fatalf("expected relative /me subrouter mount to serve addresses list with 200, got %d: %s", rr.Code, rr.Body.String())
 	}
 }
 
@@ -175,8 +210,8 @@ func TestCreate_400_LimitReached(t *testing.T) {
 	// Check for address_limit_reached code
 	var errResp struct {
 		Error struct {
-			Code   string              `json:"code"`
-			Fields map[string]string  `json:"fields"`
+			Code   string            `json:"code"`
+			Fields map[string]string `json:"fields"`
 		} `json:"error"`
 	}
 	if err := json.Unmarshal(rr.Body.Bytes(), &errResp); err != nil {
@@ -543,7 +578,7 @@ func createAddress(t *testing.T, router http.Handler, cookie *http.Cookie, label
 // Helper: signup with a specific email
 func signupAndGetCookieWithName(t *testing.T, router http.Handler, email string) *http.Cookie {
 	t.Helper()
-	body := strings.NewReader(`{"email":"`+email+`","password":"hunter22","name":"TestUser"}`)
+	body := strings.NewReader(`{"email":"` + email + `","password":"hunter22","name":"TestUser"}`)
 	req := httptest.NewRequest(http.MethodPost, "/auth/signup", body)
 	req.Header.Set("Content-Type", "application/json")
 	rr := httptest.NewRecorder()

@@ -16,6 +16,10 @@ func (h *Handlers) Mount(r chi.Router) {
 	r.Get("/me", h.get)
 }
 
+func (h *Handlers) MountRoutes(r chi.Router) {
+	r.Get("/", h.get)
+}
+
 type meResponse struct {
 	UserID        string `json:"user_id"`
 	Email         string `json:"email"`

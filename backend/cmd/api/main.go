@@ -10,10 +10,9 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"go.uber.org/zap"
+	"github.com/oti-adjei/ruecosmetics/internal/addresses"
 	"github.com/oti-adjei/ruecosmetics/internal/app"
 	"github.com/oti-adjei/ruecosmetics/internal/auth"
-	"github.com/oti-adjei/ruecosmetics/internal/addresses"
 	"github.com/oti-adjei/ruecosmetics/internal/cart"
 	"github.com/oti-adjei/ruecosmetics/internal/catalog"
 	"github.com/oti-adjei/ruecosmetics/internal/config"
@@ -22,6 +21,7 @@ import (
 	"github.com/oti-adjei/ruecosmetics/internal/me"
 	"github.com/oti-adjei/ruecosmetics/internal/orders"
 	"github.com/oti-adjei/ruecosmetics/internal/shipping"
+	"go.uber.org/zap"
 )
 
 // @title           Rue Cosmetics API
@@ -82,13 +82,16 @@ func run() error {
 		// Auth-gated routes (one Group with RequireSession middleware)
 		api.Group(func(r chi.Router) {
 			r.Use(authHandlers.RequireSession)
-			me.NewHandlers().Mount(r)       // GET /me
-			authHandlers.MountAuthGated(r)  // POST /auth/verify-email/resend
-			cartHandlers.MountAuthGated(r)  // POST /cart/merge
+			meHandlers := me.NewHandlers()
+			authHandlers.MountAuthGated(r)   // POST /auth/verify-email/resend
+			cartHandlers.MountAuthGated(r)   // POST /cart/merge
 			ordersHandlers.MountAuthGated(r) // POST /checkout/init, GET /checkout/verify/{reference}
 
 			addressesHandlers := addresses.NewHandlers(a.Addresses, a.Logger)
-			addressesHandlers.Mount(r) // POST/GET/PATCH/DELETE /me/addresses*, POST /me/addresses/{id}/default
+			r.Route("/me", func(meRouter chi.Router) {
+				meHandlers.MountRoutes(meRouter)  // GET /me
+				addressesHandlers.Mount(meRouter) // POST/GET/PATCH/DELETE /me/addresses*, POST /me/addresses/{id}/default
+			})
 		})
 	})
 

@@ -9,8 +9,8 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/oti-adjei/ruecosmetics/internal/auth"
-	"github.com/oti-adjei/ruecosmetics/internal/httpx"
 	sqlcq "github.com/oti-adjei/ruecosmetics/internal/db/sqlc"
+	"github.com/oti-adjei/ruecosmetics/internal/httpx"
 )
 
 type Handlers struct {
@@ -26,7 +26,7 @@ func NewHandlers(svc *Service, log *zap.Logger) *Handlers {
 }
 
 func (h *Handlers) Mount(r chi.Router) {
-	r.Route("/me/addresses", func(r chi.Router) {
+	r.Route("/addresses", func(r chi.Router) {
 		r.Post("/", h.create)
 		r.Get("/", h.list)
 		r.Patch("/{id}", h.update)

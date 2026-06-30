@@ -1,11 +1,12 @@
 package addresses
 
 import (
+	"sync"
 	"testing"
 
 	"github.com/google/uuid"
-	"go.uber.org/zap"
 	"github.com/oti-adjei/ruecosmetics/internal/testsupport"
+	"go.uber.org/zap"
 )
 
 func TestCreate_FirstAddressIsDefault(t *testing.T) {
@@ -582,5 +583,85 @@ func TestSetDefault_Nonexistent_ReturnsErrNotFound(t *testing.T) {
 	_, err := svc.SetDefault(ctx, userID, uuid.New())
 	if err != ErrNotFound {
 		t.Errorf("expected ErrNotFound, got %v", err)
+	}
+}
+
+func TestPartialUniqueIndex_HoldsAcrossConcurrentSetDefaults(t *testing.T) {
+	ctx, pool, cleanup := testsupport.StartPool(t, "../../migrations")
+	defer cleanup()
+
+	repo := NewRepository(pool)
+	svc := NewService(repo, pool, zap.NewNop())
+	userID := seedUser(t, ctx, pool, "user15@example.com")
+
+	_, err := svc.Create(ctx, userID, AddressInput{
+		Label:  "Home",
+		Line1:  "1 Home St",
+		Line2:  "",
+		City:   "Accra",
+		Region: "Greater Accra",
+		Phone:  "0201111111",
+	})
+	if err != nil {
+		t.Fatalf("create first address: %v", err)
+	}
+	work, err := svc.Create(ctx, userID, AddressInput{
+		Label:  "Work",
+		Line1:  "2 Work St",
+		Line2:  "",
+		City:   "Accra",
+		Region: "Greater Accra",
+		Phone:  "0202222222",
+	})
+	if err != nil {
+		t.Fatalf("create work address: %v", err)
+	}
+	gym, err := svc.Create(ctx, userID, AddressInput{
+		Label:  "Gym",
+		Line1:  "3 Gym St",
+		Line2:  "",
+		City:   "Accra",
+		Region: "Greater Accra",
+		Phone:  "0203333333",
+	})
+	if err != nil {
+		t.Fatalf("create gym address: %v", err)
+	}
+
+	var wg sync.WaitGroup
+	errs := make(chan error, 2)
+	for _, id := range []uuid.UUID{work.ID, gym.ID} {
+		wg.Add(1)
+		go func(addrID uuid.UUID) {
+			defer wg.Done()
+			_, err := svc.SetDefault(ctx, userID, addrID)
+			errs <- err
+		}(id)
+	}
+	wg.Wait()
+	close(errs)
+
+	successes := 0
+	for err := range errs {
+		if err == nil {
+			successes++
+		}
+	}
+	if successes == 0 {
+		t.Fatal("expected at least one concurrent SetDefault call to succeed")
+	}
+
+	listed, err := svc.List(ctx, userID)
+	if err != nil {
+		t.Fatalf("list addresses: %v", err)
+	}
+	defaults := 0
+	for _, addr := range listed {
+		if addr.IsDefault {
+			defaults++
+		}
+	}
+	if defaults != 1 {
+		t.Fatalf("expected exactly one default after concurrent SetDefault calls, got %d", defaults)
 	}
 }
