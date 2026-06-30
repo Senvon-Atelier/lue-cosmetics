@@ -334,6 +334,34 @@ func (q *Queries) RollSessionExpiry(ctx context.Context, arg RollSessionExpiryPa
 	return err
 }
 
+const updateUser = `-- name: UpdateUser :one
+UPDATE users
+SET name = COALESCE($1, name),
+    updated_at = now()
+WHERE id = $2
+RETURNING id, email, name, image, email_verified, created_at, updated_at
+`
+
+type UpdateUserParams struct {
+	Name *string
+	ID   uuid.UUID
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, updateUser, arg.Name, arg.ID)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Name,
+		&i.Image,
+		&i.EmailVerified,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const updateUserEmailVerified = `-- name: UpdateUserEmailVerified :exec
 UPDATE users SET email_verified = $2, updated_at = now() WHERE id = $1
 `

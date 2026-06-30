@@ -17,6 +17,11 @@ import { TestimonialsSection } from './features/home/testimonials-section';
 import { NewsletterSection } from './features/home/newsletter-section';
 import { AboutPage } from './features/content/about-page';
 import { useAuth } from './lib/auth/auth-provider';
+import { LoginPage } from './features/auth/login-page';
+import { SignupPage } from './features/auth/signup-page';
+import { ForgotPasswordPage } from './features/auth/forgot-password-page';
+import { ResetPasswordPage } from './features/auth/reset-password-page';
+import { VerifyEmailPage } from './features/auth/verify-email-page';
 
 // Root route with all providers (no layout)
 const rootRoute = createRootRoute({
@@ -136,13 +141,35 @@ const AboutRoute = createRoute({
 const LoginRoute = createRoute({
   getParentRoute: () => marketingLayoutRoute,
   path: '/login',
-  component: () => (
-    <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '2rem' }}>
-      <h1 className="font-display text-4xl mb-4">Login</h1>
-      <p className="text-ink-muted mb-6">Sign in to your account to access your wishlist and order history.</p>
-      <p className="text-sm text-ink-muted">Login form coming soon...</p>
-    </div>
-  ),
+  component: LoginPage,
+});
+
+// Signup route (child of marketing layout)
+const SignupRoute = createRoute({
+  getParentRoute: () => marketingLayoutRoute,
+  path: '/signup',
+  component: SignupPage,
+});
+
+// Forgot password route (child of marketing layout)
+const ForgotPasswordRoute = createRoute({
+  getParentRoute: () => marketingLayoutRoute,
+  path: '/forgot-password',
+  component: ForgotPasswordPage,
+});
+
+// Reset password route (child of marketing layout)
+const ResetPasswordRoute = createRoute({
+  getParentRoute: () => marketingLayoutRoute,
+  path: '/reset-password',
+  component: ResetPasswordPage,
+});
+
+// Verify email route (child of marketing layout)
+const VerifyEmailRoute = createRoute({
+  getParentRoute: () => marketingLayoutRoute,
+  path: '/verify-email',
+  component: VerifyEmailPage,
 });
 
 // Account route (protected, child of marketing layout)
@@ -265,6 +292,10 @@ const routeTree = rootRoute.addChildren([
     CartRoute,
     AboutRoute,
     LoginRoute,
+    SignupRoute,
+    ForgotPasswordRoute,
+    ResetPasswordRoute,
+    VerifyEmailRoute,
     AccountRoute,
     AdminRoute,
   ]),

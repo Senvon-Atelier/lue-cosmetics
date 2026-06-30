@@ -122,3 +122,11 @@ func (r *Repository) CreateSession(ctx context.Context, params sqlcq.CreateSessi
 func (r *Repository) CreateVerificationToken(ctx context.Context, params sqlcq.CreateVerificationTokenParams) (sqlcq.VerificationToken, error) {
 	return r.q.CreateVerificationToken(ctx, params)
 }
+
+// UpdateUserName updates the user's name.
+func (r *Repository) UpdateUserName(ctx context.Context, id uuid.UUID, name string) error {
+	return r.q.UpdateUserName(ctx, sqlcq.UpdateUserNameParams{
+		ID:   id,
+		Name: name,
+	})
+}

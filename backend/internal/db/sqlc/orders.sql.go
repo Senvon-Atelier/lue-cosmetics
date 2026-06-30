@@ -22,6 +22,24 @@ func (q *Queries) CountOrdersByStatus(ctx context.Context, status string) (int64
 	return count, err
 }
 
+const countOrdersByUserID = `-- name: CountOrdersByUserID :one
+SELECT count(*) FROM orders
+WHERE user_id = $1
+  AND ($2::text = '' OR status = $2)
+`
+
+type CountOrdersByUserIDParams struct {
+	UserID uuid.UUID
+	Status *string
+}
+
+func (q *Queries) CountOrdersByUserID(ctx context.Context, arg CountOrdersByUserIDParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countOrdersByUserID, arg.UserID, arg.Status)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createOrder = `-- name: CreateOrder :one
 INSERT INTO orders (user_id, status, subtotal_ghs_minor, shipping_ghs_minor,
                     total_ghs_minor, paystack_reference, shipping_address)
@@ -218,6 +236,61 @@ func (q *Queries) ListOrderItems(ctx context.Context, orderID uuid.UUID) ([]Orde
 			&i.ProductBrandSnapshot,
 			&i.ProductImageSnapshot,
 			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listOrdersByUserID = `-- name: ListOrdersByUserID :many
+SELECT id, user_id, status, subtotal_ghs_minor, shipping_ghs_minor,
+       total_ghs_minor, paystack_reference, paystack_transaction_id,
+       shipping_address, created_at, updated_at
+FROM orders
+WHERE user_id = $1
+  AND ($2::text = '' OR status = $2)
+ORDER BY created_at DESC
+LIMIT $4 OFFSET $3
+`
+
+type ListOrdersByUserIDParams struct {
+	UserID uuid.UUID
+	Status *string
+	Offset *int32
+	Limit  *int32
+}
+
+func (q *Queries) ListOrdersByUserID(ctx context.Context, arg ListOrdersByUserIDParams) ([]Order, error) {
+	rows, err := q.db.Query(ctx, listOrdersByUserID,
+		arg.UserID,
+		arg.Status,
+		arg.Offset,
+		arg.Limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Order
+	for rows.Next() {
+		var i Order
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Status,
+			&i.SubtotalGhsMinor,
+			&i.ShippingGhsMinor,
+			&i.TotalGhsMinor,
+			&i.PaystackReference,
+			&i.PaystackTransactionID,
+			&i.ShippingAddress,
+			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}

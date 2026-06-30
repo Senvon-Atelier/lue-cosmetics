@@ -33,8 +33,8 @@ func buildRBACRouter(h *auth.Handlers) http.Handler {
 	r.Group(func(r chi.Router) {
 		r.Use(h.RequireSession)
 
-		// GET /me
-		me.NewHandlers().Mount(r)
+		// GET /me (orders repo can be nil for basic /me endpoint in tests)
+		me.NewHandlers(nil).Mount(r)
 		// POST /auth/verify-email/resend
 		h.MountAuthGated(r)
 

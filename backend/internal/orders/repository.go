@@ -56,3 +56,33 @@ func (r *Repository) ListOrderItems(ctx context.Context, orderID uuid.UUID) ([]s
 func (r *Repository) CountOrdersByStatus(ctx context.Context, status string) (int64, error) {
 	return r.q.CountOrdersByStatus(ctx, status)
 }
+
+// ListOrdersByUserID returns a paginated list of orders for a user, optionally filtered by status.
+func (r *Repository) ListOrdersByUserID(ctx context.Context, userID uuid.UUID, status string, limit, offset int32) ([]sqlcq.Order, error) {
+	// Convert status to pointer if provided
+	var statusPtr *string
+	if status != "" {
+		statusPtr = &status
+	}
+
+	return r.q.ListOrdersByUserID(ctx, sqlcq.ListOrdersByUserIDParams{
+		UserID:  userID,
+		Status:  statusPtr,
+		Limit:   &limit,
+		Offset:  &offset,
+	})
+}
+
+// CountOrdersByUserID returns the total count of orders for a user, optionally filtered by status.
+func (r *Repository) CountOrdersByUserID(ctx context.Context, userID uuid.UUID, status string) (int64, error) {
+	// Convert status to pointer if provided
+	var statusPtr *string
+	if status != "" {
+		statusPtr = &status
+	}
+
+	return r.q.CountOrdersByUserID(ctx, sqlcq.CountOrdersByUserIDParams{
+		UserID: userID,
+		Status: statusPtr,
+	})
+}

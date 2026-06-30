@@ -51,3 +51,18 @@ WHERE id = $1 AND status = 'pending';
 
 -- name: CountOrdersByStatus :one
 SELECT count(*) FROM orders WHERE status = $1;
+
+-- name: ListOrdersByUserID :many
+SELECT id, user_id, status, subtotal_ghs_minor, shipping_ghs_minor,
+       total_ghs_minor, paystack_reference, paystack_transaction_id,
+       shipping_address, created_at, updated_at
+FROM orders
+WHERE user_id = $1
+  AND (sqlc.narg('status')::text = '' OR status = sqlc.narg('status'))
+ORDER BY created_at DESC
+LIMIT sqlc.narg('limit') OFFSET sqlc.narg('offset');
+
+-- name: CountOrdersByUserID :one
+SELECT count(*) FROM orders
+WHERE user_id = $1
+  AND (sqlc.narg('status')::text = '' OR status = sqlc.narg('status'));

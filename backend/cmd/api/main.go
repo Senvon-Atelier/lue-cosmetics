@@ -82,14 +82,18 @@ func run() error {
 		// Auth-gated routes (one Group with RequireSession middleware)
 		api.Group(func(r chi.Router) {
 			r.Use(authHandlers.RequireSession)
-			meHandlers := me.NewHandlers()
+			ordersRepo := orders.NewRepository(a.Pool)
+			meHandlers := me.NewHandlers(ordersRepo)
 			authHandlers.MountAuthGated(r)   // POST /auth/verify-email/resend
 			cartHandlers.MountAuthGated(r)   // POST /cart/merge
 			ordersHandlers.MountAuthGated(r) // POST /checkout/init, GET /checkout/verify/{reference}
 
+				// Mount me handlers at root level (they include /me prefix)
+				meHandlers.Mount(r) // GET /me, GET /me/orders, GET /me/orders/:id, PATCH /me
+
+
 			addressesHandlers := addresses.NewHandlers(a.Addresses, a.Logger)
 			r.Route("/me", func(meRouter chi.Router) {
-				meHandlers.MountRoutes(meRouter)  // GET /me
 				addressesHandlers.Mount(meRouter) // POST/GET/PATCH/DELETE /me/addresses*, POST /me/addresses/{id}/default
 			})
 		})

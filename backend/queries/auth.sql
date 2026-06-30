@@ -17,6 +17,13 @@ UPDATE users SET email_verified = $2, updated_at = now() WHERE id = $1;
 -- name: UpdateUserName :exec
 UPDATE users SET name = $2, updated_at = now() WHERE id = $1;
 
+-- name: UpdateUser :one
+UPDATE users
+SET name = COALESCE(sqlc.narg('name'), name),
+    updated_at = now()
+WHERE id = sqlc.arg('id')
+RETURNING id, email, name, image, email_verified, created_at, updated_at;
+
 -- name: UpsertPasswordCredential :exec
 INSERT INTO password_credentials (user_id, password_hash, updated_at)
 VALUES ($1, $2, now())

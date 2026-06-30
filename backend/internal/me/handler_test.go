@@ -12,6 +12,7 @@ import (
 	"github.com/oti-adjei/ruecosmetics/internal/auth"
 	"github.com/oti-adjei/ruecosmetics/internal/email"
 	"github.com/oti-adjei/ruecosmetics/internal/me"
+	"github.com/oti-adjei/ruecosmetics/internal/orders"
 	"github.com/oti-adjei/ruecosmetics/internal/testsupport"
 )
 
@@ -24,12 +25,14 @@ func newMeRouter(t *testing.T) (http.Handler, func()) {
 	svc.Params = auth.TestParams
 
 	authH := auth.NewHandlers(svc, "rue_session", "", false)
+	ordersRepo := orders.NewRepository(pool)
+	meH := me.NewHandlers(ordersRepo)
 
 	r := chi.NewRouter()
 	authH.Mount(r) // /auth/signup, /auth/login etc.
 	r.Group(func(g chi.Router) {
 		g.Use(authH.RequireSession)
-		me.NewHandlers().Mount(g)
+		meH.Mount(g)
 	})
 
 	return r, cleanup
