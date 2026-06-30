@@ -22,6 +22,41 @@ export interface GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope {
   error?: GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorBody;
 }
 
+export interface InternalAddressesAddressResponse {
+  city?: string;
+  created_at?: string;
+  id?: string;
+  is_default?: boolean;
+  label?: string;
+  line1?: string;
+  line2?: string;
+  phone?: string;
+  region?: string;
+  updated_at?: string;
+}
+
+export interface InternalAddressesCreateAddressRequest {
+  city?: string;
+  label?: string;
+  line1?: string;
+  line2?: string;
+  phone?: string;
+  region?: string;
+}
+
+export interface InternalAddressesListAddressesResponse {
+  addresses?: InternalAddressesAddressResponse[];
+}
+
+export interface InternalAddressesPatchAddressRequest {
+  city?: string;
+  label?: string;
+  line1?: string;
+  line2?: string;
+  phone?: string;
+  region?: string;
+}
+
 export interface InternalAuthLoginBody {
   email?: string;
   password?: string;
@@ -130,12 +165,60 @@ export interface InternalHealthResponse {
   status?: string;
 }
 
+export interface InternalMeListOrdersResponse {
+  limit?: number;
+  offset?: number;
+  orders?: InternalMeOrderResponse[];
+  total?: number;
+}
+
 export interface InternalMeMeResponse {
   email?: string;
   email_verified?: boolean;
   name?: string;
   role?: string;
   user_id?: string;
+}
+
+export interface InternalMeOrderDetailResponse {
+  created_at?: string;
+  id?: string;
+  items?: InternalMeOrderItemResponse[];
+  paystack_reference?: string;
+  shipping_address?: string;
+  shipping_ghs?: number;
+  status?: string;
+  subtotal_ghs?: number;
+  total_ghs?: number;
+  updated_at?: string;
+  user_id?: string;
+}
+
+export interface InternalMeOrderItemResponse {
+  id?: string;
+  product_brand_snapshot?: string;
+  product_id?: string;
+  product_image_snapshot?: string;
+  product_name_snapshot?: string;
+  qty?: number;
+  unit_price_ghs?: number;
+}
+
+export interface InternalMeOrderResponse {
+  created_at?: string;
+  id?: string;
+  paystack_reference?: string;
+  shipping_ghs?: number;
+  status?: string;
+  subtotal_ghs?: number;
+  total_ghs?: number;
+  updated_at?: string;
+  user_id?: string;
+}
+
+export interface InternalMeUpdateProfileRequest {
+  email?: string;
+  name?: string;
 }
 
 export interface InternalOrdersShippingAddress {
@@ -169,6 +252,21 @@ export interface InternalShippingQuote {
   free_over_ghs_minor?: number;
   free_shipping_remainder_ghs_minor?: number;
 }
+
+export type GetApiV1MeOrdersParams = {
+  /**
+   * Filter by status
+   */
+  status?: string;
+  /**
+   * Pagination limit
+   */
+  limit?: number;
+  /**
+   * Pagination offset
+   */
+  offset?: number;
+};
 
 export type GetProductsParams = {
   /**
@@ -206,6 +304,33 @@ export type GetShippingQuoteParams = {
    * Cart subtotal in pesewas (>= 0)
    */
   subtotal: number;
+};
+
+/**
+ * @summary List user's orders
+ */
+export const getApiV1MeOrders = <
+  TData = AxiosResponse<InternalMeListOrdersResponse>,
+>(
+  params?: GetApiV1MeOrdersParams,
+  options?: AxiosRequestConfig,
+): Promise<TData> => {
+  return axios.default.get(`/api/v1/me/orders`, {
+    ...options,
+    params: { ...params, ...options?.params },
+  });
+};
+
+/**
+ * @summary Get a specific order
+ */
+export const getApiV1MeOrdersId = <
+  TData = AxiosResponse<InternalMeOrderDetailResponse>,
+>(
+  id: string,
+  options?: AxiosRequestConfig,
+): Promise<TData> => {
+  return axios.default.get(`/api/v1/me/orders/${id}`, options);
 };
 
 /**
@@ -449,6 +574,82 @@ export const getMe = <TData = AxiosResponse<InternalMeMeResponse>>(
 };
 
 /**
+ * @summary Update user profile
+ */
+export const patchMe = <TData = AxiosResponse<InternalMeMeResponse>>(
+  internalMeUpdateProfileRequest: InternalMeUpdateProfileRequest,
+  options?: AxiosRequestConfig,
+): Promise<TData> => {
+  return axios.default.patch(`/me`, internalMeUpdateProfileRequest, options);
+};
+
+/**
+ * @summary List addresses
+ */
+export const getMeAddresses = <
+  TData = AxiosResponse<InternalAddressesListAddressesResponse>,
+>(
+  options?: AxiosRequestConfig,
+): Promise<TData> => {
+  return axios.default.get(`/me/addresses`, options);
+};
+
+/**
+ * @summary Create an address
+ */
+export const postMeAddresses = <
+  TData = AxiosResponse<InternalAddressesAddressResponse>,
+>(
+  internalAddressesCreateAddressRequest: InternalAddressesCreateAddressRequest,
+  options?: AxiosRequestConfig,
+): Promise<TData> => {
+  return axios.default.post(
+    `/me/addresses`,
+    internalAddressesCreateAddressRequest,
+    options,
+  );
+};
+
+/**
+ * @summary Delete an address
+ */
+export const deleteMeAddressesId = <TData = AxiosResponse<void>>(
+  id: string,
+  options?: AxiosRequestConfig,
+): Promise<TData> => {
+  return axios.default.delete(`/me/addresses/${id}`, options);
+};
+
+/**
+ * @summary Update an address
+ */
+export const patchMeAddressesId = <
+  TData = AxiosResponse<InternalAddressesAddressResponse>,
+>(
+  id: string,
+  internalAddressesPatchAddressRequest: InternalAddressesPatchAddressRequest,
+  options?: AxiosRequestConfig,
+): Promise<TData> => {
+  return axios.default.patch(
+    `/me/addresses/${id}`,
+    internalAddressesPatchAddressRequest,
+    options,
+  );
+};
+
+/**
+ * @summary Set an address as default
+ */
+export const postMeAddressesIdDefault = <
+  TData = AxiosResponse<InternalAddressesAddressResponse>,
+>(
+  id: string,
+  options?: AxiosRequestConfig,
+): Promise<TData> => {
+  return axios.default.post(`/me/addresses/${id}/default`, undefined, options);
+};
+
+/**
  * @summary List products
  */
 export const getProducts = <
@@ -497,6 +698,10 @@ export const postWebhooksPaystack = <TData = AxiosResponse<void>>(
   return axios.default.post(`/webhooks/paystack`, undefined, options);
 };
 
+export type GetApiV1MeOrdersResult =
+  AxiosResponse<InternalMeListOrdersResponse>;
+export type GetApiV1MeOrdersIdResult =
+  AxiosResponse<InternalMeOrderDetailResponse>;
 export type GetAuthGoogleCallbackResult = AxiosResponse<unknown>;
 export type GetAuthGoogleStartResult = AxiosResponse<unknown>;
 export type PostAuthLoginResult = AxiosResponse<InternalAuthSessionResponse>;
@@ -521,6 +726,16 @@ export type GetCheckoutVerifyReferenceResult =
   AxiosResponse<InternalOrdersVerifyCheckoutResponse>;
 export type GetHealthzResult = AxiosResponse<InternalHealthResponse>;
 export type GetMeResult = AxiosResponse<InternalMeMeResponse>;
+export type PatchMeResult = AxiosResponse<InternalMeMeResponse>;
+export type GetMeAddressesResult =
+  AxiosResponse<InternalAddressesListAddressesResponse>;
+export type PostMeAddressesResult =
+  AxiosResponse<InternalAddressesAddressResponse>;
+export type DeleteMeAddressesIdResult = AxiosResponse<void>;
+export type PatchMeAddressesIdResult =
+  AxiosResponse<InternalAddressesAddressResponse>;
+export type PostMeAddressesIdDefaultResult =
+  AxiosResponse<InternalAddressesAddressResponse>;
 export type GetProductsResult = AxiosResponse<InternalCatalogProductsResponse>;
 export type GetProductsSlugResult = AxiosResponse<InternalCatalogProductView>;
 export type GetShippingQuoteResult = AxiosResponse<InternalShippingQuote>;

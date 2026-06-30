@@ -88,12 +88,9 @@ func run() error {
 			cartHandlers.MountAuthGated(r)   // POST /cart/merge
 			ordersHandlers.MountAuthGated(r) // POST /checkout/init, GET /checkout/verify/{reference}
 
-				// Mount me handlers at root level (they include /me prefix)
-				meHandlers.Mount(r) // GET /me, GET /me/orders, GET /me/orders/:id, PATCH /me
-
-
 			addressesHandlers := addresses.NewHandlers(a.Addresses, a.Logger)
 			r.Route("/me", func(meRouter chi.Router) {
+				meHandlers.MountRoutes(meRouter)  // GET /me, GET /me/orders, GET /me/orders/:id, PATCH /me
 				addressesHandlers.Mount(meRouter) // POST/GET/PATCH/DELETE /me/addresses*, POST /me/addresses/{id}/default
 			})
 		})

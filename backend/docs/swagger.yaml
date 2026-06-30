@@ -250,6 +250,19 @@ definitions:
       status:
         type: string
     type: object
+  internal_me.listOrdersResponse:
+    properties:
+      limit:
+        type: integer
+      offset:
+        type: integer
+      orders:
+        items:
+          $ref: '#/definitions/internal_me.orderResponse'
+        type: array
+      total:
+        type: integer
+    type: object
   internal_me.meResponse:
     properties:
       email:
@@ -261,6 +274,78 @@ definitions:
       role:
         type: string
       user_id:
+        type: string
+    type: object
+  internal_me.orderDetailResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/internal_me.orderItemResponse'
+        type: array
+      paystack_reference:
+        type: string
+      shipping_address:
+        type: string
+      shipping_ghs:
+        type: number
+      status:
+        type: string
+      subtotal_ghs:
+        type: number
+      total_ghs:
+        type: number
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  internal_me.orderItemResponse:
+    properties:
+      id:
+        type: string
+      product_brand_snapshot:
+        type: string
+      product_id:
+        type: string
+      product_image_snapshot:
+        type: string
+      product_name_snapshot:
+        type: string
+      qty:
+        type: integer
+      unit_price_ghs:
+        type: number
+    type: object
+  internal_me.orderResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      paystack_reference:
+        type: string
+      shipping_ghs:
+        type: number
+      status:
+        type: string
+      subtotal_ghs:
+        type: number
+      total_ghs:
+        type: number
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  internal_me.updateProfileRequest:
+    properties:
+      email:
+        type: string
+      name:
         type: string
     type: object
   internal_orders.ShippingAddress:
@@ -318,6 +403,71 @@ info:
   title: Rue Cosmetics API
   version: 0.1.0
 paths:
+  /api/v1/me/orders:
+    get:
+      parameters:
+      - description: Filter by status
+        in: query
+        name: status
+        type: string
+      - default: 20
+        description: Pagination limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Pagination offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_me.listOrdersResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: List user's orders
+      tags:
+      - me
+  /api/v1/me/orders/{id}:
+    get:
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_me.orderDetailResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: Get a specific order
+      tags:
+      - me
   /auth/google/callback:
     get:
       responses:
@@ -753,6 +903,38 @@ paths:
           schema:
             $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
       summary: Get the current user
+      tags:
+      - me
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Profile update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_me.updateProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_me.meResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+        "501":
+          description: Not Implemented
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: Update user profile
       tags:
       - me
   /me/addresses:

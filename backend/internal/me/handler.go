@@ -28,6 +28,9 @@ func (h *Handlers) Mount(r chi.Router) {
 
 func (h *Handlers) MountRoutes(r chi.Router) {
 	r.Get("/", h.get)
+	r.Get("/orders", h.listOrders)
+	r.Get("/orders/{id}", h.getOrder)
+	r.Patch("/", h.updateProfile)
 }
 
 type meResponse struct {
@@ -60,38 +63,38 @@ func (h *Handlers) get(w http.ResponseWriter, r *http.Request) {
 
 // Order response types
 type orderResponse struct {
-	ID                 string  `json:"id"`
-	UserID             string  `json:"user_id"`
-	Status             string  `json:"status"`
-	Subtotal           float64 `json:"subtotal_ghs"`
-	Shipping           float64 `json:"shipping_ghs"`
-	Total              float64 `json:"total_ghs"`
-	PaystackReference  string  `json:"paystack_reference"`
-	CreatedAt          string  `json:"created_at"`
-	UpdatedAt          string  `json:"updated_at"`
+	ID                string  `json:"id"`
+	UserID            string  `json:"user_id"`
+	Status            string  `json:"status"`
+	Subtotal          float64 `json:"subtotal_ghs"`
+	Shipping          float64 `json:"shipping_ghs"`
+	Total             float64 `json:"total_ghs"`
+	PaystackReference string  `json:"paystack_reference"`
+	CreatedAt         string  `json:"created_at"`
+	UpdatedAt         string  `json:"updated_at"`
 }
 
 type orderDetailResponse struct {
 	orderResponse
-	ShippingAddress string           `json:"shipping_address"`
+	ShippingAddress string              `json:"shipping_address"`
 	Items           []orderItemResponse `json:"items"`
 }
 
 type orderItemResponse struct {
-	ID               string  `json:"id"`
-	ProductID        string  `json:"product_id"`
-	Qty              int32   `json:"qty"`
-	UnitPrice        float64 `json:"unit_price_ghs"`
-	ProductName      string  `json:"product_name_snapshot"`
-	ProductBrand     string  `json:"product_brand_snapshot"`
-	ProductImage     string  `json:"product_image_snapshot"`
+	ID           string  `json:"id"`
+	ProductID    string  `json:"product_id"`
+	Qty          int32   `json:"qty"`
+	UnitPrice    float64 `json:"unit_price_ghs"`
+	ProductName  string  `json:"product_name_snapshot"`
+	ProductBrand string  `json:"product_brand_snapshot"`
+	ProductImage string  `json:"product_image_snapshot"`
 }
 
 type listOrdersResponse struct {
-	Orders  []orderResponse `json:"orders"`
-	Total   int64            `json:"total"`
-	Limit   int32            `json:"limit"`
-	Offset  int32            `json:"offset"`
+	Orders []orderResponse `json:"orders"`
+	Total  int64           `json:"total"`
+	Limit  int32           `json:"limit"`
+	Offset int32           `json:"offset"`
 }
 
 // listOrders godoc
@@ -105,7 +108,7 @@ type listOrdersResponse struct {
 // @Success  200 {object} listOrdersResponse
 // @Failure  401 {object} httpx.ErrorEnvelope
 // @Failure  500 {object} httpx.ErrorEnvelope
-// @Router   /me/orders [get]
+// @Router   /api/v1/me/orders [get]
 func (h *Handlers) listOrders(w http.ResponseWriter, r *http.Request) {
 	view, ok := auth.GetSessionView(r.Context())
 	if !ok {
@@ -186,7 +189,7 @@ func (h *Handlers) listOrders(w http.ResponseWriter, r *http.Request) {
 // @Failure  401 {object} httpx.ErrorEnvelope
 // @Failure  404 {object} httpx.ErrorEnvelope
 // @Failure  500 {object} httpx.ErrorEnvelope
-// @Router   /me/orders/{id} [get]
+// @Router   /api/v1/me/orders/{id} [get]
 func (h *Handlers) getOrder(w http.ResponseWriter, r *http.Request) {
 	view, ok := auth.GetSessionView(r.Context())
 	if !ok {

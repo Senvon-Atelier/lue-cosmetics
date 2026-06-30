@@ -16,6 +16,13 @@ import { JournalSection } from './features/home/journal-section';
 import { TestimonialsSection } from './features/home/testimonials-section';
 import { NewsletterSection } from './features/home/newsletter-section';
 import { AboutPage } from './features/content/about-page';
+import { AccountLayout } from './features/account/account-layout';
+import { AccountDashboard } from './features/account/account-dashboard';
+import { AccountOrders } from './features/account/account-orders';
+import { AccountOrderDetail } from './features/account/account-order-detail';
+import { AccountAddresses } from './features/account/account-addresses';
+import { AccountWishlist } from './features/account/account-wishlist';
+import { AccountSettings } from './features/account/account-settings';
 import { useAuth } from './lib/auth/auth-provider';
 import { LoginPage } from './features/auth/login-page';
 import { SignupPage } from './features/auth/signup-page';
@@ -176,52 +183,52 @@ const VerifyEmailRoute = createRoute({
 const AccountRoute = createRoute({
   getParentRoute: () => marketingLayoutRoute,
   path: '/account',
-  component: AccountComponent,
+  component: AccountLayout,
 });
 
-function AccountComponent() {
-  const { user, isAuthenticated, isLoading } = useAuth();
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-paper text-ink font-body flex items-center justify-center">
-        <div className="text-ink-muted">Loading...</div>
-      </div>
-    );
-  }
+// Account dashboard route (child of account layout)
+const AccountDashboardRoute = createRoute({
+  getParentRoute: () => AccountRoute,
+  path: "/",
+  component: AccountDashboard,
+});
 
-  if (!isAuthenticated) {
-    return (
-      <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '2rem' }}>
-        <h1 className="font-display text-4xl mb-4">Account Required</h1>
-        <p className="text-ink-muted">Please log in to access your account.</p>
-      </div>
-    );
-  }
+// Account orders route (child of account layout)
+const AccountOrdersRoute = createRoute({
+  getParentRoute: () => AccountRoute,
+  path: "/orders",
+  component: AccountOrders,
+});
 
-  return (
-    <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '2rem' }}>
-      <h1 className="font-display text-4xl mb-4">Welcome back, {user?.name || user?.email}!</h1>
-      <p className="text-ink-muted mb-6">
-        {user?.role === 'admin' ? 'You have admin access.' : 'Manage your orders, addresses, and wishlist.'}
-      </p>
+// Account order detail route (child of account layout)
+const AccountOrderDetailRoute = createRoute({
+  getParentRoute: () => AccountOrdersRoute,
+  path: "$id",
+  component: AccountOrderDetail,
+});
 
-      <div className="space-y-4">
-        <div className="p-4 bg-lavender-50 rounded">
-          <h2 className="font-label font-semibold mb-2">Account Details</h2>
-          <ul className="space-y-1 text-ink-soft">
-            <li>• Email: {user?.email}</li>
-            <li>• Email verified: {user?.email_verified ? 'Yes' : 'No'}</li>
-            <li>• Role: {user?.role}</li>
-            <li>• User ID: {user?.user_id}</li>
-          </ul>
-        </div>
+// Account addresses route (child of account layout)
+const AccountAddressesRoute = createRoute({
+  getParentRoute: () => AccountRoute,
+  path: "/addresses",
+  component: AccountAddresses,
+});
 
-        <p className="text-sm text-ink-muted">More account features coming soon...</p>
-      </div>
-    </div>
-  );
-}
+// Account wishlist route (child of account layout)
+const AccountWishlistRoute = createRoute({
+  getParentRoute: () => AccountRoute,
+  path: "/wishlist",
+  component: AccountWishlist,
+});
+
+// Account settings route (child of account layout)
+const AccountSettingsRoute = createRoute({
+  getParentRoute: () => AccountRoute,
+  path: "/settings",
+  component: AccountSettings,
+});
+
 
 // Admin route (protected + admin only, child of marketing layout)
 const AdminRoute = createRoute({
@@ -296,7 +303,13 @@ const routeTree = rootRoute.addChildren([
     ForgotPasswordRoute,
     ResetPasswordRoute,
     VerifyEmailRoute,
-    AccountRoute,
+    AccountRoute.addChildren([
+      AccountDashboardRoute,
+      AccountOrdersRoute.addChildren([AccountOrderDetailRoute]),
+      AccountAddressesRoute,
+      AccountWishlistRoute,
+      AccountSettingsRoute,
+    ]),
     AdminRoute,
   ]),
   checkoutLayoutRoute.addChildren([CheckoutRoute, CheckoutReturnRoute]),
