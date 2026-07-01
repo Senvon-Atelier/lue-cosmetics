@@ -51,14 +51,14 @@ export function ProductCard({ product, variant = 'default' }: ProductCardProps) 
   return (
     <div
       onClick={() => id && navigate({ to: '/shop/$slug', params: { slug: id } })}
-      className={`block ${cardStyles[variant]} rounded-lg overflow-hidden group`}
+      className={`block ${cardStyles[variant]} rounded overflow-hidden group hover:-translate-y-px transition-transform duration-[600ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]`}
     >
       <div className="relative aspect-[4/5] overflow-hidden bg-lavender-50">
         {imageUrl ? (
           <img
             src={imageUrl}
             alt={name || 'Product'}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[var(--dur)]"
+            className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-[600ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]"
             loading="lazy"
           />
         ) : (
@@ -70,7 +70,7 @@ export function ProductCard({ product, variant = 'default' }: ProductCardProps) 
             {tags.map((tag) => (
               <span
                 key={tag}
-                className="px-2 py-1 bg-paper/90 backdrop-blur-sm text-xs font-label font-medium rounded"
+                className="px-2 py-1 bg-paper/90 backdrop-blur-sm text-xs font-label font-medium rounded-full"
                 style={{ fontSize: '10px' }}
               >
                 {tag}
@@ -80,10 +80,22 @@ export function ProductCard({ product, variant = 'default' }: ProductCardProps) 
         )}
 
         {hasDiscount && (
-          <span className="absolute top-2 right-2 px-2 py-1 bg-ink text-paper text-xs font-label font-medium rounded">
+          <span className="absolute top-2 right-2 px-2 py-1 bg-ink text-paper text-xs font-label font-medium rounded-full">
             Sale
           </span>
         )}
+
+        {/* Wishlist heart button - appears on hover */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            // Wishlist functionality to be implemented
+          }}
+          className="absolute top-2 right-2 w-8 h-8 rounded-full bg-paper/90 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-[280ms] hover:bg-paper"
+          aria-label="Add to wishlist"
+        >
+          <Icon name="heart" size={16} />
+        </button>
       </div>
 
       <div className="p-4">

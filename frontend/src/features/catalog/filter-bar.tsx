@@ -25,105 +25,103 @@ export function FilterBar({
   const [showFilters, setShowFilters] = useState(false);
 
   return (
-    <div className="border-b border-line-soft py-4">
-      <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '0 2rem' }}>
-        <div className="flex items-center justify-between gap-4 mb-4">
-          <div className="flex items-center gap-2 flex-1">
-            <div className="relative flex-1 max-w-md">
-              <Icon name="search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => onSearchChange(e.target.value)}
-                placeholder="Search products, brands..."
-                className="w-full pl-10 pr-4 py-2 border border-line rounded-lg bg-paper text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-lavender-400 focus:border-transparent"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => onSearchChange('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-muted hover:text-ink"
-                  aria-label="Clear search"
-                >
-                  <Icon name="close" size={14} />
-                </button>
-              )}
-            </div>
-          </div>
-
+    <div className="space-y-6">
+      {/* Search */}
+      <div className="relative">
+        <Icon name="search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => onSearchChange(e.target.value)}
+          placeholder="Search products..."
+          className="w-full pl-10 pr-4 py-3 border border-line rounded bg-paper text-ink placeholder:text-ink-muted focus:outline-none focus:border-lavender-600 focus:ring-2 focus:ring-lavender-600 transition-all duration-[var(--dur)]"
+        />
+        {searchQuery && (
           <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 px-4 py-2 border border-line rounded-lg bg-paper hover:bg-lavender-50 transition-colors"
+            onClick={() => onSearchChange('')}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-muted hover:text-ink transition-colors"
+            aria-label="Clear search"
           >
-            <Icon name="filter" size={16} />
-            <span className="font-label text-sm">Filters</span>
-            {(selectedCategory || selectedBrand) && (
-              <span className="w-2 h-2 bg-lavender-600 rounded-full" />
-            )}
+            <Icon name="close" size={14} />
           </button>
-        </div>
-
-        {showFilters && (
-          <div className="space-y-4 mt-4">
-            <div>
-              <h3 className="font-label font-semibold text-sm mb-2">Categories</h3>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={() => onCategoryChange(null)}
-                  className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                    selectedCategory === null
-                      ? 'bg-lavender-600 text-paper'
-                      : 'bg-lavender-100 text-ink hover:bg-lavender-200'
-                  }`}
-                >
-                  All
-                </button>
-                {categories.map((category) => (
-                  <button
-                    key={category.id}
-                    onClick={() => onCategoryChange(category.slug)}
-                    className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                      selectedCategory === category.slug
-                        ? 'bg-lavender-600 text-paper'
-                        : 'bg-lavender-100 text-ink hover:bg-lavender-200'
-                    }`}
-                  >
-                    {category.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-label font-semibold text-sm mb-2">Brands</h3>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={() => onBrandChange(null)}
-                  className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                    selectedBrand === null
-                      ? 'bg-lavender-600 text-paper'
-                      : 'bg-lavender-100 text-ink hover:bg-lavender-200'
-                  }`}
-                >
-                  All
-                </button>
-                {brands.map((brand) => (
-                  <button
-                    key={brand.id}
-                    onClick={() => onBrandChange(brand.slug)}
-                    className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                      selectedBrand === brand.slug
-                        ? 'bg-lavender-600 text-paper'
-                        : 'bg-lavender-100 text-ink hover:bg-lavender-200'
-                    }`}
-                  >
-                    {brand.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
         )}
       </div>
+
+      {/* Filter Groups */}
+      {categories.length > 0 && (
+        <div className="border border-line p-6 rounded">
+          <h3 className="font-label font-semibold text-xs uppercase tracking-wider mb-4 text-ink-soft">Categories</h3>
+          <div className="space-y-2">
+            <button
+              onClick={() => onCategoryChange(null)}
+              className={`w-full text-left px-3 py-2 text-sm rounded-full transition-colors duration-[var(--dur)] ${
+                selectedCategory === null
+                  ? 'bg-lavender-600 text-paper'
+                  : 'bg-lavender-50 text-ink hover:bg-lavender-100'
+              }`}
+            >
+              All Categories
+            </button>
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => onCategoryChange(category.id)}
+                className={`w-full text-left px-3 py-2 text-sm rounded-full transition-colors duration-[var(--dur)] ${
+                  selectedCategory === category.id
+                    ? 'bg-lavender-600 text-paper'
+                    : 'bg-lavender-50 text-ink hover:bg-lavender-100'
+                }`}
+              >
+                {category.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {brands.length > 0 && (
+        <div className="border border-line p-6 rounded">
+          <h3 className="font-label font-semibold text-xs uppercase tracking-wider mb-4 text-ink-soft">Brands</h3>
+          <div className="space-y-2">
+            <button
+              onClick={() => onBrandChange(null)}
+              className={`w-full text-left px-3 py-2 text-sm rounded-full transition-colors duration-[var(--dur)] ${
+                selectedBrand === null
+                  ? 'bg-lavender-600 text-paper'
+                  : 'bg-lavender-50 text-ink hover:bg-lavender-100'
+              }`}
+            >
+              All Brands
+            </button>
+            {brands.map((brand) => (
+              <button
+                key={brand.id}
+                onClick={() => onBrandChange(brand.id)}
+                className={`w-full text-left px-3 py-2 text-sm rounded-full transition-colors duration-[var(--dur)] ${
+                  selectedBrand === brand.id
+                    ? 'bg-lavender-600 text-paper'
+                    : 'bg-lavender-50 text-ink hover:bg-lavender-100'
+                }`}
+              >
+                {brand.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Clear All */}
+      {(selectedCategory || selectedBrand) && (
+        <button
+          onClick={() => {
+            onCategoryChange(null);
+            onBrandChange(null);
+          }}
+          className="font-label text-sm text-ink-soft hover:text-ink transition-colors"
+        >
+          Clear all filters
+        </button>
+      )}
     </div>
   );
 }

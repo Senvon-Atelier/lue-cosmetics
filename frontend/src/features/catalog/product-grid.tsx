@@ -9,9 +9,9 @@ interface ProductGridProps {
 export function ProductGrid({ products, loading }: ProductGridProps) {
   if (loading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" style={{ padding: '0 2rem 2rem' }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
         {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="aspect-[4/5] bg-lavender-100 rounded-lg animate-pulse" />
+          <div key={i} className="aspect-[4/5] bg-lavender-100 rounded animate-pulse" />
         ))}
       </div>
     );
@@ -19,7 +19,7 @@ export function ProductGrid({ products, loading }: ProductGridProps) {
 
   if (products.length === 0) {
     return (
-      <div className="text-center py-16" style={{ padding: '0 2rem' }}>
+      <div className="text-center py-16 mt-8">
         <div className="inline-flex flex-col items-center justify-center w-20 h-20 bg-lavender-50 rounded-full mb-4">
           <span className="text-4xl">🔍</span>
         </div>
@@ -30,7 +30,7 @@ export function ProductGrid({ products, loading }: ProductGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" style={{ padding: '2rem' }}>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
       {products.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}

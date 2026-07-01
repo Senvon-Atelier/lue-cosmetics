@@ -30,27 +30,29 @@ export function FeaturedProducts() {
   }, []);
 
   return (
-    <section className="py-16 bg-lavender-50">
-      <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '2rem' }}>
-        <div className="flex items-center justify-between mb-8">
+    <section className="section bg-lavender-50">
+      <div className="wrap">
+        <div className="section-head">
           <div>
-            <h2 className="font-display text-3xl mb-2">Featured Products</h2>
-            <p className="text-ink-muted">Our most loved items, curated for you</p>
+            <div className="eyebrow">Featured</div>
+            <h2 className="font-display text-[clamp(22px,2.5vw,32px)] font-normal tracking-[-0.01em]">
+              Featured Products
+            </h2>
           </div>
           <button
             onClick={() => navigate({ to: '/shop' })}
-            className="flex items-center gap-2 font-label font-medium text-sm text-lavender-600 hover:text-lavender-700 transition-colors"
+            className="section-link"
           >
-            View all
-            <Icon name="arrow" size={14} />
+            <span>View all</span>
+            <Icon name="arrowRight" size={16} />
           </button>
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid-4">
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="animate-pulse">
-                <div className="aspect-[4/5] bg-lavender-100 rounded-lg mb-4" />
+                <div className="aspect-[4/5] bg-lavender-100 rounded mb-4" />
                 <div className="h-4 bg-lavender-100 rounded w-3/4 mb-2" />
                 <div className="h-3 bg-lavender-100 rounded w-1/2" />
               </div>
@@ -62,14 +64,14 @@ export function FeaturedProducts() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+            <div className="grid-4">
               {products.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
 
-            <div className="text-center">
-              <Button onClick={() => navigate({ to: '/shop' })} variant="outline" icon="arrow" iconPosition="right">
+            <div className="text-center mt-12">
+              <Button onClick={() => navigate({ to: '/shop' })} variant="outline" icon="arrowRight" iconPosition="right">
                 Shop All Products
               </Button>
             </div>

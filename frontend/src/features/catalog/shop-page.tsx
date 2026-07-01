@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { FilterBar } from './filter-bar';
 import { SortBar } from './sort-bar';
 import { ProductGrid } from './product-grid';
+import { Icon } from '../shared/ui/icons';
 import { getProducts, getCategories, getBrands } from '../../lib/api/generated/rueCosmeticsAPI';
 import type { InternalCatalogProductView } from '../../lib/api/generated/rueCosmeticsAPI';
 
@@ -89,25 +90,73 @@ export function ShopPage({ initialCategory, initialBrand }: ShopPageProps) {
   };
 
   return (
-    <div>
-      <FilterBar
-        categories={categories}
-        brands={brands}
-        selectedCategory={selectedCategory}
-        selectedBrand={selectedBrand}
-        searchQuery={searchQuery}
-        onCategoryChange={handleCategoryChange}
-        onBrandChange={handleBrandChange}
-        onSearchChange={handleSearchChange}
-      />
+    <div className="section">
+      <div className="wrap">
+        {/* Page Header */}
+        <div className="mb-12">
+          <div className="eyebrow">Shop</div>
+          <h1 className="font-display text-[clamp(32px,4vw,56px)] font-normal tracking-[-0.01em]">
+            All Products
+          </h1>
+        </div>
 
-      <SortBar
-        sortBy={sortBy}
-        onSortChange={handleSortChange}
-        productCount={products.length}
-      />
+        {/* Category Chips */}
+        {categories.length > 0 && (
+          <div className="flex gap-3 mb-12 flex-wrap">
+            <button
+              onClick={() => handleCategoryChange(null)}
+              className={`chip transition-colors duration-[var(--dur)] ${
+                selectedCategory === null
+                  ? 'bg-lavender-600 text-paper'
+                  : 'bg-lavender-100 text-ink hover:bg-lavender-200'
+              }`}
+            >
+              All
+            </button>
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => handleCategoryChange(category.id)}
+                className={`chip transition-colors duration-[var(--dur)] ${
+                  selectedCategory === category.id
+                    ? 'bg-lavender-600 text-paper'
+                    : 'bg-lavender-100 text-ink hover:bg-lavender-200'
+                }`}
+              >
+                {category.label}
+              </button>
+            ))}
+          </div>
+        )}
 
-      <ProductGrid products={products} loading={loading} />
+        {/* Two-Column Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-12">
+          {/* Filters Sidebar */}
+          <aside className="lg:sticky lg:top-24 lg:self-start h-fit">
+            <FilterBar
+              categories={categories}
+              brands={brands}
+              selectedCategory={selectedCategory}
+              selectedBrand={selectedBrand}
+              searchQuery={searchQuery}
+              onCategoryChange={handleCategoryChange}
+              onBrandChange={handleBrandChange}
+              onSearchChange={handleSearchChange}
+            />
+          </aside>
+
+          {/* Main Content */}
+          <div>
+            <SortBar
+              sortBy={sortBy}
+              onSortChange={handleSortChange}
+              productCount={products.length}
+            />
+
+            <ProductGrid products={products} loading={loading} />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

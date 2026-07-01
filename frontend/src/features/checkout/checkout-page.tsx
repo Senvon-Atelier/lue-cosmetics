@@ -167,38 +167,44 @@ export function CheckoutPage() {
   const total = (subtotalGhsMinor || 0) + shippingCost;
 
   return (
-    <>
-      <div className="mb-6">
-        <h1 className="font-display text-4xl mb-2">Checkout</h1>
-        <p className="text-ink-muted">Complete your delivery details below</p>
-      </div>
+    <div className="section">
+      <div className="wrap">
+        <div className="mb-12">
+          <div className="eyebrow">Checkout</div>
+          <h1 className="font-display text-[clamp(32px,4vw,56px)] font-normal tracking-[-0.01em]">
+            Complete your order
+          </h1>
+          <p className="text-ink-muted mt-2">Enter your delivery details below</p>
+        </div>
 
-      <div className="grid md:grid-cols-3 gap-8">
-        {/* Main Content */}
-        <div className="md:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-12">
+          {/* Main Content */}
+          <div className="space-y-6">
           {/* Delivery Address Form */}
-          <div className="bg-lavender-50 rounded-lg p-6">
-            <h2 className="font-display text-2xl mb-4">Delivery Address</h2>
+          <div className="border border-line-soft rounded p-6">
+            <h2 className="font-display text-xl mb-6">Delivery Address</h2>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
               {/* General Error */}
               {errors.general && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4 text-sm">
                   {errors.general}
                 </div>
               )}
 
               {/* Line 1 (Required) */}
               <div>
-                <label className="block font-label font-medium text-sm mb-2">
+                <label className="block font-label text-xs uppercase tracking-wider mb-2">
                   Street Address <span className="text-red-600">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.line1}
                   onChange={(e) => handleInputChange('line1', e.target.value)}
-                  className={`w-full px-4 py-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-lavender-600 focus:border-transparent ${
-                    errors.line1 ? 'border-red-500' : 'border-line-soft'
+                  className={`w-full px-4 py-3 border rounded bg-paper focus:outline-none transition-all duration-[var(--dur)] ${
+                    errors.line1
+                      ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500'
+                      : 'border-line focus:border-lavender-600 focus:ring-2 focus:ring-lavender-600'
                   }`}
                   placeholder="House number, street name"
                   disabled={isProcessing}
@@ -208,12 +214,12 @@ export function CheckoutPage() {
 
               {/* Line 2 (Optional) */}
               <div>
-                <label className="block font-label font-medium text-sm mb-2">Apartment, suite, etc. (optional)</label>
+                <label className="block font-label text-xs uppercase tracking-wider mb-2">Apartment, suite, etc. (optional)</label>
                 <input
                   type="text"
                   value={formData.line2}
                   onChange={(e) => handleInputChange('line2', e.target.value)}
-                  className="w-full px-4 py-3 border border-line-soft rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-lavender-600 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-line rounded bg-paper focus:outline-none focus:border-lavender-600 focus:ring-2 focus:ring-lavender-600 transition-all duration-[var(--dur)]"
                   placeholder="Apartment, suite, building (optional)"
                   disabled={isProcessing}
                 />
@@ -221,15 +227,17 @@ export function CheckoutPage() {
 
               {/* City (Required) */}
               <div>
-                <label className="block font-label font-medium text-sm mb-2">
+                <label className="block font-label text-xs uppercase tracking-wider mb-2">
                   City <span className="text-red-600">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.city}
                   onChange={(e) => handleInputChange('city', e.target.value)}
-                  className={`w-full px-4 py-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-lavender-600 focus:border-transparent ${
-                    errors.city ? 'border-red-500' : 'border-line-soft'
+                  className={`w-full px-4 py-3 border rounded bg-paper focus:outline-none transition-all duration-[var(--dur)] ${
+                    errors.city
+                      ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500'
+                      : 'border-line focus:border-lavender-600 focus:ring-2 focus:ring-lavender-600'
                   }`}
                   placeholder="Accra"
                   disabled={isProcessing}
@@ -239,15 +247,17 @@ export function CheckoutPage() {
 
               {/* Region (Required) */}
               <div>
-                <label className="block font-label font-medium text-sm mb-2">
+                <label className="block font-label text-xs uppercase tracking-wider mb-2">
                   Region <span className="text-red-600">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.region}
                   onChange={(e) => handleInputChange('region', e.target.value)}
-                  className={`w-full px-4 py-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-lavender-600 focus:border-transparent ${
-                    errors.region ? 'border-red-500' : 'border-line-soft'
+                  className={`w-full px-4 py-3 border rounded bg-paper focus:outline-none transition-all duration-[var(--dur)] ${
+                    errors.region
+                      ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500'
+                      : 'border-line focus:border-lavender-600 focus:ring-2 focus:ring-lavender-600'
                   }`}
                   placeholder="Greater Accra"
                   disabled={isProcessing}
@@ -257,15 +267,17 @@ export function CheckoutPage() {
 
               {/* Phone (Required) */}
               <div>
-                <label className="block font-label font-medium text-sm mb-2">
+                <label className="block font-label text-xs uppercase tracking-wider mb-2">
                   Phone Number <span className="text-red-600">*</span>
                 </label>
                 <input
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => handleInputChange('phone', e.target.value)}
-                  className={`w-full px-4 py-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-lavender-600 focus:border-transparent ${
-                    errors.phone ? 'border-red-500' : 'border-line-soft'
+                  className={`w-full px-4 py-3 border rounded bg-paper focus:outline-none transition-all duration-[var(--dur)] ${
+                    errors.phone
+                      ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500'
+                      : 'border-line focus:border-lavender-600 focus:ring-2 focus:ring-lavender-600'
                   }`}
                   placeholder="0XX XXX XXXX"
                   disabled={isProcessing}
@@ -275,12 +287,12 @@ export function CheckoutPage() {
 
               {/* Label (Optional) */}
               <div>
-                <label className="block font-label font-medium text-sm mb-2">Address Label (optional)</label>
+                <label className="block font-label text-xs uppercase tracking-wider mb-2">Address Label (optional)</label>
                 <input
                   type="text"
                   value={formData.label}
                   onChange={(e) => handleInputChange('label', e.target.value)}
-                  className="w-full px-4 py-3 border border-line-soft rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-lavender-600 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-line rounded bg-paper focus:outline-none focus:border-lavender-600 focus:ring-2 focus:ring-lavender-600 transition-all duration-[var(--dur)]"
                   placeholder="Home, Work, etc."
                   disabled={isProcessing}
                 />
@@ -292,7 +304,8 @@ export function CheckoutPage() {
                 disabled={isProcessing}
                 isLoading={isProcessing}
                 className="w-full"
-                icon="arrow"
+                size="lg"
+                icon="arrowRight"
                 iconPosition="right"
               >
                 Proceed to Payment
@@ -301,38 +314,30 @@ export function CheckoutPage() {
           </div>
 
           {/* Shipping Method */}
-          <div className="bg-lavender-50 rounded-lg p-6">
-            <h2 className="font-display text-2xl mb-4">Shipping Method</h2>
+          <div className="border border-line-soft rounded p-6">
+            <h2 className="font-display text-xl mb-4">Shipping Method</h2>
 
             <div className="space-y-3">
-              <label
-                className={`flex items-center justify-between p-4 border rounded-lg cursor-pointer transition-colors bg-lavender-100 border-lavender-600`}
-              >
+              <label className="flex items-center justify-between p-4 border-2 border-lavender-600 rounded cursor-pointer bg-lavender-50">
                 <div className="flex items-center gap-3">
-                  <input
-                    type="radio"
-                    name="shipping"
-                    value="standard"
-                    checked
-                    readOnly
-                    className="w-5 h-5 text-lavender-600"
-                    disabled
-                  />
+                  <div className="w-5 h-5 rounded-full border-2 border-lavender-600 flex items-center justify-center">
+                    <div className="w-2.5 h-2.5 rounded-full bg-lavender-600" />
+                  </div>
                   <div>
-                    <div className="font-label font-semibold">Standard Delivery</div>
-                    <div className="text-sm text-ink-muted">3-5 business days · GHS 25.00</div>
+                    <div className="font-label font-semibold text-sm">Standard Delivery</div>
+                    <div className="text-xs text-ink-muted">3-5 business days</div>
                   </div>
                 </div>
-                <div className="text-sm font-semibold">{formatPrice(shippingCost)}</div>
+                <div className="text-sm font-label font-semibold">{formatPrice(shippingCost)}</div>
               </label>
             </div>
           </div>
         </div>
 
-        {/* Order Summary */}
-        <div className="md:col-span-1">
-          <div className="bg-lavender-50 rounded-lg p-6 sticky top-4">
-            <h2 className="font-display text-2xl mb-4">Order Summary</h2>
+          {/* Order Summary */}
+          <div>
+            <div className="border border-line-soft rounded p-6 sticky top-24">
+            <h2 className="font-display text-xl mb-4">Order Summary</h2>
 
             <div className="space-y-3 mb-6">
               <div className="flex justify-between text-sm">
@@ -351,13 +356,17 @@ export function CheckoutPage() {
               </div>
             </div>
 
-            <div className="mt-4 text-xs text-ink-muted text-center">
-              <p>Secure checkout powered by Paystack</p>
-              <p className="mt-1">Delivery calculated at checkout</p>
+              <div className="mt-4 text-xs text-ink-muted text-center space-y-1">
+                <p className="flex items-center justify-center gap-2">
+                  <Icon name="shield" size={12} />
+                  Secure checkout powered by Paystack
+                </p>
+                <p>Delivery calculated at checkout</p>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -58,13 +58,13 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 bg-ink/50 transition-opacity duration-300 z-40 ${open ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        className={`fixed inset-0 bg-ink/40 backdrop-blur-[12px] transition-opacity duration-[280ms] z-40 ${open ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         onClick={onClose}
       />
 
       {/* Drawer */}
       <aside
-        className={`fixed top-0 right-0 h-full w-full max-w-md bg-paper shadow-2xl z-50 transition-transform duration-300 ease-[var(--ease)] ${
+        className={`fixed top-0 right-0 h-full w-full sm:w-[440px] bg-paper shadow-2xl z-50 transition-transform duration-[360ms] ease-[cubic-bezier(0.2,0.8,0.2,1)] ${
           open ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
@@ -77,7 +77,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
             </div>
             <button
               onClick={onClose}
-              className="p-2 rounded-full hover:bg-lavender-50 transition-colors"
+              className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-lavender-50 transition-colors"
               aria-label="Close cart"
             >
               <Icon name="close" size={20} />
@@ -87,7 +87,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
           {/* Body */}
           <div className="flex-1 overflow-y-auto p-6">
             {isLoading ? (
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {Array.from({ length: 3 }).map((_, i) => (
                   <div key={i} className="flex gap-4 animate-pulse">
                     <div className="w-20 h-24 bg-lavender-100 rounded" />
@@ -106,15 +106,15 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                 <h3 className="font-display text-2xl mb-2">Your bag is empty</h3>
                 <p className="text-ink-muted mb-6">Let's change that.</p>
                 <Link to="/shop">
-                  <Button onClick={onClose} variant="primary" icon="arrow" iconPosition="right">
+                  <Button onClick={onClose} variant="primary" icon="arrowRight" iconPosition="right">
                     Shop the edit
                   </Button>
                 </Link>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {items.map((item) => (
-                  <div key={item.id} className="flex gap-4 p-4 bg-lavender-50 rounded-lg">
+                  <div key={item.id} className="flex gap-4 py-5 border-b border-line-soft last:border-0">
                     {/* Product Image */}
                     <div className="relative w-20 h-24 flex-shrink-0 overflow-hidden rounded bg-lavender-100">
                       {item.product_image_path ? (
@@ -140,7 +140,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => handleUpdateQuantity(item.id, (item.qty || 1) - 1)}
-                            className="w-8 h-8 flex items-center justify-center border border-line rounded hover:bg-lavender-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-8 h-8 flex items-center justify-center border border-line rounded-full hover:bg-lavender-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled={(item.qty || 1) <= 1}
                           >
                             <Icon name="minus" size={12} />
@@ -148,7 +148,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                           <span className="w-8 text-center font-label">{item.qty || 1}</span>
                           <button
                             onClick={() => handleUpdateQuantity(item.id, (item.qty || 1) + 1)}
-                            className="w-8 h-8 flex items-center justify-center border border-line rounded hover:bg-lavender-50 transition-colors"
+                            className="w-8 h-8 flex items-center justify-center border border-line rounded-full hover:bg-lavender-50 transition-colors"
                           >
                             <Icon name="plus" size={12} />
                           </button>
@@ -163,7 +163,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                     {/* Remove Button */}
                     <button
                       onClick={() => handleRemoveItem(item.id)}
-                      className="self-start p-2 text-ink-muted hover:text-ink transition-colors"
+                      className="self-start p-2 text-ink-muted hover:text-red-600 transition-colors"
                       aria-label="Remove item"
                     >
                       <Icon name="close" size={14} />
@@ -176,7 +176,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
 
           {/* Footer */}
           {items.length > 0 && !isLoading && (
-            <div className="border-t border-line-soft p-6 space-y-3">
+            <div className="border-t border-line-soft p-6 space-y-3 bg-paper/95 backdrop-blur-sm">
               <div className="flex justify-between text-sm">
                 <span className="text-ink-muted">Subtotal</span>
                 <span className="font-label font-semibold">{subtotal}</span>
@@ -186,13 +186,13 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                 <span>{shipping}</span>
               </div>
               <Link to="/checkout" onClick={onClose}>
-                <Button className="w-full" icon="arrow" iconPosition="right">
+                <Button className="w-full" icon="arrowRight" iconPosition="right">
                   Checkout · {total}
                 </Button>
               </Link>
               <button
                 onClick={onClose}
-                className="w-full text-sm text-ink-muted hover:text-ink transition-colors py-2"
+                className="w-full text-center text-sm text-ink-muted hover:text-ink transition-colors py-2"
               >
                 Continue shopping
               </button>
