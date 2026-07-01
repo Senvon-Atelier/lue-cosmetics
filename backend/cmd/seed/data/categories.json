@@ -1,0 +1,27 @@
+[
+  {
+    "name": "Skincare",
+    "slug": "skincare",
+    "description": "Face care products including cleansers, moisturizers, and treatments"
+  },
+  {
+    "name": "Makeup",
+    "slug": "makeup",
+    "description": "Cosmetics for face, eyes, and lips"
+  },
+  {
+    "name": "Hair Care",
+    "slug": "hair-care",
+    "description": "Hair products including shampoos, conditioners, and styling"
+  },
+  {
+    "name": "Body Care",
+    "slug": "body-care",
+    "description": "Body lotions, scrubs, and treatments"
+  },
+  {
+    "name": "Fragrance",
+    "slug": "fragrance",
+    "description": "Perfumes and body sprays"
+  }
+]

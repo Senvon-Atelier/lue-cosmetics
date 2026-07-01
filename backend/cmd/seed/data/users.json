@@ -1,0 +1,20 @@
+[
+  {
+    "email": "admin@ruecosmetics.com",
+    "password": "hunter22",
+    "name": "Admin User",
+    "role": "admin"
+  },
+  {
+    "email": "customer@ruecosmetics.com",
+    "password": "hunter22",
+    "name": "Jane Customer",
+    "role": "customer"
+  },
+  {
+    "email": "test@ruecosmetics.com",
+    "password": "hunter22",
+    "name": "Test User",
+    "role": "customer"
+  }
+]

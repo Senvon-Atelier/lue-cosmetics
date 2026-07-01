@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Rue Essentials",
+    "slug": "rue-essentials",
+    "description": "Our signature line of premium cosmetic products",
+    "logo_url": ""
+  },
+  {
+    "name": "Glow Beauty",
+    "slug": "glow-beauty",
+    "description": "Natural beauty products for radiant skin",
+    "logo_url": ""
+  },
+  {
+    "name": "Luxe Cosmetics",
+    "slug": "luxe-cosmetics",
+    "description": "High-end makeup and skincare collection",
+    "logo_url": ""
+  },
+  {
+    "name": "Pure Botanicals",
+    "slug": "pure-botanicals",
+    "description": "Plant-based hair and body care",
+    "logo_url": ""
+  }
+]

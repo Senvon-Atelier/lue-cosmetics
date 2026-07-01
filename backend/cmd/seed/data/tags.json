@@ -1,0 +1,42 @@
+[
+  {
+    "name": "organic",
+    "display_name": "Organic"
+  },
+  {
+    "name": "vegan",
+    "display_name": "Vegan"
+  },
+  {
+    "name": "cruelty-free",
+    "display_name": "Cruelty-Free"
+  },
+  {
+    "name": "anti-aging",
+    "display_name": "Anti-Aging"
+  },
+  {
+    "name": "moisturizing",
+    "display_name": "Moisturizing"
+  },
+  {
+    "name": "matte",
+    "display_name": "Matte Finish"
+  },
+  {
+    "name": "long-lasting",
+    "display_name": "Long Lasting"
+  },
+  {
+    "name": "sensitive-skin",
+    "display_name": "Sensitive Skin"
+  },
+  {
+    "name": "waterproof",
+    "display_name": "Waterproof"
+  },
+  {
+    "name": "natural-ingredients",
+    "display_name": "Natural Ingredients"
+  }
+]
