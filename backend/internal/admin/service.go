@@ -6,8 +6,11 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"go.uber.org/zap"
+	"github.com/oti-adjei/ruecosmetics/internal/auth"
+	"github.com/oti-adjei/ruecosmetics/internal/db"
 	sqlcq "github.com/oti-adjei/ruecosmetics/internal/db/sqlc"
 )
 
@@ -213,35 +216,63 @@ var defaultTransitions = map[OrderStatus][]OrderStatus{
 	StatusRefunded:  {}, // terminal state
 }
 
-// UpdateOrderStatus updates the status of an order.
-// This is a simplified version for v1 - in future we'd use proper state machine and transactions.
+// UpdateOrderStatus updates the status of an order with audit trail.
 func (s *Service) UpdateOrderStatus(ctx context.Context, params UpdateOrderStatusParams) error {
-	// Validate status transition
-	order, err := s.Repo.GetOrderByID(ctx, params.OrderID)
-	if err != nil {
-		s.Log.Error("failed to get order for status update", zap.Error(err), zap.String("order_id", params.OrderID.String()))
-		return fmt.Errorf("get order: %w", err)
-	}
+	return db.WithTx(ctx, s.Repo.Pool(), func(tx pgx.Tx) error {
+		// 1. Lock and fetch current order
+		q := sqlcq.New(tx)
+		order, err := q.GetOrderByID(ctx, params.OrderID)
+		if err != nil {
+			if err == pgx.ErrNoRows {
+				return fmt.Errorf("order not found: %w", err)
+			}
+			return fmt.Errorf("get order: %w", err)
+		}
 
-	// Validate transition using state machine
-	if !s.stateMachine.CanTransition(OrderStatus(order.Status), OrderStatus(params.Status)) {
-		s.Log.Warn("invalid status transition attempted",
+		// 2. Validate transition using state machine
+		if !s.stateMachine.CanTransition(OrderStatus(order.Status), OrderStatus(params.Status)) {
+			s.Log.Warn("invalid status transition attempted",
+				zap.String("order_id", params.OrderID.String()),
+				zap.String("old_status", order.Status),
+				zap.String("new_status", params.Status))
+			return fmt.Errorf("invalid status transition from %s to %s", order.Status, params.Status)
+		}
+
+		// 3. Update order status
+		_, err = q.UpdateOrderStatus(ctx, sqlcq.UpdateOrderStatusParams{
+			ID:     params.OrderID,
+			Status: params.Status,
+		})
+		if err != nil {
+			return fmt.Errorf("update order status: %w", err)
+		}
+
+		// 4. Get admin user from context
+		adminUserID, ok := auth.GetUserID(ctx)
+		if !ok {
+			return fmt.Errorf("admin user not found in context")
+		}
+
+		// 5. Insert audit record
+		_, err = q.InsertOrderHistory(ctx, sqlcq.InsertOrderHistoryParams{
+			OrderID:         params.OrderID,
+			OldStatus:       order.Status,
+			NewStatus:       params.Status,
+			ChangedByUserID: pgtype.UUID{Bytes: adminUserID, Valid: true},
+			Note:            nil,
+		})
+		if err != nil {
+			return fmt.Errorf("insert order history: %w", err)
+		}
+
+		s.Log.Info("order status updated",
 			zap.String("order_id", params.OrderID.String()),
 			zap.String("old_status", order.Status),
-			zap.String("new_status", params.Status))
-		return fmt.Errorf("invalid status transition from %s to %s", order.Status, params.Status)
-	}
+			zap.String("new_status", params.Status),
+			zap.String("updated_by", adminUserID.String()))
 
-	// For v1, we're using a simple UPDATE via the repository
-	// In a full implementation, this would use transactions and proper state management
-	s.Log.Info("updating order status",
-		zap.String("order_id", params.OrderID.String()),
-		zap.String("old_status", order.Status),
-		zap.String("new_status", params.Status))
-
-	// TODO: Implement the actual UPDATE query
-	// For now, this is a placeholder that validates the transition
-	return fmt.Errorf("status update not yet implemented - requires migration")
+		return nil
+	})
 }
 
 // Customers
