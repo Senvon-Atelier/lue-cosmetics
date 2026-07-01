@@ -1,4 +1,4 @@
-.PHONY: dev test openapi drift-check up down
+.PHONY: dev test openapi drift-check up down seed-run seed-clean
 
 up:
 	docker compose up -d postgres mailpit
@@ -17,3 +17,11 @@ openapi:
 
 drift-check:
 	$(MAKE) -C backend drift-check
+
+seed-run:
+	@echo "Seeding database..."
+	@$(MAKE) -C backend seed-run
+
+seed-clean:
+	@echo "Cleaning seed binary..."
+	@$(MAKE) -C backend seed-clean

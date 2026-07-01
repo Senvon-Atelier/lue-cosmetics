@@ -1,4 +1,4 @@
-.PHONY: dev test openapi drift-check sqlc tidy
+.PHONY: dev test openapi drift-check sqlc tidy seed-run seed-clean
 
 dev:
 	air
@@ -20,3 +20,15 @@ sqlc:
 
 tidy:
 	go mod tidy
+
+seed-run:
+	@echo "Building seed binary..."
+	@go build -o ./seed-bin ./cmd/seed
+	@echo "Running seed..."
+	@./seed-bin --data-dir="./cmd/seed/data" --db-url="${DATABASE_URL}"
+	@rm -f ./seed-bin
+	@echo "✅ Seed complete!"
+
+seed-clean:
+	@rm -f ./seed-bin
+	@echo "🧹 Seed binary cleaned"
