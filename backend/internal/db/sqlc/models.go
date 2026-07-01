@@ -83,6 +83,16 @@ type Order struct {
 	UpdatedAt             pgtype.Timestamptz
 }
 
+type OrderHistory struct {
+	ID              uuid.UUID
+	OrderID         uuid.UUID
+	OldStatus       string
+	NewStatus       string
+	ChangedByUserID pgtype.UUID
+	ChangedAt       pgtype.Timestamptz
+	Note            *string
+}
+
 type OrderItem struct {
 	ID                   uuid.UUID
 	OrderID              uuid.UUID

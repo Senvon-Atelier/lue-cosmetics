@@ -441,6 +441,42 @@ func (q *Queries) GetTopProducts(ctx context.Context, limit int32) ([]GetTopProd
 	return items, nil
 }
 
+const insertOrderHistory = `-- name: InsertOrderHistory :one
+INSERT INTO order_history (order_id, old_status, new_status, changed_by_user_id, note)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id, order_id, old_status, new_status, changed_by_user_id, changed_at, note
+`
+
+type InsertOrderHistoryParams struct {
+	OrderID         uuid.UUID
+	OldStatus       string
+	NewStatus       string
+	ChangedByUserID pgtype.UUID
+	Note            *string
+}
+
+// Creates an audit record for an order status change
+func (q *Queries) InsertOrderHistory(ctx context.Context, arg InsertOrderHistoryParams) (OrderHistory, error) {
+	row := q.db.QueryRow(ctx, insertOrderHistory,
+		arg.OrderID,
+		arg.OldStatus,
+		arg.NewStatus,
+		arg.ChangedByUserID,
+		arg.Note,
+	)
+	var i OrderHistory
+	err := row.Scan(
+		&i.ID,
+		&i.OrderID,
+		&i.OldStatus,
+		&i.NewStatus,
+		&i.ChangedByUserID,
+		&i.ChangedAt,
+		&i.Note,
+	)
+	return i, err
+}
+
 const listAllCustomers = `-- name: ListAllCustomers :many
 SELECT DISTINCT
   u.id,
@@ -589,4 +625,38 @@ func (q *Queries) ListAllOrders(ctx context.Context, arg ListAllOrdersParams) ([
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateOrderStatus = `-- name: UpdateOrderStatus :one
+UPDATE orders
+SET status = $2, updated_at = NOW()
+WHERE id = $1
+RETURNING id, user_id, status, subtotal_ghs_minor, shipping_ghs_minor,
+          total_ghs_minor, paystack_reference, paystack_transaction_id,
+          shipping_address, created_at, updated_at
+`
+
+type UpdateOrderStatusParams struct {
+	ID     uuid.UUID
+	Status string
+}
+
+// Updates the status of an order
+func (q *Queries) UpdateOrderStatus(ctx context.Context, arg UpdateOrderStatusParams) (Order, error) {
+	row := q.db.QueryRow(ctx, updateOrderStatus, arg.ID, arg.Status)
+	var i Order
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Status,
+		&i.SubtotalGhsMinor,
+		&i.ShippingGhsMinor,
+		&i.TotalGhsMinor,
+		&i.PaystackReference,
+		&i.PaystackTransactionID,
+		&i.ShippingAddress,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }

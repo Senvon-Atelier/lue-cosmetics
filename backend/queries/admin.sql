@@ -187,3 +187,18 @@ LEFT JOIN order_items oi ON oi.product_id = p.id
 LEFT JOIN orders o ON o.id = oi.order_id AND o.status IN ('paid', 'delivered')
 GROUP BY cat.id, cat.slug, cat.label
 ORDER BY revenue_ghs_minor DESC;
+
+-- name: UpdateOrderStatus :one
+-- Updates the status of an order
+UPDATE orders
+SET status = $2, updated_at = NOW()
+WHERE id = $1
+RETURNING id, user_id, status, subtotal_ghs_minor, shipping_ghs_minor,
+          total_ghs_minor, paystack_reference, paystack_transaction_id,
+          shipping_address, created_at, updated_at;
+
+-- name: InsertOrderHistory :one
+-- Creates an audit record for an order status change
+INSERT INTO order_history (order_id, old_status, new_status, changed_by_user_id, note)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id, order_id, old_status, new_status, changed_by_user_id, changed_at, note;
