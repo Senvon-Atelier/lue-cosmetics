@@ -25,6 +25,9 @@ interface CartContextType extends CartState {
   removeItem: (itemId: string) => Promise<void>;
   refreshCart: () => Promise<void>;
   itemCount: number;
+  wishlistCount: number;
+  addToWishlist: () => void;
+  removeFromWishlist: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -43,6 +46,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     guestToken: null,
     isLoading: false,
   });
+
+  // Wishlist state
+  const [wishlistCount, setWishlistCount] = useState(0);
 
   // Refresh cart from backend
   const refreshCart = async () => {
@@ -110,6 +116,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     await refreshCart();
   };
 
+  // Wishlist helpers
+  const addToWishlist = () => setWishlistCount((prev) => prev + 1);
+  const removeFromWishlist = () => setWishlistCount((prev) => Math.max(0, prev - 1));
+
   const itemCount = (state.items || []).reduce((sum, item) => sum + (item.qty || 0), 0);
 
   return (
@@ -121,6 +131,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         removeItem,
         refreshCart,
         itemCount,
+        wishlistCount,
+        addToWishlist,
+        removeFromWishlist,
       }}
     >
       {children}
