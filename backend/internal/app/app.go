@@ -6,6 +6,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/oti-adjei/ruecosmetics/internal/addresses"
+	"github.com/oti-adjei/ruecosmetics/internal/admin"
 	"github.com/oti-adjei/ruecosmetics/internal/auth"
 	"github.com/oti-adjei/ruecosmetics/internal/cart"
 	"github.com/oti-adjei/ruecosmetics/internal/catalog"
@@ -28,6 +29,7 @@ type Application struct {
 	Orders    *orders.Service
 	Addresses *addresses.Service
 	Paystack  *paystack.Client
+	Admin     *admin.Service
 }
 
 func New(ctx context.Context, cfg *config.Config) (*Application, error) {
@@ -72,6 +74,9 @@ func New(ctx context.Context, cfg *config.Config) (*Application, error) {
 	addressesRepo := addresses.NewRepository(pool)
 	addressesSvc := addresses.NewService(addressesRepo, pool, logger)
 
+	adminRepo := admin.NewRepository(pool)
+	adminSvc := admin.NewService(adminRepo, logger)
+
 	return &Application{
 		Config:    cfg,
 		Pool:      pool,
@@ -83,6 +88,7 @@ func New(ctx context.Context, cfg *config.Config) (*Application, error) {
 		Orders:    ordersSvc,
 		Addresses: addressesSvc,
 		Paystack:  paystackClient,
+		Admin:     adminSvc,
 	}, nil
 }
 

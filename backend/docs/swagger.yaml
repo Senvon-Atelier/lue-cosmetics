@@ -76,6 +76,394 @@ definitions:
       region:
         type: string
     type: object
+  internal_admin.CustomerDetailResponse:
+    properties:
+      customer:
+        $ref: '#/definitions/internal_admin.CustomerInfo'
+      orders:
+        items:
+          $ref: '#/definitions/internal_admin.OrderSummary'
+        type: array
+    type: object
+  internal_admin.CustomerInfo:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      email_verified:
+        type: boolean
+      id:
+        type: string
+      image:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  internal_admin.CustomerStats:
+    properties:
+      active_customers_30d:
+        type: integer
+      customers_with_orders:
+        type: integer
+      total_customers:
+        type: integer
+    type: object
+  internal_admin.CustomerSummary:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      email_verified:
+        type: boolean
+      id:
+        type: string
+      last_order_at:
+        type: string
+      lifetime_value_ghs_minor:
+        type: integer
+      name:
+        type: string
+      order_count:
+        type: integer
+    type: object
+  internal_admin.CustomersResponse:
+    properties:
+      customers:
+        items:
+          $ref: '#/definitions/internal_admin.CustomerSummary'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  internal_admin.DashboardResponse:
+    properties:
+      recent_orders:
+        items:
+          $ref: '#/definitions/internal_admin.RecentOrder'
+        type: array
+      stats:
+        $ref: '#/definitions/internal_admin.DashboardStats'
+    type: object
+  internal_admin.DashboardStats:
+    properties:
+      delivered_orders:
+        type: integer
+      paid_orders:
+        type: integer
+      pending_orders:
+        type: integer
+      shipped_orders:
+        type: integer
+      total_customers:
+        type: integer
+      total_orders:
+        type: integer
+      total_products:
+        type: integer
+      total_revenue_ghs_minor:
+        type: integer
+    type: object
+  internal_admin.OrderDetailResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/internal_admin.OrderItemInfo'
+        type: array
+      order:
+        $ref: '#/definitions/internal_admin.OrderInfo'
+    type: object
+  internal_admin.OrderInfo:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      paystack_reference:
+        type: string
+      shipping_address:
+        $ref: '#/definitions/internal_admin.ShippingAddress'
+      shipping_ghs_minor:
+        type: integer
+      status:
+        type: string
+      subtotal_ghs_minor:
+        type: integer
+      total_ghs_minor:
+        type: integer
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  internal_admin.OrderItemInfo:
+    properties:
+      id:
+        type: string
+      product_brand_snapshot:
+        type: string
+      product_id:
+        type: string
+      product_image_snapshot:
+        type: string
+      product_name_snapshot:
+        type: string
+      qty:
+        type: integer
+      unit_price_ghs_minor:
+        type: integer
+    type: object
+  internal_admin.OrderStats:
+    properties:
+      cancelled_count:
+        type: integer
+      delivered_count:
+        type: integer
+      delivered_revenue_ghs_minor:
+        type: integer
+      fulfilled_count:
+        type: integer
+      paid_count:
+        type: integer
+      paid_revenue_ghs_minor:
+        type: integer
+      pending_count:
+        type: integer
+      refunded_count:
+        type: integer
+      shipped_count:
+        type: integer
+      total_completed_revenue_ghs_minor:
+        type: integer
+    type: object
+  internal_admin.OrderSummary:
+    properties:
+      created_at:
+        type: string
+      customer_email:
+        type: string
+      customer_name:
+        type: string
+      customer_phone:
+        type: string
+      id:
+        type: string
+      paystack_reference:
+        type: string
+      shipping_ghs_minor:
+        type: integer
+      status:
+        type: string
+      subtotal_ghs_minor:
+        type: integer
+      total_ghs_minor:
+        type: integer
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  internal_admin.OrdersResponse:
+    properties:
+      orders:
+        items:
+          $ref: '#/definitions/internal_admin.OrderSummary'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  internal_admin.ProductStats:
+    properties:
+      cream_count:
+        type: integer
+      ink_count:
+        type: integer
+      lavender_count:
+        type: integer
+      low_stock:
+        type: integer
+      out_of_stock:
+        type: integer
+      rose_count:
+        type: integer
+      total_products:
+        type: integer
+    type: object
+  internal_admin.ProductSummary:
+    properties:
+      brand_id:
+        type: string
+      category_id:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      image_path:
+        type: string
+      name:
+        type: string
+      price_ghs_minor:
+        type: integer
+      rating:
+        type: number
+      review_count:
+        type: integer
+      size:
+        type: string
+      slug:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      tone:
+        type: string
+      was_price_ghs_minor:
+        type: integer
+    type: object
+  internal_admin.ProductsResponse:
+    properties:
+      page:
+        type: integer
+      page_size:
+        type: integer
+      products:
+        items:
+          $ref: '#/definitions/internal_admin.ProductSummary'
+        type: array
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  internal_admin.RecentOrder:
+    properties:
+      created_at:
+        type: string
+      customer_email:
+        type: string
+      customer_name:
+        type: string
+      id:
+        type: string
+      paystack_reference:
+        type: string
+      status:
+        type: string
+      total_ghs_minor:
+        type: integer
+      user_id:
+        type: string
+    type: object
+  internal_admin.RevenueAnalyticsResponse:
+    properties:
+      by_category:
+        items:
+          $ref: '#/definitions/internal_admin.RevenueByCategory'
+        type: array
+      by_date:
+        items:
+          $ref: '#/definitions/internal_admin.RevenueByDate'
+        type: array
+      order_stats:
+        $ref: '#/definitions/internal_admin.OrderStats'
+    type: object
+  internal_admin.RevenueByCategory:
+    properties:
+      category_id:
+        type: string
+      category_name:
+        type: string
+      category_slug:
+        type: string
+      order_count:
+        type: integer
+      revenue_ghs_minor:
+        type: integer
+    type: object
+  internal_admin.RevenueByDate:
+    properties:
+      date:
+        type: string
+      order_count:
+        type: integer
+      revenue_ghs_minor:
+        type: integer
+    type: object
+  internal_admin.ShippingAddress:
+    properties:
+      city:
+        type: string
+      label:
+        type: string
+      line1:
+        type: string
+      line2:
+        type: string
+      phone:
+        type: string
+      region:
+        type: string
+    type: object
+  internal_admin.StatsResponse:
+    properties:
+      customer_stats:
+        $ref: '#/definitions/internal_admin.CustomerStats'
+      product_stats:
+        $ref: '#/definitions/internal_admin.ProductStats'
+      top_products:
+        items:
+          $ref: '#/definitions/internal_admin.TopProduct'
+        type: array
+    type: object
+  internal_admin.TopProduct:
+    properties:
+      brand_id:
+        type: string
+      brand_name:
+        type: string
+      category_id:
+        type: string
+      category_label:
+        type: string
+      id:
+        type: string
+      image_path:
+        type: string
+      name:
+        type: string
+      price_ghs_minor:
+        type: integer
+      revenue_ghs_minor:
+        type: integer
+      slug:
+        type: string
+      tone:
+        type: string
+      total_sold:
+        type: integer
+    type: object
+  internal_admin.UpdateOrderStatusRequest:
+    properties:
+      status:
+        type: string
+    type: object
   internal_auth.loginBody:
     properties:
       email:
@@ -403,6 +791,196 @@ info:
   title: Rue Cosmetics API
   version: 0.1.0
 paths:
+  /api/v1/admin/analytics/revenue:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_admin.RevenueAnalyticsResponse'
+      security:
+      - BearerAuth: []
+      summary: Get revenue analytics
+      tags:
+      - admin
+  /api/v1/admin/analytics/stats:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_admin.StatsResponse'
+      security:
+      - BearerAuth: []
+      summary: Get admin statistics
+      tags:
+      - admin
+  /api/v1/admin/customers:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_admin.CustomersResponse'
+      security:
+      - BearerAuth: []
+      summary: List all customers
+      tags:
+      - admin
+  /api/v1/admin/customers/{id}:
+    get:
+      parameters:
+      - description: Customer ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_admin.CustomerDetailResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      security:
+      - BearerAuth: []
+      summary: Get customer details
+      tags:
+      - admin
+  /api/v1/admin/dashboard:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_admin.DashboardResponse'
+      security:
+      - BearerAuth: []
+      summary: Get admin dashboard
+      tags:
+      - admin
+  /api/v1/admin/orders:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_admin.OrdersResponse'
+      security:
+      - BearerAuth: []
+      summary: List all orders
+      tags:
+      - admin
+  /api/v1/admin/orders/{id}:
+    get:
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_admin.OrderDetailResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      security:
+      - BearerAuth: []
+      summary: Get order details
+      tags:
+      - admin
+  /api/v1/admin/orders/{id}/status:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: New status
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/internal_admin.UpdateOrderStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      security:
+      - BearerAuth: []
+      summary: Update order status
+      tags:
+      - admin
+  /api/v1/admin/products:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_admin.ProductsResponse'
+      security:
+      - BearerAuth: []
+      summary: List all products
+      tags:
+      - admin
+  /api/v1/admin/products/{id}:
+    get:
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_admin.ProductSummary'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      security:
+      - BearerAuth: []
+      summary: Get product details
+      tags:
+      - admin
   /api/v1/me/orders:
     get:
       parameters:

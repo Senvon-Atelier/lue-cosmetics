@@ -57,6 +57,226 @@ export interface InternalAddressesPatchAddressRequest {
   region?: string;
 }
 
+export interface InternalAdminCustomerDetailResponse {
+  customer?: InternalAdminCustomerInfo;
+  orders?: InternalAdminOrderSummary[];
+}
+
+export interface InternalAdminCustomerInfo {
+  created_at?: string;
+  email?: string;
+  email_verified?: boolean;
+  id?: string;
+  image?: string;
+  name?: string;
+  updated_at?: string;
+}
+
+export interface InternalAdminCustomerStats {
+  active_customers_30d?: number;
+  customers_with_orders?: number;
+  total_customers?: number;
+}
+
+export interface InternalAdminCustomerSummary {
+  created_at?: string;
+  email?: string;
+  email_verified?: boolean;
+  id?: string;
+  last_order_at?: string;
+  lifetime_value_ghs_minor?: number;
+  name?: string;
+  order_count?: number;
+}
+
+export interface InternalAdminCustomersResponse {
+  customers?: InternalAdminCustomerSummary[];
+  page?: number;
+  page_size?: number;
+  total?: number;
+  total_pages?: number;
+}
+
+export interface InternalAdminDashboardResponse {
+  recent_orders?: InternalAdminRecentOrder[];
+  stats?: InternalAdminDashboardStats;
+}
+
+export interface InternalAdminDashboardStats {
+  delivered_orders?: number;
+  paid_orders?: number;
+  pending_orders?: number;
+  shipped_orders?: number;
+  total_customers?: number;
+  total_orders?: number;
+  total_products?: number;
+  total_revenue_ghs_minor?: number;
+}
+
+export interface InternalAdminOrderDetailResponse {
+  items?: InternalAdminOrderItemInfo[];
+  order?: InternalAdminOrderInfo;
+}
+
+export interface InternalAdminOrderInfo {
+  created_at?: string;
+  id?: string;
+  paystack_reference?: string;
+  shipping_address?: InternalAdminShippingAddress;
+  shipping_ghs_minor?: number;
+  status?: string;
+  subtotal_ghs_minor?: number;
+  total_ghs_minor?: number;
+  updated_at?: string;
+  user_id?: string;
+}
+
+export interface InternalAdminOrderItemInfo {
+  id?: string;
+  product_brand_snapshot?: string;
+  product_id?: string;
+  product_image_snapshot?: string;
+  product_name_snapshot?: string;
+  qty?: number;
+  unit_price_ghs_minor?: number;
+}
+
+export interface InternalAdminOrderStats {
+  cancelled_count?: number;
+  delivered_count?: number;
+  delivered_revenue_ghs_minor?: number;
+  fulfilled_count?: number;
+  paid_count?: number;
+  paid_revenue_ghs_minor?: number;
+  pending_count?: number;
+  refunded_count?: number;
+  shipped_count?: number;
+  total_completed_revenue_ghs_minor?: number;
+}
+
+export interface InternalAdminOrderSummary {
+  created_at?: string;
+  customer_email?: string;
+  customer_name?: string;
+  customer_phone?: string;
+  id?: string;
+  paystack_reference?: string;
+  shipping_ghs_minor?: number;
+  status?: string;
+  subtotal_ghs_minor?: number;
+  total_ghs_minor?: number;
+  updated_at?: string;
+  user_id?: string;
+}
+
+export interface InternalAdminOrdersResponse {
+  orders?: InternalAdminOrderSummary[];
+  page?: number;
+  page_size?: number;
+  total?: number;
+  total_pages?: number;
+}
+
+export interface InternalAdminProductStats {
+  cream_count?: number;
+  ink_count?: number;
+  lavender_count?: number;
+  low_stock?: number;
+  out_of_stock?: number;
+  rose_count?: number;
+  total_products?: number;
+}
+
+export interface InternalAdminProductSummary {
+  brand_id?: string;
+  category_id?: string;
+  created_at?: string;
+  id?: string;
+  image_path?: string;
+  name?: string;
+  price_ghs_minor?: number;
+  rating?: number;
+  review_count?: number;
+  size?: string;
+  slug?: string;
+  tags?: string[];
+  tone?: string;
+  was_price_ghs_minor?: number;
+}
+
+export interface InternalAdminProductsResponse {
+  page?: number;
+  page_size?: number;
+  products?: InternalAdminProductSummary[];
+  total?: number;
+  total_pages?: number;
+}
+
+export interface InternalAdminRecentOrder {
+  created_at?: string;
+  customer_email?: string;
+  customer_name?: string;
+  id?: string;
+  paystack_reference?: string;
+  status?: string;
+  total_ghs_minor?: number;
+  user_id?: string;
+}
+
+export interface InternalAdminRevenueAnalyticsResponse {
+  by_category?: InternalAdminRevenueByCategory[];
+  by_date?: InternalAdminRevenueByDate[];
+  order_stats?: InternalAdminOrderStats;
+}
+
+export interface InternalAdminRevenueByCategory {
+  category_id?: string;
+  category_name?: string;
+  category_slug?: string;
+  order_count?: number;
+  revenue_ghs_minor?: number;
+}
+
+export interface InternalAdminRevenueByDate {
+  date?: string;
+  order_count?: number;
+  revenue_ghs_minor?: number;
+}
+
+export interface InternalAdminShippingAddress {
+  city?: string;
+  label?: string;
+  line1?: string;
+  line2?: string;
+  phone?: string;
+  region?: string;
+}
+
+export interface InternalAdminStatsResponse {
+  customer_stats?: InternalAdminCustomerStats;
+  product_stats?: InternalAdminProductStats;
+  top_products?: InternalAdminTopProduct[];
+}
+
+export interface InternalAdminTopProduct {
+  brand_id?: string;
+  brand_name?: string;
+  category_id?: string;
+  category_label?: string;
+  id?: string;
+  image_path?: string;
+  name?: string;
+  price_ghs_minor?: number;
+  revenue_ghs_minor?: number;
+  slug?: string;
+  tone?: string;
+  total_sold?: number;
+}
+
+export interface InternalAdminUpdateOrderStatusRequest {
+  status?: string;
+}
+
 export interface InternalAuthLoginBody {
   email?: string;
   password?: string;
@@ -304,6 +524,123 @@ export type GetShippingQuoteParams = {
    * Cart subtotal in pesewas (>= 0)
    */
   subtotal: number;
+};
+
+/**
+ * @summary Get revenue analytics
+ */
+export const getApiV1AdminAnalyticsRevenue = <
+  TData = AxiosResponse<InternalAdminRevenueAnalyticsResponse>,
+>(
+  options?: AxiosRequestConfig,
+): Promise<TData> => {
+  return axios.default.get(`/api/v1/admin/analytics/revenue`, options);
+};
+
+/**
+ * @summary Get admin statistics
+ */
+export const getApiV1AdminAnalyticsStats = <
+  TData = AxiosResponse<InternalAdminStatsResponse>,
+>(
+  options?: AxiosRequestConfig,
+): Promise<TData> => {
+  return axios.default.get(`/api/v1/admin/analytics/stats`, options);
+};
+
+/**
+ * @summary List all customers
+ */
+export const getApiV1AdminCustomers = <
+  TData = AxiosResponse<InternalAdminCustomersResponse>,
+>(
+  options?: AxiosRequestConfig,
+): Promise<TData> => {
+  return axios.default.get(`/api/v1/admin/customers`, options);
+};
+
+/**
+ * @summary Get customer details
+ */
+export const getApiV1AdminCustomersId = <
+  TData = AxiosResponse<InternalAdminCustomerDetailResponse>,
+>(
+  id: string,
+  options?: AxiosRequestConfig,
+): Promise<TData> => {
+  return axios.default.get(`/api/v1/admin/customers/${id}`, options);
+};
+
+/**
+ * @summary Get admin dashboard
+ */
+export const getApiV1AdminDashboard = <
+  TData = AxiosResponse<InternalAdminDashboardResponse>,
+>(
+  options?: AxiosRequestConfig,
+): Promise<TData> => {
+  return axios.default.get(`/api/v1/admin/dashboard`, options);
+};
+
+/**
+ * @summary List all orders
+ */
+export const getApiV1AdminOrders = <
+  TData = AxiosResponse<InternalAdminOrdersResponse>,
+>(
+  options?: AxiosRequestConfig,
+): Promise<TData> => {
+  return axios.default.get(`/api/v1/admin/orders`, options);
+};
+
+/**
+ * @summary Get order details
+ */
+export const getApiV1AdminOrdersId = <
+  TData = AxiosResponse<InternalAdminOrderDetailResponse>,
+>(
+  id: string,
+  options?: AxiosRequestConfig,
+): Promise<TData> => {
+  return axios.default.get(`/api/v1/admin/orders/${id}`, options);
+};
+
+/**
+ * @summary Update order status
+ */
+export const patchApiV1AdminOrdersIdStatus = <TData = AxiosResponse<void>>(
+  id: string,
+  internalAdminUpdateOrderStatusRequest: InternalAdminUpdateOrderStatusRequest,
+  options?: AxiosRequestConfig,
+): Promise<TData> => {
+  return axios.default.patch(
+    `/api/v1/admin/orders/${id}/status`,
+    internalAdminUpdateOrderStatusRequest,
+    options,
+  );
+};
+
+/**
+ * @summary List all products
+ */
+export const getApiV1AdminProducts = <
+  TData = AxiosResponse<InternalAdminProductsResponse>,
+>(
+  options?: AxiosRequestConfig,
+): Promise<TData> => {
+  return axios.default.get(`/api/v1/admin/products`, options);
+};
+
+/**
+ * @summary Get product details
+ */
+export const getApiV1AdminProductsId = <
+  TData = AxiosResponse<InternalAdminProductSummary>,
+>(
+  id: string,
+  options?: AxiosRequestConfig,
+): Promise<TData> => {
+  return axios.default.get(`/api/v1/admin/products/${id}`, options);
 };
 
 /**
@@ -698,6 +1035,25 @@ export const postWebhooksPaystack = <TData = AxiosResponse<void>>(
   return axios.default.post(`/webhooks/paystack`, undefined, options);
 };
 
+export type GetApiV1AdminAnalyticsRevenueResult =
+  AxiosResponse<InternalAdminRevenueAnalyticsResponse>;
+export type GetApiV1AdminAnalyticsStatsResult =
+  AxiosResponse<InternalAdminStatsResponse>;
+export type GetApiV1AdminCustomersResult =
+  AxiosResponse<InternalAdminCustomersResponse>;
+export type GetApiV1AdminCustomersIdResult =
+  AxiosResponse<InternalAdminCustomerDetailResponse>;
+export type GetApiV1AdminDashboardResult =
+  AxiosResponse<InternalAdminDashboardResponse>;
+export type GetApiV1AdminOrdersResult =
+  AxiosResponse<InternalAdminOrdersResponse>;
+export type GetApiV1AdminOrdersIdResult =
+  AxiosResponse<InternalAdminOrderDetailResponse>;
+export type PatchApiV1AdminOrdersIdStatusResult = AxiosResponse<void>;
+export type GetApiV1AdminProductsResult =
+  AxiosResponse<InternalAdminProductsResponse>;
+export type GetApiV1AdminProductsIdResult =
+  AxiosResponse<InternalAdminProductSummary>;
 export type GetApiV1MeOrdersResult =
   AxiosResponse<InternalMeListOrdersResponse>;
 export type GetApiV1MeOrdersIdResult =

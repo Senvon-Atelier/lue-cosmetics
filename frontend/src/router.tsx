@@ -23,12 +23,21 @@ import { AccountOrderDetail } from './features/account/account-order-detail';
 import { AccountAddresses } from './features/account/account-addresses';
 import { AccountWishlist } from './features/account/account-wishlist';
 import { AccountSettings } from './features/account/account-settings';
-import { useAuth } from './lib/auth/auth-provider';
 import { LoginPage } from './features/auth/login-page';
 import { SignupPage } from './features/auth/signup-page';
 import { ForgotPasswordPage } from './features/auth/forgot-password-page';
 import { ResetPasswordPage } from './features/auth/reset-password-page';
 import { VerifyEmailPage } from './features/auth/verify-email-page';
+import { AdminLayout } from './features/admin/admin-layout';
+import { AdminDashboard } from './features/admin/dashboard';
+import { AdminOrders } from './features/admin/orders';
+import { AdminOrderDetail } from './features/admin/orders/order-detail';
+import { AdminProducts } from './features/admin/products';
+import { AdminCustomers } from './features/admin/customers';
+import { AdminAnalytics } from './features/admin/analytics';
+import { AdminMarketing } from './features/admin/marketing';
+import { AdminContent } from './features/admin/content';
+import { AdminSettings } from './features/admin/settings';
 
 // Root route with all providers (no layout)
 const rootRoute = createRootRoute({
@@ -234,61 +243,162 @@ const AccountSettingsRoute = createRoute({
 const AdminRoute = createRoute({
   getParentRoute: () => marketingLayoutRoute,
   path: '/admin',
-  component: AdminComponent,
+  component: AdminLayout,
 });
 
-function AdminComponent() {
-  const { user, isAuthenticated, isAdmin, isLoading } = useAuth();
+const AdminDashboardRoute = createRoute({
+  getParentRoute: () => AdminRoute,
+  path: '/',
+  component: AdminDashboard,
+});
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-paper text-ink font-body flex items-center justify-center">
-        <div className="text-ink-muted">Loading...</div>
-      </div>
-    );
-  }
+const AdminOrdersRoute = createRoute({
+  getParentRoute: () => AdminRoute,
+  path: '/orders',
+  component: AdminOrders,
+});
 
-  if (!isAuthenticated) {
-    return (
-      <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '2rem' }}>
-        <h1 className="font-display text-4xl mb-4">Access Denied</h1>
-        <p className="text-ink-muted">Admin access required. Please log in as an administrator.</p>
-      </div>
-    );
-  }
+const AdminOrderDetailRoute = createRoute({
+  getParentRoute: () => AdminRoute,
+  path: '/orders/$id',
+  component: AdminOrderDetail,
+});
 
-  if (!isAdmin) {
-    return (
-      <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '2rem' }}>
-        <h1 className="font-display text-4xl mb-4">Access Denied</h1>
-        <p className="text-ink-muted">You don't have permission to access the admin dashboard.</p>
-      </div>
-    );
-  }
+const AdminProductsRoute = createRoute({
+  getParentRoute: () => AdminRoute,
+  path: '/products',
+  component: AdminProducts,
+});
 
-  return (
-    <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '2rem' }}>
-      <h1 className="font-display text-4xl mb-4">Admin Dashboard</h1>
-      <p className="text-ink-muted mb-6">
-        Welcome, {user?.name || user?.email}. You have admin access.
-      </p>
+const AdminProductDetailRoute = createRoute({
+  getParentRoute: () => AdminRoute,
+  path: '/products/$id',
+  component: () => <div>Admin Product Detail - Coming Soon...</div>,
+});
 
-      <div className="space-y-4">
-        <div className="p-4 bg-lavender-50 rounded">
-          <h2 className="font-label font-semibold mb-2">Admin Features</h2>
-          <ul className="space-y-1 text-ink-soft">
-            <li>• View all orders</li>
-            <li>• Update order status</li>
-            <li>• Manage users</li>
-            <li>• View revenue stats</li>
-          </ul>
-        </div>
+const AdminCustomersRoute = createRoute({
+  getParentRoute: () => AdminRoute,
+  path: '/customers',
+  component: AdminCustomers,
+});
 
-        <p className="text-sm text-ink-muted">Admin features coming soon...</p>
-      </div>
-    </div>
-  );
-}
+const AdminCustomerDetailRoute = createRoute({
+  getParentRoute: () => AdminRoute,
+  path: '/customers/$id',
+  component: () => <div>Admin Customer Detail - Coming Soon...</div>,
+});
+
+const AdminAnalyticsRoute = createRoute({
+  getParentRoute: () => AdminRoute,
+  path: '/analytics',
+  component: AdminAnalytics,
+});
+
+const AdminMarketingRoute = createRoute({
+  getParentRoute: () => AdminRoute,
+  path: '/marketing',
+  component: AdminMarketing,
+});
+
+const AdminContentRoute = createRoute({
+  getParentRoute: () => AdminRoute,
+  path: '/content',
+  component: AdminContent,
+});
+
+const AdminSettingsRoute = createRoute({
+  getParentRoute: () => AdminRoute,
+  path: '/settings',
+  component: AdminSettings,
+});
+
+
+/**const AdminRoute = createRoute({
+  getParentRoute: () => marketingLayoutRoute,
+  path: '/admin',
+  component: AdminLayout,
+}).addChildren([
+  // Dashboard is the index
+  createRoute({
+    getParentRoute: () => AdminRoute,
+    path: '/',
+    component: AdminDashboard,
+  }),
+  // Orders routes
+  createRoute({
+    getParentRoute: () => AdminRoute,
+    path: '/orders',
+    component: AdminOrders,
+  }),
+  createRoute({
+    getParentRoute: () => AdminRoute,
+    path: '/orders/$id',
+    component: AdminOrderDetail,
+  }),
+  // Products routes
+  createRoute({
+    getParentRoute: () => AdminRoute,
+    path: '/products',
+    component: AdminProducts,
+  }),
+  createRoute({
+    getParentRoute: () => AdminRoute,
+    path: '/products/$id',
+    component: () => <div>Admin Product Detail - Coming Soon...</div>,
+  }),
+  // Customers routes
+  createRoute({
+    getParentRoute: () => AdminRoute,
+    path: '/customers',
+    component: AdminCustomers,
+  }),
+  createRoute({
+    getParentRoute: () => AdminRoute,
+    path: '/customers/$id',
+    component: () => <div>Admin Customer Detail - Coming Soon...</div>,
+  }),
+  // Analytics routes
+  createRoute({
+    getParentRoute: () => AdminRoute,
+    path: '/analytics',
+    component: AdminAnalytics,
+  }),
+  // Marketing placeholder
+  createRoute({
+    getParentRoute: () => AdminRoute,
+    path: '/marketing',
+    component: AdminMarketing,
+  }),
+  // Content placeholder
+  createRoute({
+    getParentRoute: () => AdminRoute,
+    path: '/content',
+    component: AdminContent,
+  }),
+  // Settings placeholder
+  createRoute({
+    getParentRoute: () => AdminRoute,
+    path: '/settings',
+    component: AdminSettings,
+  }),
+]);
+**/
+
+
+const AdminRouteWithChildren = AdminRoute.addChildren([
+  AdminDashboardRoute,
+  AdminOrdersRoute,
+  AdminOrderDetailRoute,
+  AdminProductsRoute,
+  AdminProductDetailRoute,
+  AdminCustomersRoute,
+  AdminCustomerDetailRoute,
+  AdminAnalyticsRoute,
+  AdminMarketingRoute,
+  AdminContentRoute,
+  AdminSettingsRoute,
+]);
+
 
 // Create route tree
 const routeTree = rootRoute.addChildren([
@@ -310,7 +420,7 @@ const routeTree = rootRoute.addChildren([
       AccountWishlistRoute,
       AccountSettingsRoute,
     ]),
-    AdminRoute,
+    AdminRouteWithChildren,
   ]),
   checkoutLayoutRoute.addChildren([CheckoutRoute, CheckoutReturnRoute]),
 ]);

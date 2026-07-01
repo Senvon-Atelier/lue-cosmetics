@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/oti-adjei/ruecosmetics/internal/addresses"
+	"github.com/oti-adjei/ruecosmetics/internal/admin"
 	"github.com/oti-adjei/ruecosmetics/internal/app"
 	"github.com/oti-adjei/ruecosmetics/internal/auth"
 	"github.com/oti-adjei/ruecosmetics/internal/cart"
@@ -78,6 +79,10 @@ func run() error {
 
 		ordersHandlers := orders.NewHandlers(a.Orders, cfg.PaystackSecretKey, a.Logger)
 		ordersHandlers.MountPublic(api) // public: POST /webhooks/paystack
+
+		// Admin routes (require admin role)
+		adminHandlers := admin.NewHandlers(a.Admin, authHandlers)
+		adminHandlers.MountPublic(api) // GET /api/v1/admin/* (requires admin role)
 
 		// Auth-gated routes (one Group with RequireSession middleware)
 		api.Group(func(r chi.Router) {
