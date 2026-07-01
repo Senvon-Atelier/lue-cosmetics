@@ -76,32 +76,6 @@ definitions:
       region:
         type: string
     type: object
-  internal_admin.CustomerDetailResponse:
-    properties:
-      customer:
-        $ref: '#/definitions/internal_admin.CustomerInfo'
-      orders:
-        items:
-          $ref: '#/definitions/internal_admin.OrderSummary'
-        type: array
-    type: object
-  internal_admin.CustomerInfo:
-    properties:
-      created_at:
-        type: string
-      email:
-        type: string
-      email_verified:
-        type: boolean
-      id:
-        type: string
-      image:
-        type: string
-      name:
-        type: string
-      updated_at:
-        type: string
-    type: object
   internal_admin.CustomerStats:
     properties:
       active_customers_30d:
@@ -171,55 +145,6 @@ definitions:
       total_products:
         type: integer
       total_revenue_ghs_minor:
-        type: integer
-    type: object
-  internal_admin.OrderDetailResponse:
-    properties:
-      items:
-        items:
-          $ref: '#/definitions/internal_admin.OrderItemInfo'
-        type: array
-      order:
-        $ref: '#/definitions/internal_admin.OrderInfo'
-    type: object
-  internal_admin.OrderInfo:
-    properties:
-      created_at:
-        type: string
-      id:
-        type: string
-      paystack_reference:
-        type: string
-      shipping_address:
-        $ref: '#/definitions/internal_admin.ShippingAddress'
-      shipping_ghs_minor:
-        type: integer
-      status:
-        type: string
-      subtotal_ghs_minor:
-        type: integer
-      total_ghs_minor:
-        type: integer
-      updated_at:
-        type: string
-      user_id:
-        type: string
-    type: object
-  internal_admin.OrderItemInfo:
-    properties:
-      id:
-        type: string
-      product_brand_snapshot:
-        type: string
-      product_id:
-        type: string
-      product_image_snapshot:
-        type: string
-      product_name_snapshot:
-        type: string
-      qty:
-        type: integer
-      unit_price_ghs_minor:
         type: integer
     type: object
   internal_admin.OrderStats:
@@ -406,21 +331,6 @@ definitions:
       revenue_ghs_minor:
         type: integer
     type: object
-  internal_admin.ShippingAddress:
-    properties:
-      city:
-        type: string
-      label:
-        type: string
-      line1:
-        type: string
-      line2:
-        type: string
-      phone:
-        type: string
-      region:
-        type: string
-    type: object
   internal_admin.StatsResponse:
     properties:
       customer_stats:
@@ -458,11 +368,6 @@ definitions:
         type: string
       total_sold:
         type: integer
-    type: object
-  internal_admin.UpdateOrderStatusRequest:
-    properties:
-      status:
-        type: string
     type: object
   internal_auth.loginBody:
     properties:
@@ -657,6 +562,8 @@ definitions:
         type: string
       email_verified:
         type: boolean
+      image:
+        type: string
       name:
         type: string
       role:
@@ -732,6 +639,8 @@ definitions:
   internal_me.updateProfileRequest:
     properties:
       email:
+        type: string
+      image:
         type: string
       name:
         type: string
@@ -835,28 +744,7 @@ paths:
       - admin
   /api/v1/admin/customers/{id}:
     get:
-      parameters:
-      - description: Customer ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/internal_admin.CustomerDetailResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
-      security:
-      - BearerAuth: []
-      summary: Get customer details
-      tags:
-      - admin
+      responses: {}
   /api/v1/admin/dashboard:
     get:
       produces:
@@ -887,62 +775,10 @@ paths:
       - admin
   /api/v1/admin/orders/{id}:
     get:
-      parameters:
-      - description: Order ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/internal_admin.OrderDetailResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
-      security:
-      - BearerAuth: []
-      summary: Get order details
-      tags:
-      - admin
+      responses: {}
   /api/v1/admin/orders/{id}/status:
     patch:
-      consumes:
-      - application/json
-      parameters:
-      - description: Order ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: New status
-        in: body
-        name: status
-        required: true
-        schema:
-          $ref: '#/definitions/internal_admin.UpdateOrderStatusRequest'
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
-      security:
-      - BearerAuth: []
-      summary: Update order status
-      tags:
-      - admin
+      responses: {}
   /api/v1/admin/products:
     get:
       produces:
@@ -959,28 +795,7 @@ paths:
       - admin
   /api/v1/admin/products/{id}:
     get:
-      parameters:
-      - description: Product ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/internal_admin.ProductSummary'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
-      security:
-      - BearerAuth: []
-      summary: Get product details
-      tags:
-      - admin
+      responses: {}
   /api/v1/me/orders:
     get:
       parameters:
@@ -1508,8 +1323,8 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
-        "501":
-          description: Not Implemented
+        "500":
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
       summary: Update user profile
