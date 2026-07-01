@@ -13,15 +13,17 @@ import (
 
 // Service provides admin dashboard business logic.
 type Service struct {
-	Repo *Repository
-	Log  *zap.Logger
+	Repo        *Repository
+	Log         *zap.Logger
+	stateMachine *OrderStatusTransition
 }
 
 // NewService creates a new admin Service.
 func NewService(repo *Repository, log *zap.Logger) *Service {
 	return &Service{
-		Repo: repo,
-		Log:  log,
+		Repo:        repo,
+		Log:         log,
+		stateMachine: NewOrderStatusTransition(),
 	}
 }
 
@@ -155,15 +157,60 @@ type UpdateOrderStatusParams struct {
 	Status  string
 }
 
-// Valid status transitions based on the spec
-var validStatusTransitions = map[string][]string{
-	"pending":   {"paid", "cancelled"},
-	"paid":      {"fulfilled", "cancelled", "refunded"},
-	"fulfilled": {"shipped", "cancelled"},
-	"shipped":   {"delivered", "cancelled"},
-	"delivered": {"refunded"},
-	"cancelled": {},
-	"refunded":  {},
+// OrderStatusTransition validates and manages order status transitions
+type OrderStatusTransition struct {
+	transitions map[OrderStatus][]OrderStatus
+}
+
+// OrderStatus represents the status of an order
+type OrderStatus string
+
+const (
+	StatusPending   OrderStatus = "pending"
+	StatusPaid      OrderStatus = "paid"
+	StatusFulfilled OrderStatus = "fulfilled"
+	StatusShipped   OrderStatus = "shipped"
+	StatusDelivered OrderStatus = "delivered"
+	StatusCancelled OrderStatus = "cancelled"
+	StatusRefunded  OrderStatus = "refunded"
+)
+
+// NewOrderStatusTransition creates a new state machine with default transitions
+func NewOrderStatusTransition() *OrderStatusTransition {
+	return &OrderStatusTransition{
+		transitions: defaultTransitions,
+	}
+}
+
+// CanTransition checks if a status transition is valid
+func (sm *OrderStatusTransition) CanTransition(from, to OrderStatus) bool {
+	// Same-status transitions are allowed (idempotency)
+	if from == to {
+		return true
+	}
+
+	allowed, ok := sm.transitions[from]
+	if !ok {
+		return false
+	}
+
+	for _, status := range allowed {
+		if status == to {
+			return true
+		}
+	}
+	return false
+}
+
+// defaultTransitions defines the valid order status workflow
+var defaultTransitions = map[OrderStatus][]OrderStatus{
+	StatusPending:   {StatusPaid, StatusCancelled},
+	StatusPaid:      {StatusFulfilled, StatusCancelled, StatusRefunded},
+	StatusFulfilled: {StatusShipped, StatusCancelled},
+	StatusShipped:   {StatusDelivered, StatusCancelled},
+	StatusDelivered: {StatusRefunded},
+	StatusCancelled: {}, // terminal state
+	StatusRefunded:  {}, // terminal state
 }
 
 // UpdateOrderStatus updates the status of an order.
@@ -176,26 +223,12 @@ func (s *Service) UpdateOrderStatus(ctx context.Context, params UpdateOrderStatu
 		return fmt.Errorf("get order: %w", err)
 	}
 
-	// Check if transition is valid
-	validNextStatuses, ok := validStatusTransitions[order.Status]
-	if !ok {
-		return fmt.Errorf("invalid current status: %s", order.Status)
-	}
-
-	// Allow same-status updates for idempotency
-	if order.Status == params.Status {
-		return nil
-	}
-
-	// Check if the new status is valid
-	valid := false
-	for _, s := range validNextStatuses {
-		if s == params.Status {
-			valid = true
-			break
-		}
-	}
-	if !valid {
+	// Validate transition using state machine
+	if !s.stateMachine.CanTransition(OrderStatus(order.Status), OrderStatus(params.Status)) {
+		s.Log.Warn("invalid status transition attempted",
+			zap.String("order_id", params.OrderID.String()),
+			zap.String("old_status", order.Status),
+			zap.String("new_status", params.Status))
 		return fmt.Errorf("invalid status transition from %s to %s", order.Status, params.Status)
 	}
 
