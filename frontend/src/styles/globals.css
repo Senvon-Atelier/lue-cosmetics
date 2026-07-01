@@ -773,14 +773,14 @@ img {
 .header-inner {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
-  gap: 48px;
+  gap: 24px;
   align-items: center;
   height: 100%;
 }
 
 .header-nav {
   display: flex;
-  gap: 32px;
+  gap: 36px;
   align-items: center;
 }
 
@@ -841,7 +841,7 @@ img {
   }
 
   .header-nav {
-    gap: 16px;
+    gap: 24px;
   }
 }
 

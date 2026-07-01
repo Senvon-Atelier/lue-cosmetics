@@ -14,8 +14,7 @@ export function Header({ onCartOpen }: HeaderProps) {
 
   return (
     <header className="header">
-      <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '0 2rem' }}>
-        <div className="header-inner">
+      <div className="wrap header-inner">
           <nav className="header-nav">
             <Link to="/" className="header-nav-link">
               Home
@@ -76,7 +75,6 @@ export function Header({ onCartOpen }: HeaderProps) {
               <Icon name="menu" size={20} />
             </button>
           </div>
-        </div>
       </div>
     </header>
   );
