@@ -26,7 +26,8 @@ func newMeRouter(t *testing.T) (http.Handler, func()) {
 
 	authH := auth.NewHandlers(svc, "rue_session", "", false)
 	ordersRepo := orders.NewRepository(pool)
-	meH := me.NewHandlers(ordersRepo)
+	profileSvc := me.NewProfileService(repo, logger)
+	meH := me.NewHandlers(ordersRepo, profileSvc, logger)
 
 	r := chi.NewRouter()
 	authH.Mount(r) // /auth/signup, /auth/login etc.
@@ -198,7 +199,7 @@ func TestGetOrder_WithoutCookie_Returns401(t *testing.T) {
 	}
 }
 
-func TestUpdateProfile_Returns501(t *testing.T) {
+func TestUpdateProfile_Returns200(t *testing.T) {
 	router, cleanup := newMeRouter(t)
 	defer cleanup()
 
@@ -223,7 +224,7 @@ func TestUpdateProfile_Returns501(t *testing.T) {
 		t.Fatal("no session cookie from signup")
 	}
 
-	// Try to update profile (should return 501 - not implemented)
+	// Try to update profile (should return 200 with updated name)
 	updateBody := strings.NewReader(`{"name":"Updated Name"}`)
 	updateReq := httptest.NewRequest(http.MethodPatch, "/me", updateBody)
 	updateReq.Header.Set("Content-Type", "application/json")
@@ -231,7 +232,11 @@ func TestUpdateProfile_Returns501(t *testing.T) {
 	updateRR := httptest.NewRecorder()
 	router.ServeHTTP(updateRR, updateReq)
 
-	if updateRR.Code != http.StatusNotImplemented {
-		t.Fatalf("expected 501 for unimplemented endpoint, got %d: %s", updateRR.Code, updateRR.Body.String())
+	if updateRR.Code != http.StatusOK {
+		t.Fatalf("expected 200 for profile update, got %d: %s", updateRR.Code, updateRR.Body.String())
+	}
+	respBody := updateRR.Body.String()
+	if !strings.Contains(respBody, `"name":"Updated Name"`) {
+		t.Errorf("expected updated name in response: %s", respBody)
 	}
 }

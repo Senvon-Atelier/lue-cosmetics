@@ -3,20 +3,28 @@ package me
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/oti-adjei/ruecosmetics/internal/auth"
 	"github.com/oti-adjei/ruecosmetics/internal/httpx"
 	"github.com/oti-adjei/ruecosmetics/internal/orders"
+	"go.uber.org/zap"
 )
 
 type Handlers struct {
-	OrdersRepo *orders.Repository
+	OrdersRepo     *orders.Repository
+	ProfileService *ProfileService
+	Log            *zap.Logger
 }
 
-func NewHandlers(ordersRepo *orders.Repository) *Handlers {
-	return &Handlers{OrdersRepo: ordersRepo}
+func NewHandlers(ordersRepo *orders.Repository, profileService *ProfileService, log *zap.Logger) *Handlers {
+	return &Handlers{
+		OrdersRepo:     ordersRepo,
+		ProfileService: profileService,
+		Log:            log,
+	}
 }
 
 func (h *Handlers) Mount(r chi.Router) {
@@ -34,10 +42,11 @@ func (h *Handlers) MountRoutes(r chi.Router) {
 }
 
 type meResponse struct {
-	UserID        string `json:"user_id"`
-	Email         string `json:"email"`
-	Name          string `json:"name"`
-	Role          string `json:"role"`
+	UserID        string  `json:"user_id"`
+	Email         string  `json:"email"`
+	Name          string  `json:"name"`
+	Image         *string `json:"image,omitempty"`
+	Role          string  `json:"role"`
 	EmailVerified bool   `json:"email_verified"`
 }
 
@@ -277,10 +286,11 @@ func (h *Handlers) getOrder(w http.ResponseWriter, r *http.Request) {
 // @Success  200 {object} meResponse
 // @Failure  400 {object} httpx.ErrorEnvelope
 // @Failure  401 {object} httpx.ErrorEnvelope
-// @Failure  501 {object} httpx.ErrorEnvelope
+// @Failure  500 {object} httpx.ErrorEnvelope
 // @Router   /me [patch]
 func (h *Handlers) updateProfile(w http.ResponseWriter, r *http.Request) {
-	view, ok := auth.GetSessionView(r.Context())
+	ctx := r.Context()
+	view, ok := auth.GetSessionView(ctx)
 	if !ok {
 		httpx.WriteError(w, http.StatusUnauthorized, httpx.CodeUnauthorized, "authentication required", nil)
 		return
@@ -292,18 +302,49 @@ func (h *Handlers) updateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// For now, email updates are not supported (require verification flow)
+	// Email updates still require verification flow (future work)
 	if req.Email != nil && *req.Email != view.Email {
 		httpx.WriteError(w, http.StatusNotImplemented, httpx.CodeInternal, "email updates require verification flow (not yet implemented)", nil)
 		return
 	}
 
-	// Name updates require auth repository which isn't injected here yet
-	// TODO: Inject auth repository and implement name updates
-	httpx.WriteError(w, http.StatusNotImplemented, httpx.CodeInternal, "profile updates not yet implemented (requires auth repository injection)", nil)
+	// Image updates not supported in v1
+	if req.Image != nil {
+		httpx.WriteError(w, http.StatusNotImplemented, httpx.CodeInternal, "image updates not yet implemented", nil)
+		return
+	}
+
+	// Delegate to ProfileService
+	result, err := h.ProfileService.UpdateProfile(ctx, UpdateProfileParams{
+		UserID: view.UserID,
+		Name:   req.Name,
+		Image:  req.Image,
+	})
+	if err != nil {
+		// Map service errors to HTTP responses
+		errMsg := err.Error()
+		if strings.Contains(errMsg, "invalid name") || strings.Contains(errMsg, "invalid image") {
+			httpx.WriteError(w, http.StatusBadRequest, httpx.CodeValidation, errMsg, nil)
+		} else {
+			h.Log.Error("failed to update user profile", zap.Error(err))
+			httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "failed to update profile", nil)
+		}
+		return
+	}
+
+	// Return updated profile
+	httpx.WriteJSON(w, http.StatusOK, meResponse{
+		UserID:        result.UserID.String(),
+		Email:         result.Email,
+		Name:          result.Name,
+		Image:         result.Image,
+		Role:          result.Role,
+		EmailVerified: result.EmailVerified,
+	})
 }
 
 type updateProfileRequest struct {
 	Name  *string `json:"name,omitempty"`
 	Email *string `json:"email,omitempty"`
+	Image *string `json:"image,omitempty"`
 }
