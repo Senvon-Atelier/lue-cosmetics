@@ -88,7 +88,8 @@ func run() error {
 		api.Group(func(r chi.Router) {
 			r.Use(authHandlers.RequireSession)
 			ordersRepo := orders.NewRepository(a.Pool)
-			meHandlers := me.NewHandlers(ordersRepo)
+			profileSvc := me.NewProfileService(auth.NewRepository(a.Pool), a.Logger)
+			meHandlers := me.NewHandlers(ordersRepo, profileSvc, a.Logger)
 			authHandlers.MountAuthGated(r)   // POST /auth/verify-email/resend
 			cartHandlers.MountAuthGated(r)   // POST /cart/merge
 			ordersHandlers.MountAuthGated(r) // POST /checkout/init, GET /checkout/verify/{reference}
