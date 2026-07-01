@@ -10,7 +10,7 @@ interface HeaderProps {
 
 export function Header({ onCartOpen }: HeaderProps) {
   const { isAuthenticated } = useAuth();
-  const { itemCount } = useCart();
+  const { itemCount, wishlistCount } = useCart();
 
   return (
     <header className="header">
@@ -25,6 +25,9 @@ export function Header({ onCartOpen }: HeaderProps) {
             </Link>
             <Link to="/about" className="header-nav-link">
               About
+            </Link>
+            <Link to="/journal" className="header-nav-link">
+              Journal
             </Link>
           </nav>
           <Link to="/">
@@ -45,15 +48,32 @@ export function Header({ onCartOpen }: HeaderProps) {
             )}
             <button
               className="header-icon-btn relative"
+              aria-label="Wishlist"
+            >
+              <Icon name="heart" size={20} />
+              {wishlistCount > 0 && (
+                <span className="badge">
+                  {wishlistCount > 9 ? '9+' : wishlistCount}
+                </span>
+              )}
+            </button>
+            <button
+              className="header-icon-btn relative"
               onClick={onCartOpen}
               aria-label="Open cart"
             >
               <Icon name="bag" size={20} />
               {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-lavender-600 text-paper text-xs font-label font-medium rounded-full flex items-center justify-center">
+                <span className="badge">
                   {itemCount > 9 ? '9+' : itemCount}
                 </span>
               )}
+            </button>
+            <button
+              className="header-icon-btn mobile-menu-btn"
+              aria-label="Menu"
+            >
+              <Icon name="menu" size={20} />
             </button>
           </div>
         </div>
