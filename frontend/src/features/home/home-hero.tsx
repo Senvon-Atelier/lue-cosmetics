@@ -40,7 +40,7 @@ export function HomeHero() {
 
           <div className="hero-e2-col-c">
             <div className="hero-e2-frame">
-              <div className="ph ph--lavender" style={{ minHeight: '400px', aspectRatio: '3/4' }}>
+              <div className="ph ph--lavender" style={{ minHeight: '560px', aspectRatio: '3/4' }}>
                 <span className="ph-label">editorial · portrait 1200×1600</span>
               </div>
               <div className="hero-e2-chip">
@@ -62,7 +62,7 @@ export function HomeHero() {
 
           <div className="hero-e2-col-r">
             <div className="hero-e2-stack-t">
-              <div className="ph ph--cream" style={{ height: '300px', borderRadius: 'var(--radius)' }}>
+              <div className="ph ph--cream" style={{ height: '100%', borderRadius: 'var(--radius)' }}>
                 <span className="ph-label">still life</span>
               </div>
             </div>
