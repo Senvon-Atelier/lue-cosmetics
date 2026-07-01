@@ -5,9 +5,9 @@ import { Brand } from '../ui/brand';
 export function Footer() {
   return (
     <footer className="footer">
-      <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '0 2rem' }}>
-        <div className="footer-inner">
-          <div className="footer-brand">
+      <div className="wrap">
+        <div className="footer-top">
+          <div className="footer-lead">
             <div className="footer-brand-logo">
               <Brand />
             </div>
@@ -27,68 +27,73 @@ export function Footer() {
               </a>
             </div>
           </div>
+
           <div className="footer-cols">
+            {/* Shop column */}
             <div className="footer-col">
               <h5>Shop</h5>
               <ul>
-                <li>
-                  <Link to="/shop">All Products</Link>
-                </li>
-                <li>
-                  <Link to="/shop">Skincare</Link>
-                </li>
-                <li>
-                  <Link to="/shop">Haircare</Link>
-                </li>
-                <li>
-                  <Link to="/shop">Wellness</Link>
-                </li>
+                <li><Link to="/shop">Skincare</Link></li>
+                <li><Link to="/shop">Haircare</Link></li>
+                <li><Link to="/shop">Fragrance</Link></li>
+                <li><Link to="/shop">Bodycare</Link></li>
+                <li><Link to="/shop">Sets & Gifts</Link></li>
+                <li><Link to="/shop">All products</Link></li>
               </ul>
             </div>
+
+            {/* Company column */}
             <div className="footer-col">
               <h5>Company</h5>
               <ul>
-                <li>
-                  <Link to="/about">About Us</Link>
-                </li>
-                <li>
-                  <Link to="/about">Our Story</Link>
-                </li>
-                <li>
-                  <Link to="/about">Careers</Link>
-                </li>
+                <li><Link to="/about">About Rue</Link></li>
+                <li><Link to="/journal">The Journal</Link></li>
+                <li><a href="#">Store locator</a></li>
+                <li><a href="#">Careers</a></li>
+                <li><a href="#">Press</a></li>
               </ul>
             </div>
+
+            {/* Help column */}
             <div className="footer-col">
               <h5>Help</h5>
               <ul>
-                <li>
-                  <Link to="/account">My Account</Link>
-                </li>
-                <li>
-                  <Link to="/account">Order Status</Link>
-                </li>
-                <li>
-                  <Link to="/about">Contact Us</Link>
-                </li>
+                <li><a href="#">Contact us</a></li>
+                <li><a href="#">Shipping & delivery</a></li>
+                <li><a href="#">Returns</a></li>
+                <li><a href="#">FAQs</a></li>
+                <li><a href="#">Authenticity</a></li>
               </ul>
             </div>
+
+            {/* Visit column with icons */}
             <div className="footer-col">
-              <h5>Visit</h5>
-              <ul>
-                <li>Spintex Road, Accra</li>
-                <li>+233 20 123 4567</li>
-                <li>Mon-Sat: 10am-7pm</li>
+              <h5>Visit the shop</h5>
+              <ul className="footer-contact">
+                <li>
+                  <Icon name="pin" size={14} />
+                  Community 18, Spintex<br />
+                  <span>Adjacent KFC, Accra</span>
+                </li>
+                <li>
+                  <Icon name="phone" size={14} />
+                  0594 701 345
+                </li>
+                <li>
+                  <Icon name="clock" size={14} />
+                  Mon–Sat · 9am – 8pm
+                </li>
               </ul>
             </div>
           </div>
         </div>
+
         <div className="footer-bottom">
-          <p>© 2026 Rue Cosmetics Ghana · All rights reserved</p>
+          <div>© 2026 Rue Cosmetics Ghana · All rights reserved</div>
           <div className="footer-legal">
-            <a href="/legal/privacy">Privacy</a>
-            <a href="/legal/terms">Terms</a>
-            <a href="/legal/returns">Returns</a>
+            <a href="#">Privacy</a>
+            <a href="#">Terms</a>
+            <a href="#">Cookies</a>
           </div>
         </div>
       </div>
