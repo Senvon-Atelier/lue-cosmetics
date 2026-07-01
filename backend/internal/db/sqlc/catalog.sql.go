@@ -41,6 +41,94 @@ func (q *Queries) CountProducts(ctx context.Context, arg CountProductsParams) (i
 	return count, err
 }
 
+const createBrand = `-- name: CreateBrand :one
+INSERT INTO brands (slug, name)
+VALUES ($1, $2)
+RETURNING id, slug, name
+`
+
+type CreateBrandParams struct {
+	Slug string
+	Name string
+}
+
+func (q *Queries) CreateBrand(ctx context.Context, arg CreateBrandParams) (Brand, error) {
+	row := q.db.QueryRow(ctx, createBrand, arg.Slug, arg.Name)
+	var i Brand
+	err := row.Scan(&i.ID, &i.Slug, &i.Name)
+	return i, err
+}
+
+const createCategory = `-- name: CreateCategory :one
+INSERT INTO categories (slug, label, sort_order)
+VALUES ($1, $2, 0)
+RETURNING id, slug, label, sort_order
+`
+
+type CreateCategoryParams struct {
+	Slug  string
+	Label string
+}
+
+func (q *Queries) CreateCategory(ctx context.Context, arg CreateCategoryParams) (Category, error) {
+	row := q.db.QueryRow(ctx, createCategory, arg.Slug, arg.Label)
+	var i Category
+	err := row.Scan(
+		&i.ID,
+		&i.Slug,
+		&i.Label,
+		&i.SortOrder,
+	)
+	return i, err
+}
+
+const createProduct = `-- name: CreateProduct :one
+INSERT INTO products (slug, name, brand_id, category_id, price_ghs_minor, tags, image_path)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING id, slug, name, brand_id, category_id, price_ghs_minor, was_price_ghs_minor,
+           tone, size, rating, review_count, tags, image_path, created_at
+`
+
+type CreateProductParams struct {
+	Slug          string
+	Name          string
+	BrandID       uuid.UUID
+	CategoryID    uuid.UUID
+	PriceGhsMinor int64
+	Tags          []string
+	ImagePath     string
+}
+
+func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error) {
+	row := q.db.QueryRow(ctx, createProduct,
+		arg.Slug,
+		arg.Name,
+		arg.BrandID,
+		arg.CategoryID,
+		arg.PriceGhsMinor,
+		arg.Tags,
+		arg.ImagePath,
+	)
+	var i Product
+	err := row.Scan(
+		&i.ID,
+		&i.Slug,
+		&i.Name,
+		&i.BrandID,
+		&i.CategoryID,
+		&i.PriceGhsMinor,
+		&i.WasPriceGhsMinor,
+		&i.Tone,
+		&i.Size,
+		&i.Rating,
+		&i.ReviewCount,
+		&i.Tags,
+		&i.ImagePath,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getBrandByID = `-- name: GetBrandByID :one
 SELECT id, slug, name FROM brands WHERE id = $1
 `
