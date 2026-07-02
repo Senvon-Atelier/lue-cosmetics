@@ -33,7 +33,7 @@ export function AccountAddresses() {
     setError(null);
     try {
       const response = await getMeAddresses();
-      setAddresses(response.data.addresses || []);
+      setAddresses(response.addresses || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load addresses');
     } finally {

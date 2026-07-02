@@ -23,7 +23,7 @@ export function ProductDetail({ slug }: ProductDetailProps) {
       setLoading(true);
       try {
         const response = await getProductsSlug(slug);
-        setProduct(response.data);
+        setProduct(response);
       } catch (error) {
         console.error('Failed to load product:', error);
       } finally {

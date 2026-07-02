@@ -13,9 +13,8 @@ export function CategoryRail() {
     const loadCategories = async () => {
       try {
         const response = await getCategories();
-        const data = response.data;
         // Ensure data is an array
-        const categoriesArray = Array.isArray(data) ? data : [];
+        const categoriesArray = Array.isArray(response) ? response : [];
         setCategories(categoriesArray);
       } catch (error) {
         console.error('Failed to load categories:', error);

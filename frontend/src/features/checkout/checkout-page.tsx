@@ -100,11 +100,11 @@ export function CheckoutPage() {
 
       const response = await postCheckoutInit(checkoutBody);
 
-      if (response.data?.authorization_url) {
+      if (response?.authorization_url) {
         // Store total in session storage for the return page
         sessionStorage.setItem('order_total', String(subtotalGhsMinor || 0));
         // Redirect to Paystack
-        window.location.href = response.data.authorization_url;
+        window.location.href = response.authorization_url;
       } else {
         setErrors({ general: 'Unable to start checkout. Please try again.' });
       }

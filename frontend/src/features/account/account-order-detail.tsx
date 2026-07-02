@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from '@tanstack/react-router';
-import { getApiV1MeOrdersId } from '../../lib/api/generated/rueCosmeticsAPI';
+import { getMeOrdersId } from '../../lib/api/generated/rueCosmeticsAPI';
 import { Button } from '../shared/ui/button';
 
 type OrderItem = {
@@ -29,7 +29,7 @@ type OrderDetailResponse = {
 };
 
 export function AccountOrderDetail() {
-  const { id } = useParams({ from: '/_marketing/account/orders/$id' });
+  const { id } = useParams({ from: '/_storefront/account/orders/$id' });
   const navigate = useNavigate();
   const [order, setOrder] = useState<OrderDetailResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -42,8 +42,8 @@ export function AccountOrderDetail() {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await getApiV1MeOrdersId(id);
-        setOrder(response.data);
+        const response = await getMeOrdersId(id);
+        setOrder(response);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load order details');
       } finally {

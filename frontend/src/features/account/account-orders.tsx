@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { getApiV1MeOrders } from '../../lib/api/generated/rueCosmeticsAPI';
+import { getMeOrders } from '../../lib/api/generated/rueCosmeticsAPI';
 import { Button } from '../shared/ui/button';
 
 type Order = {
@@ -31,13 +31,13 @@ export function AccountOrders() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await getApiV1MeOrders({
+      const response = await getMeOrders({
         limit,
         offset,
         status: statusFilter || undefined,
       });
-      setOrders(response.data.orders || []);
-      setTotal(response.data.total || 0);
+      setOrders(response.orders || []);
+      setTotal(response.total || 0);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load orders');
     } finally {

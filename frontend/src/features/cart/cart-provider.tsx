@@ -54,8 +54,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const refreshCart = async () => {
     setState((prev) => ({ ...prev, isLoading: true }));
     try {
-      const cartResponse = await getCart();
-      const cartData = cartResponse.data;
+      const cartData = await getCart();
 
       // Store guest token if present
       if (cartData?.guest_token) {

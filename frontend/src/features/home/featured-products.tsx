@@ -16,8 +16,7 @@ export function FeaturedProducts() {
         const response = await getProducts({
           limit: 8,
         });
-        const items = response.data?.items;
-        const productsArray = Array.isArray(items) ? items : [];
+        const productsArray = Array.isArray(response?.items) ? response.items : [];
         setProducts(productsArray);
       } catch (error) {
         console.error('Failed to load featured products:', error);

@@ -29,13 +29,13 @@ export function CheckoutReturnPage() {
 
         if (!isMounted) return;
 
-        if (response.data?.status === 'paid') {
+        if (response?.status === 'paid') {
           setStatus('success');
           await refreshCart();
           return;
         }
 
-        if (response.data?.status === 'pending') {
+        if (response?.status === 'pending') {
           currentPoll++;
           setPollCount(currentPoll);
 

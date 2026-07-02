@@ -30,12 +30,12 @@ export function ShopPage({ initialCategory, initialBrand }: ShopPageProps) {
           getCategories(),
           getBrands(),
         ]);
-        setCategories(categoriesRes.data.map(cat => ({
+        setCategories(categoriesRes.map(cat => ({
           id: cat.id || '',
           label: cat.label || '',
           slug: cat.slug || '',
         })));
-        setBrands(brandsRes.data.map(brand => ({
+        setBrands(brandsRes.map(brand => ({
           id: brand.id || '',
           name: brand.name || '',
           slug: brand.slug || '',
@@ -59,9 +59,7 @@ export function ShopPage({ initialCategory, initialBrand }: ShopPageProps) {
         params.sort = sortBy;
 
         const response = await getProducts(params);
-        // The response might be directly the products array or wrapped
-        const productsData = Array.isArray(response.data) ? response.data : (response.data as any)?.items || [];
-        setProducts(productsData);
+        setProducts(response?.items || []);
       } catch (error) {
         console.error('Failed to load products:', error);
         setProducts([]);
