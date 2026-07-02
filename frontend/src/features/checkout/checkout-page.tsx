@@ -2,9 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useAuth } from '../../lib/auth/auth-provider';
 import { useCart } from '../cart/cart-provider';
-import { Button } from '../shared/ui/button';
-import { Icon } from '../shared/ui/icons';
-import { formatPrice } from '../../lib/format/utils';
+import { formatGhs } from '../../lib/format/utils';
 import { postCheckoutInit } from '../../lib/api/generated/rueCosmeticsAPI';
 import type { InternalOrdersInitCheckoutBody } from '../../lib/api/generated/rueCosmeticsAPI';
 
@@ -18,7 +16,7 @@ interface FormErrors {
 
 export function CheckoutPage() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
-  const { itemCount, subtotalGhsMinor } = useCart();
+  const { items, itemCount, subtotalGhsMinor } = useCart();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -147,228 +145,159 @@ export function CheckoutPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-paper text-ink font-body flex items-center justify-center">
-        <div className="text-ink-muted">Loading...</div>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ color: 'var(--ink-muted)', fontFamily: 'var(--font-label)' }}>Loading…</span>
       </div>
     );
   }
 
   if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-paper text-ink font-body flex items-center justify-center">
-        <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '2rem' }}>
-          <h1 className="font-display text-4xl mb-4">Login Required</h1>
-          <p className="text-ink-muted mb-6">Please log in to proceed with checkout.</p>
-          <Button onClick={() => navigate({ to: '/login' })}>Go to Login</Button>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   const shippingCost = 2500;
   const total = (subtotalGhsMinor || 0) + shippingCost;
 
   return (
-    <div className="section">
-      <div className="wrap">
-        <div className="mb-12">
-          <div className="eyebrow">Checkout</div>
-          <h1 className="font-display text-[clamp(32px,4vw,56px)] font-normal tracking-[-0.01em]">
-            Complete your order
-          </h1>
-          <p className="text-ink-muted mt-2">Enter your delivery details below</p>
-        </div>
+    <main className="checkout-page fade-up">
+      <div className="eyebrow">Checkout</div>
+      <h1 className="h-display" style={{ fontSize: 'clamp(32px, 4vw, 56px)', marginBottom: '8px' }}>
+        Almost <em>there.</em>
+      </h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-12">
-          {/* Main Content */}
-          <div className="space-y-6">
-          {/* Delivery Address Form */}
-          <div className="border border-line-soft rounded p-6">
-            <h2 className="font-display text-xl mb-6">Delivery Address</h2>
+      <form onSubmit={handleSubmit}>
+        {errors.general && (
+          <div className="checkout-error-banner">{errors.general}</div>
+        )}
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {/* General Error */}
-              {errors.general && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4 text-sm">
-                  {errors.general}
-                </div>
-              )}
+        {/* ── Section 1: Delivery address ── */}
+        <div className="checkout-section">
+          <h2>Delivery address</h2>
 
-              {/* Line 1 (Required) */}
-              <div>
-                <label className="block font-label text-xs uppercase tracking-wider mb-2">
-                  Street Address <span className="text-red-600">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={formData.line1}
-                  onChange={(e) => handleInputChange('line1', e.target.value)}
-                  className={`w-full px-4 py-3 border rounded bg-paper focus:outline-none transition-all duration-[var(--dur)] ${
-                    errors.line1
-                      ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500'
-                      : 'border-line focus:border-lavender-600 focus:ring-2 focus:ring-lavender-600'
-                  }`}
-                  placeholder="House number, street name"
-                  disabled={isProcessing}
-                />
-                {errors.line1 && <p className="text-red-600 text-sm mt-1">{errors.line1}</p>}
-              </div>
-
-              {/* Line 2 (Optional) */}
-              <div>
-                <label className="block font-label text-xs uppercase tracking-wider mb-2">Apartment, suite, etc. (optional)</label>
-                <input
-                  type="text"
-                  value={formData.line2}
-                  onChange={(e) => handleInputChange('line2', e.target.value)}
-                  className="w-full px-4 py-3 border border-line rounded bg-paper focus:outline-none focus:border-lavender-600 focus:ring-2 focus:ring-lavender-600 transition-all duration-[var(--dur)]"
-                  placeholder="Apartment, suite, building (optional)"
-                  disabled={isProcessing}
-                />
-              </div>
-
-              {/* City (Required) */}
-              <div>
-                <label className="block font-label text-xs uppercase tracking-wider mb-2">
-                  City <span className="text-red-600">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={formData.city}
-                  onChange={(e) => handleInputChange('city', e.target.value)}
-                  className={`w-full px-4 py-3 border rounded bg-paper focus:outline-none transition-all duration-[var(--dur)] ${
-                    errors.city
-                      ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500'
-                      : 'border-line focus:border-lavender-600 focus:ring-2 focus:ring-lavender-600'
-                  }`}
-                  placeholder="Accra"
-                  disabled={isProcessing}
-                />
-                {errors.city && <p className="text-red-600 text-sm mt-1">{errors.city}</p>}
-              </div>
-
-              {/* Region (Required) */}
-              <div>
-                <label className="block font-label text-xs uppercase tracking-wider mb-2">
-                  Region <span className="text-red-600">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={formData.region}
-                  onChange={(e) => handleInputChange('region', e.target.value)}
-                  className={`w-full px-4 py-3 border rounded bg-paper focus:outline-none transition-all duration-[var(--dur)] ${
-                    errors.region
-                      ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500'
-                      : 'border-line focus:border-lavender-600 focus:ring-2 focus:ring-lavender-600'
-                  }`}
-                  placeholder="Greater Accra"
-                  disabled={isProcessing}
-                />
-                {errors.region && <p className="text-red-600 text-sm mt-1">{errors.region}</p>}
-              </div>
-
-              {/* Phone (Required) */}
-              <div>
-                <label className="block font-label text-xs uppercase tracking-wider mb-2">
-                  Phone Number <span className="text-red-600">*</span>
-                </label>
-                <input
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => handleInputChange('phone', e.target.value)}
-                  className={`w-full px-4 py-3 border rounded bg-paper focus:outline-none transition-all duration-[var(--dur)] ${
-                    errors.phone
-                      ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500'
-                      : 'border-line focus:border-lavender-600 focus:ring-2 focus:ring-lavender-600'
-                  }`}
-                  placeholder="0XX XXX XXXX"
-                  disabled={isProcessing}
-                />
-                {errors.phone && <p className="text-red-600 text-sm mt-1">{errors.phone}</p>}
-              </div>
-
-              {/* Label (Optional) */}
-              <div>
-                <label className="block font-label text-xs uppercase tracking-wider mb-2">Address Label (optional)</label>
-                <input
-                  type="text"
-                  value={formData.label}
-                  onChange={(e) => handleInputChange('label', e.target.value)}
-                  className="w-full px-4 py-3 border border-line rounded bg-paper focus:outline-none focus:border-lavender-600 focus:ring-2 focus:ring-lavender-600 transition-all duration-[var(--dur)]"
-                  placeholder="Home, Work, etc."
-                  disabled={isProcessing}
-                />
-              </div>
-
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                disabled={isProcessing}
-                isLoading={isProcessing}
-                className="w-full"
-                size="lg"
-                icon="arrow"
-                iconPosition="right"
-              >
-                Proceed to Payment
-              </Button>
-            </form>
+          <div className="field">
+            <label>Street Address <span aria-hidden="true">*</span></label>
+            <input
+              type="text"
+              value={formData.line1}
+              onChange={(e) => handleInputChange('line1', e.target.value)}
+              placeholder="House number, street name"
+              disabled={isProcessing}
+            />
+            {errors.line1 && <span className="field-error">{errors.line1}</span>}
           </div>
 
-          {/* Shipping Method */}
-          <div className="border border-line-soft rounded p-6">
-            <h2 className="font-display text-xl mb-4">Shipping Method</h2>
+          <div className="field" style={{ marginTop: '16px' }}>
+            <label>Apartment, suite, etc. (optional)</label>
+            <input
+              type="text"
+              value={formData.line2}
+              onChange={(e) => handleInputChange('line2', e.target.value)}
+              placeholder="Apartment, suite, building (optional)"
+              disabled={isProcessing}
+            />
+          </div>
 
-            <div className="space-y-3">
-              <label className="flex items-center justify-between p-4 border-2 border-lavender-600 rounded cursor-pointer bg-lavender-50">
-                <div className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-full border-2 border-lavender-600 flex items-center justify-center">
-                    <div className="w-2.5 h-2.5 rounded-full bg-lavender-600" />
-                  </div>
-                  <div>
-                    <div className="font-label font-semibold text-sm">Standard Delivery</div>
-                    <div className="text-xs text-ink-muted">3-5 business days</div>
-                  </div>
-                </div>
-                <div className="text-sm font-label font-semibold">{formatPrice(shippingCost)}</div>
-              </label>
+          <div className="field" style={{ marginTop: '16px' }}>
+            <label>City <span aria-hidden="true">*</span></label>
+            <input
+              type="text"
+              value={formData.city}
+              onChange={(e) => handleInputChange('city', e.target.value)}
+              placeholder="Accra"
+              disabled={isProcessing}
+            />
+            {errors.city && <span className="field-error">{errors.city}</span>}
+          </div>
+
+          <div className="field" style={{ marginTop: '16px' }}>
+            <label>Region <span aria-hidden="true">*</span></label>
+            <input
+              type="text"
+              value={formData.region}
+              onChange={(e) => handleInputChange('region', e.target.value)}
+              placeholder="Greater Accra"
+              disabled={isProcessing}
+            />
+            {errors.region && <span className="field-error">{errors.region}</span>}
+          </div>
+
+          <div className="field" style={{ marginTop: '16px' }}>
+            <label>Phone Number <span aria-hidden="true">*</span></label>
+            <input
+              type="tel"
+              value={formData.phone}
+              onChange={(e) => handleInputChange('phone', e.target.value)}
+              placeholder="0XX XXX XXXX"
+              disabled={isProcessing}
+            />
+            {errors.phone && <span className="field-error">{errors.phone}</span>}
+          </div>
+
+          <div className="field" style={{ marginTop: '16px' }}>
+            <label>Address Label (optional)</label>
+            <input
+              type="text"
+              value={formData.label}
+              onChange={(e) => handleInputChange('label', e.target.value)}
+              placeholder="Home, Work, etc."
+              disabled={isProcessing}
+            />
+          </div>
+        </div>
+
+        {/* ── Section 2: Delivery method ── */}
+        <div className="checkout-section">
+          <h2>Delivery method</h2>
+          <div className="checkout-methods">
+            <label className="method-card selected">
+              <input
+                type="radio"
+                name="shipping_method"
+                value="standard"
+                defaultChecked
+                style={{ position: 'absolute', opacity: 0 }}
+                readOnly
+              />
+              <span>Standard Delivery</span>
+              <span className="price">{formatGhs(shippingCost)}</span>
+            </label>
+          </div>
+        </div>
+
+        {/* ── Section 3: Order summary ── */}
+        <div className="checkout-section">
+          <h2>Order summary</h2>
+          <div className="checkout-summary-rows">
+            {items.map((item) => (
+              <div key={item.id} className="drawer-row">
+                <span>{item.product_name} × {item.qty}</span>
+                <span>{formatGhs(item.line_total_ghs_minor ?? 0)}</span>
+              </div>
+            ))}
+            <div className="drawer-row muted">
+              <span>Subtotal</span>
+              <span>{formatGhs(subtotalGhsMinor)}</span>
+            </div>
+            <div className="drawer-row muted">
+              <span>Delivery</span>
+              <span>{formatGhs(shippingCost)}</span>
+            </div>
+            <div className="drawer-row">
+              <span>Total</span>
+              <span className="price">{formatGhs(total)}</span>
             </div>
           </div>
         </div>
 
-          {/* Order Summary */}
-          <div>
-            <div className="border border-line-soft rounded p-6 sticky top-24">
-            <h2 className="font-display text-xl mb-4">Order Summary</h2>
-
-            <div className="space-y-3 mb-6">
-              <div className="flex justify-between text-sm">
-                <span className="text-ink-muted">Subtotal</span>
-                <span className="font-label font-semibold">{formatPrice(subtotalGhsMinor)}</span>
-              </div>
-              <div className="flex justify-between text-sm text-ink-muted">
-                <span>Delivery</span>
-                <span>{formatPrice(shippingCost)}</span>
-              </div>
-              <div className="border-t border-line-soft pt-3 mt-3">
-                <div className="flex justify-between">
-                  <span className="font-label font-semibold">Total</span>
-                  <span className="font-display text-xl">{formatPrice(total)}</span>
-                </div>
-              </div>
-            </div>
-
-              <div className="mt-4 text-xs text-ink-muted text-center space-y-1">
-                <p className="flex items-center justify-center gap-2">
-                  <Icon name="shield" size={12} />
-                  Secure checkout powered by Paystack
-                </p>
-                <p>Delivery calculated at checkout</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+        <button
+          className="btn btn-primary"
+          type="submit"
+          disabled={isProcessing}
+          style={{ width: '100%', justifyContent: 'center' }}
+        >
+          {isProcessing ? 'Preparing secure payment…' : `Pay with Paystack · ${formatGhs(total)}`}
+        </button>
+      </form>
+    </main>
   );
 }
