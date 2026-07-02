@@ -36,7 +36,7 @@ export function ProductDetail({ slug }: ProductDetailProps) {
   const handleAddToCart = async () => {
     if (!product || !product.id) return;
     try {
-      await addItem(product.id, quantity);
+      await addItem(product.id, quantity, product.name);
     } catch (error) {
       console.error('Failed to add to cart:', error);
     }

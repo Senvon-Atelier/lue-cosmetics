@@ -1,10 +1,8 @@
 import { useEffect } from 'react';
-import { Link } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { Icon } from '../shared/ui/icons';
-import { Button } from '../shared/ui/button';
 import { useCart } from './cart-provider';
-import { formatPrice, getImageUrl } from '../../lib/format/utils';
-import { ProductPlaceholder } from '../shared/ui/placeholder';
+import { formatGhs, getImageUrl } from '../../lib/format/utils';
 
 interface CartDrawerProps {
   open: boolean;
@@ -12,7 +10,8 @@ interface CartDrawerProps {
 }
 
 export function CartDrawer({ open, onClose }: CartDrawerProps) {
-  const { items, subtotalGhsMinor, shippingCostGhsMinor, totalGhsMinor, isLoading } = useCart();
+  const { items, subtotalGhsMinor, updateItem, removeItem } = useCart();
+  const navigate = useNavigate();
 
   // Close drawer on escape key
   useEffect(() => {
@@ -37,168 +36,134 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
     };
   }, [open]);
 
-  const handleRemoveItem = async (_itemId: string | undefined) => {
-    // This would call the cart provider's removeItem
-    // For now, we'll just close the drawer
-    onClose();
-  };
-
-  const handleUpdateQuantity = async (_itemId: string | undefined, newQty: number) => {
-    if (newQty < 1) return;
-    // This would call the cart provider's updateItem
-    // For now, we'll just update locally
-  };
-
   const itemCount = items.reduce((sum, item) => sum + (item.qty || 0), 0);
-  const subtotal = formatPrice(subtotalGhsMinor);
-  const shipping = formatPrice(shippingCostGhsMinor);
-  const total = formatPrice(totalGhsMinor);
 
   return (
     <>
-      {/* Backdrop */}
-      <div
-        className={`fixed inset-0 bg-ink/40 backdrop-blur-[12px] transition-opacity duration-[280ms] z-40 ${open ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-        onClick={onClose}
-      />
-
-      {/* Drawer */}
-      <aside
-        className={`fixed top-0 right-0 h-full w-full sm:w-[440px] bg-paper shadow-2xl z-50 transition-transform duration-[360ms] ease-[cubic-bezier(0.2,0.8,0.2,1)] ${
-          open ? 'translate-x-0' : 'translate-x-full'
-        }`}
-      >
-        <div className="flex flex-col h-full">
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-line-soft">
-            <div>
-              <div className="font-label text-sm text-ink-muted">Your Bag</div>
-              <div className="font-display text-2xl">{itemCount} {itemCount === 1 ? 'item' : 'items'}</div>
+      <div className={`drawer-scrim${open ? ' open' : ''}`} onClick={onClose} />
+      <aside className={`drawer${open ? ' open' : ''}`} aria-hidden={!open}>
+        <div className="drawer-head">
+          <div>
+            <div className="eyebrow">Your Bag</div>
+            <div className="drawer-title">
+              {itemCount} {itemCount === 1 ? 'item' : 'items'}
             </div>
-            <button
-              onClick={onClose}
-              className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-lavender-50 transition-colors"
-              aria-label="Close cart"
-            >
-              <Icon name="close" size={20} />
-            </button>
           </div>
+          <button className="icon-btn" onClick={onClose} aria-label="Close cart">
+            <Icon name="close" size={20} />
+          </button>
+        </div>
 
-          {/* Body */}
-          <div className="flex-1 overflow-y-auto p-6">
-            {isLoading ? (
-              <div className="space-y-5">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="flex gap-4 animate-pulse">
-                    <div className="w-20 h-24 bg-lavender-100 rounded" />
-                    <div className="flex-1 space-y-2">
-                      <div className="h-4 bg-lavender-100 rounded w-3/4" />
-                      <div className="h-3 bg-lavender-100 rounded w-1/2" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : items.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-center">
-                <div className="w-20 h-20 rounded-full bg-lavender-100 flex items-center justify-center mb-4">
-                  <Icon name="bag" size={32} className="text-lavender-300" />
-                </div>
-                <h3 className="font-display text-2xl mb-2">Your bag is empty</h3>
-                <p className="text-ink-muted mb-6">Let's change that.</p>
-                <Link to="/shop">
-                  <Button onClick={onClose} variant="primary" icon="arrow" iconPosition="right">
-                    Shop the edit
-                  </Button>
-                </Link>
-              </div>
-            ) : (
-              <div className="space-y-5">
-                {items.map((item) => (
-                  <div key={item.id} className="flex gap-4 py-5 border-b border-line-soft last:border-0">
-                    {/* Product Image */}
-                    <div className="relative w-20 h-24 flex-shrink-0 overflow-hidden rounded bg-lavender-100">
-                      {item.product_image_path ? (
-                        <img
-                          src={getImageUrl(item.product_image_path || '')}
-                          alt={item.product_name || 'Product'}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <ProductPlaceholder tone="lavender" label={item.product_name?.substring(0, 2) || ''} />
-                      )}
-                    </div>
-
-                    {/* Product Info */}
-                    <div className="flex-1 flex flex-col">
-                      <div className="flex-1">
-                        <h4 className="font-label font-medium text-ink mb-1">{item.product_name}</h4>
-                      </div>
-
-                      {/* Quantity and Price */}
-                      <div className="flex items-center justify-between mt-2">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => handleUpdateQuantity(item.id, (item.qty || 1) - 1)}
-                            className="w-8 h-8 flex items-center justify-center border border-line rounded-full hover:bg-lavender-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled={(item.qty || 1) <= 1}
-                          >
-                            <Icon name="minus" size={12} />
-                          </button>
-                          <span className="w-8 text-center font-label">{item.qty || 1}</span>
-                          <button
-                            onClick={() => handleUpdateQuantity(item.id, (item.qty || 1) + 1)}
-                            className="w-8 h-8 flex items-center justify-center border border-line rounded-full hover:bg-lavender-50 transition-colors"
-                          >
-                            <Icon name="plus" size={12} />
-                          </button>
-                        </div>
-
-                        <div className="text-right">
-                          <div className="font-label font-semibold">{formatPrice((item.unit_price_ghs_minor || 0) * (item.qty || 1))}</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Remove Button */}
-                    <button
-                      onClick={() => handleRemoveItem(item.id)}
-                      className="self-start p-2 text-ink-muted hover:text-red-600 transition-colors"
-                      aria-label="Remove item"
-                    >
-                      <Icon name="close" size={14} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Footer */}
-          {items.length > 0 && !isLoading && (
-            <div className="border-t border-line-soft p-6 space-y-3 bg-paper/95 backdrop-blur-sm">
-              <div className="flex justify-between text-sm">
-                <span className="text-ink-muted">Subtotal</span>
-                <span className="font-label font-semibold">{subtotal}</span>
-              </div>
-              <div className="flex justify-between text-sm text-ink-muted">
-                <span>Delivery</span>
-                <span>{shipping}</span>
-              </div>
-              <Link to="/checkout" onClick={onClose}>
-                <Button className="w-full" icon="arrow" iconPosition="right">
-                  Checkout · {total}
-                </Button>
-              </Link>
-              <button
-                onClick={onClose}
-                className="w-full text-center text-sm text-ink-muted hover:text-ink transition-colors py-2"
+        <div className="drawer-body">
+          {items.length === 0 ? (
+            <div className="cart-empty">
+              <div
+                className="ph"
+                style={{ width: 120, height: 120, margin: '0 auto 24px', borderRadius: '50%' }}
               >
-                Continue shopping
+                <span className="ph-label">Empty</span>
+              </div>
+              <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 24, margin: '0 0 8px' }}>
+                Your bag is empty
+              </h3>
+              <p style={{ color: 'var(--ink-muted)', marginBottom: 24 }}>Let's change that.</p>
+              <button
+                className="btn btn-primary"
+                onClick={() => {
+                  onClose();
+                  void navigate({ to: '/shop' });
+                }}
+              >
+                Shop the edit <Icon name="arrow" size={14} />
               </button>
             </div>
+          ) : (
+            items.map((item) => (
+              <div className="cart-item" key={item.id}>
+                {item.product_image_path ? (
+                  <img
+                    src={getImageUrl(item.product_image_path)}
+                    alt={item.product_name || 'Product'}
+                    style={{ width: 80, height: 100, flexShrink: 0, objectFit: 'cover', borderRadius: 'var(--radius)' }}
+                    loading="lazy"
+                  />
+                ) : (
+                  <div
+                    className="ph ph--lavender"
+                    style={{ width: 80, height: 100, flexShrink: 0 }}
+                  >
+                    <span className="ph-label" style={{ fontSize: 8 }}>
+                      {item.product_name?.substring(0, 2) || ''}
+                    </span>
+                  </div>
+                )}
+                <div className="cart-item-body">
+                  <div className="cart-item-name">{item.product_name}</div>
+                  <div className="cart-item-row">
+                    <div className="qty">
+                      <button
+                        onClick={() => {
+                          const newQty = (item.qty || 1) - 1;
+                          if (newQty < 1) {
+                            void removeItem(item.id!);
+                          } else {
+                            void updateItem(item.id!, newQty);
+                          }
+                        }}
+                        aria-label="Decrease quantity"
+                      >
+                        <Icon name="minus" size={12} />
+                      </button>
+                      <span>{item.qty || 1}</span>
+                      <button
+                        onClick={() => void updateItem(item.id!, (item.qty || 1) + 1)}
+                        aria-label="Increase quantity"
+                      >
+                        <Icon name="plus" size={12} />
+                      </button>
+                    </div>
+                    <div className="price">
+                      {formatGhs((item.unit_price_ghs_minor || 0) * (item.qty || 1))}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  className="cart-item-remove"
+                  onClick={() => void removeItem(item.id!)}
+                  aria-label="Remove item"
+                >
+                  <Icon name="close" size={14} />
+                </button>
+              </div>
+            ))
           )}
         </div>
+
+        {items.length > 0 && (
+          <div className="drawer-foot">
+            <div className="drawer-row">
+              <span>Subtotal</span>
+              <span className="price">{formatGhs(subtotalGhsMinor)}</span>
+            </div>
+            <div className="drawer-row muted">
+              <span>Delivery</span>
+              <span>Calculated at checkout</span>
+            </div>
+            <button
+              className="btn btn-primary"
+              style={{ width: '100%', justifyContent: 'center', marginTop: 16 }}
+              onClick={() => {
+                onClose();
+                void navigate({ to: '/checkout' });
+              }}
+            >
+              Checkout · {formatGhs(subtotalGhsMinor)}
+            </button>
+            <button className="drawer-link" onClick={onClose}>
+              Continue shopping
+            </button>
+          </div>
+        )}
       </aside>
     </>
   );

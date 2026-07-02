@@ -4,13 +4,9 @@ import { Brand } from '../ui/brand';
 import { useAuth } from '../../../lib/auth/auth-provider';
 import { useCart } from '../../cart/cart-provider';
 
-interface HeaderProps {
-  onCartOpen: () => void;
-}
-
-export function Header({ onCartOpen }: HeaderProps) {
+export function Header() {
   const { isAuthenticated } = useAuth();
-  const { itemCount, wishlistCount } = useCart();
+  const { itemCount, wishlistCount, openDrawer } = useCart();
 
   return (
     <header className="header">
@@ -46,7 +42,8 @@ export function Header({ onCartOpen }: HeaderProps) {
               </Link>
             )}
             <button
-              className="header-icon-btn relative"
+              className="header-icon-btn"
+              style={{ position: 'relative' }}
               aria-label="Wishlist"
             >
               <Icon name="heart" size={20} />
@@ -57,8 +54,9 @@ export function Header({ onCartOpen }: HeaderProps) {
               )}
             </button>
             <button
-              className="header-icon-btn relative"
-              onClick={onCartOpen}
+              className="header-icon-btn"
+              style={{ position: 'relative' }}
+              onClick={openDrawer}
               aria-label="Open cart"
             >
               <Icon name="bag" size={20} />

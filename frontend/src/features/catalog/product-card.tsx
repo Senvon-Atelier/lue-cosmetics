@@ -36,7 +36,7 @@ export function ProductCard({ product, variant = 'default' }: ProductCardProps) 
     e.stopPropagation();
     if (!id) return;
     try {
-      await addItem(id, 1);
+      await addItem(id, 1, name);
     } catch (error) {
       console.error('Failed to add to cart:', error);
     }

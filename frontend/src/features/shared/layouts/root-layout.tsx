@@ -1,22 +1,24 @@
-import { useState } from 'react';
 import { Outlet } from '@tanstack/react-router';
 import { AnnouncementBar } from './announcement-bar';
 import { Header } from './header';
 import { Footer } from './footer';
 import { CartDrawer } from '../../cart/cart-drawer';
+import { AddToast } from '../../cart/add-toast';
+import { useCart } from '../../cart/cart-provider';
 
 export function RootLayout() {
-  const [isCartOpen, setIsCartOpen] = useState(false);
+  const { isDrawerOpen, openDrawer, closeDrawer, lastAdded, dismissToast } = useCart();
 
   return (
-    <div className="min-h-screen bg-paper text-ink font-body">
+    <div>
       <AnnouncementBar />
-      <Header onCartOpen={() => setIsCartOpen(true)} />
+      <Header />
       <main>
         <Outlet />
       </main>
       <Footer />
-      <CartDrawer open={isCartOpen} onClose={() => setIsCartOpen(false)} />
+      <CartDrawer open={isDrawerOpen} onClose={closeDrawer} />
+      <AddToast lastAdded={lastAdded} onView={openDrawer} onDismiss={dismissToast} />
     </div>
   );
 }

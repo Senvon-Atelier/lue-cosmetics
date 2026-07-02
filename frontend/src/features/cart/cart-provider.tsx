@@ -20,7 +20,7 @@ interface CartState {
 }
 
 interface CartContextType extends CartState {
-  addItem: (productId: string, qty: number) => Promise<void>;
+  addItem: (productId: string, qty: number, name?: string) => Promise<void>;
   updateItem: (itemId: string, qty: number) => Promise<void>;
   removeItem: (itemId: string) => Promise<void>;
   refreshCart: () => Promise<void>;
@@ -28,6 +28,13 @@ interface CartContextType extends CartState {
   wishlistCount: number;
   addToWishlist: () => void;
   removeFromWishlist: () => void;
+  // Drawer state
+  isDrawerOpen: boolean;
+  openDrawer: () => void;
+  closeDrawer: () => void;
+  // Toast state
+  lastAdded: { name: string } | null;
+  dismissToast: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -49,6 +56,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   // Wishlist state
   const [wishlistCount, setWishlistCount] = useState(0);
+
+  // Drawer state
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const openDrawer = () => setIsDrawerOpen(true);
+  const closeDrawer = () => setIsDrawerOpen(false);
+
+  // Toast state
+  const [lastAdded, setLastAdded] = useState<{ name: string } | null>(null);
+  const dismissToast = () => setLastAdded(null);
 
   // Refresh cart from backend
   const refreshCart = async () => {
@@ -98,9 +114,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [isAuthenticated]);
 
   // Add item to cart
-  const addItem = async (productId: string, qty: number) => {
+  const addItem = async (productId: string, qty: number, name?: string) => {
     await postCartItems({ product_id: productId, qty });
     await refreshCart();
+    setLastAdded(name ? { name } : { name: 'Item' });
+    window.setTimeout(() => setLastAdded(null), 2400);
   };
 
   // Update item quantity
@@ -133,6 +151,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
         wishlistCount,
         addToWishlist,
         removeFromWishlist,
+        isDrawerOpen,
+        openDrawer,
+        closeDrawer,
+        lastAdded,
+        dismissToast,
       }}
     >
       {children}
