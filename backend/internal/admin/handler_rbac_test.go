@@ -46,7 +46,7 @@ func buildAdminTestRouter(t *testing.T) (http.Handler, func()) {
 
 	r := chi.NewRouter()
 	authHandlers.Mount(r)   // /auth/signup, /auth/login, etc.
-	adminHandlers.Mount(r)  // /admin/dashboard, /admin/orders, etc. (NEW — compile fails until Step 3)
+	adminHandlers.Mount(r)  // /admin/dashboard, /admin/orders, etc.
 
 	return r, cleanup
 }

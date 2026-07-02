@@ -10,7 +10,9 @@ export const sessionQueryOptions = queryOptions({
   queryFn: async (): Promise<Session | null> => {
     try {
       const session = await getAuthSession();
-      return session ?? null;
+      // Anonymous users get 204 No Content, which axios surfaces as an empty
+      // string body — so use || (not ??) to normalize that to null too.
+      return session || null;
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) return null;
       throw err;
