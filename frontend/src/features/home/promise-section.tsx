@@ -31,6 +31,7 @@ export function PromiseSection() {
           {promises.map((promise) => (
             <div key={promise.title} className="promise-item">
               <div className="promise-icon">
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 <Icon name={promise.icon as any} size={22} />
               </div>
               <div className="promise-title">{promise.title}</div>

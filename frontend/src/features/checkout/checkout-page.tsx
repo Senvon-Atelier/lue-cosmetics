@@ -108,6 +108,7 @@ export function CheckoutPage() {
       } else {
         setErrors({ general: 'Unable to start checkout. Please try again.' });
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error('Checkout failed:', error);
 

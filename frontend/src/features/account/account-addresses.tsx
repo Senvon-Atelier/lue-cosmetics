@@ -193,6 +193,7 @@ function AddressForm({
   onCancel,
 }: {
   address: Address | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSubmit: (data: any) => Promise<void>;
   onCancel: () => void;
 }) {

@@ -50,6 +50,7 @@ export function CheckoutReturnPage() {
           // Unexpected status
           setStatus('failed');
         }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         console.error('Payment verification failed:', error);
         if (isMounted) {
