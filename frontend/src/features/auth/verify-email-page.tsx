@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useAuth } from '../../lib/auth/auth-provider';
 import { postAuthVerifyEmailResend } from '../../lib/api/generated/rueCosmeticsAPI';
-import { Button } from '../shared/ui/button';
+import { Icon } from '../shared/ui/icons';
+import { AuthShell } from './auth-shell';
 
 export function VerifyEmailPage() {
   const navigate = useNavigate();
@@ -45,91 +46,50 @@ export function VerifyEmailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-paper text-ink font-body flex items-center justify-center py-12 px-4">
-      <div className="max-w-md w-full space-y-8">
-        {/* Header */}
-        <div className="text-center">
-          <div className="text-5xl mb-4">📧</div>
-          <h1 className="font-display text-4xl mb-2">Verify Your Email</h1>
-          <p className="text-ink-muted">
-            {userEmail ? (
-              <>
-                We've sent a verification email to
-                <br />
-                <span className="font-medium text-ink">{userEmail}</span>
-              </>
-            ) : (
-              'Please check your email for a verification link'
-            )}
-          </p>
+    <AuthShell
+      title="Check your inbox."
+      sub="Verify email"
+      footer={
+        <div className="auth-meta">
+          Already verified? <Link to="/account" onClick={(e) => { e.preventDefault(); handleContinue(); }}>Continue to your account</Link>
         </div>
-
-        {/* Info box */}
-        <div className="bg-lavender-50 border border-lavender-200 text-ink px-4 py-3 rounded-lg text-sm">
-          <p className="font-medium mb-1">Why verify?</p>
-          <p className="text-ink-muted">
-            Verifying your email helps us secure your account and send you important updates about your orders.
-          </p>
-        </div>
-
-        {/* Success message */}
-        {successMessage && (
-          <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm">
-            {successMessage}
-          </div>
+      }
+    >
+      <p className="auth-meta" style={{ marginTop: 0, textAlign: 'left', color: 'var(--ink-soft)' }}>
+        {userEmail ? (
+          <>We've sent a verification email to <strong>{userEmail}</strong>.</>
+        ) : (
+          'Please check your email for a verification link.'
         )}
+      </p>
 
-        {/* Error message */}
-        {error && (
-          <div className="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-lg text-sm">
-            {error}
-          </div>
-        )}
+      {successMessage && (
+        <p className="auth-meta" style={{ marginTop: 0, textAlign: 'left', color: 'var(--lavender-700)', marginBottom: 16 }}>
+          {successMessage}
+        </p>
+      )}
 
-        {/* Actions */}
-        <div className="space-y-4">
-          {/* Resend email button */}
-          <Button
-            variant="outline"
-            size="lg"
-            isLoading={isLoading}
-            onClick={handleResend}
-            className="w-full"
-          >
-            Resend Verification Email
-          </Button>
+      {error && (
+        <p className="auth-meta" style={{ marginTop: 0, textAlign: 'left', color: 'var(--lavender-700)', marginBottom: 16 }}>
+          {error}
+        </p>
+      )}
 
-          {/* Continue button */}
-          <Button
-            variant="primary"
-            size="lg"
-            onClick={handleContinue}
-            className="w-full"
-          >
-            I've Verified My Email →
-          </Button>
-        </div>
-
-        {/* Help text */}
-        <div className="text-center text-sm text-ink-muted space-y-2">
-          <p>Didn't receive the email?</p>
-          <ul className="space-y-1">
-            <li>• Check your spam folder</li>
-            <li>• Make sure the email address is correct</li>
-            <li>• Wait a few minutes before resending</li>
-          </ul>
-        </div>
-
-        {/* Back to account/home */}
-        <div className="text-center text-sm">
-          <Link
-            to="/"
-            className="text-lavender-600 hover:text-lavender-700 font-label font-medium transition-colors"
-          >
-            ← Back to home
-          </Link>
-        </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 24 }}>
+        <button
+          type="button"
+          className="btn btn-primary"
+          style={{ width: '100%', justifyContent: 'center' }}
+          disabled={isLoading}
+          onClick={handleResend}
+        >
+          Resend verification email <Icon name="arrow" size={14} />
+        </button>
       </div>
-    </div>
+
+      <p className="auth-meta" style={{ marginTop: 24, textAlign: 'left', color: 'var(--ink-muted)', fontSize: 12 }}>
+        Didn't receive it? Check your spam folder, make sure the email address is correct, and wait a few minutes before resending.
+      </p>
+    </AuthShell>
   );
 }

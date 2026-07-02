@@ -101,11 +101,11 @@ const aboutRoute = createRoute({
   component: () => pageShell(<AboutPage />),
 });
 
-const loginRoute = createRoute({ getParentRoute: () => storefrontLayoutRoute, path: '/login', component: LoginPage });
-const signupRoute = createRoute({ getParentRoute: () => storefrontLayoutRoute, path: '/signup', component: SignupPage });
-const forgotPasswordRoute = createRoute({ getParentRoute: () => storefrontLayoutRoute, path: '/forgot-password', component: ForgotPasswordPage });
-const resetPasswordRoute = createRoute({ getParentRoute: () => storefrontLayoutRoute, path: '/reset-password', component: ResetPasswordPage });
-const verifyEmailRoute = createRoute({ getParentRoute: () => storefrontLayoutRoute, path: '/verify-email', component: VerifyEmailPage });
+const loginRoute = createRoute({ getParentRoute: () => authLayoutRoute, path: '/login', component: LoginPage });
+const signupRoute = createRoute({ getParentRoute: () => authLayoutRoute, path: '/signup', component: SignupPage });
+const forgotPasswordRoute = createRoute({ getParentRoute: () => authLayoutRoute, path: '/forgot-password', component: ForgotPasswordPage });
+const resetPasswordRoute = createRoute({ getParentRoute: () => authLayoutRoute, path: '/reset-password', component: ResetPasswordPage });
+const verifyEmailRoute = createRoute({ getParentRoute: () => authLayoutRoute, path: '/verify-email', component: VerifyEmailPage });
 
 // ── Account: authenticated customers, storefront chrome ─────────────────────
 const accountRoute = createRoute({
@@ -142,6 +142,13 @@ const adminMarketingRoute = createRoute({ getParentRoute: () => adminRoute, path
 const adminContentRoute = createRoute({ getParentRoute: () => adminRoute, path: '/content', component: AdminContent });
 const adminSettingsRoute = createRoute({ getParentRoute: () => adminRoute, path: '/settings', component: AdminSettings });
 
+// ── Auth: no storefront chrome ───────────────────────────────────────────────
+const authLayoutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  id: '_auth',
+  component: () => <Outlet />,
+});
+
 // ── Checkout: minimal chrome ─────────────────────────────────────────────────
 const checkoutLayoutRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -163,11 +170,6 @@ const routeTree = rootRoute.addChildren([
     productDetailRoute,
     cartRoute,
     aboutRoute,
-    loginRoute,
-    signupRoute,
-    forgotPasswordRoute,
-    resetPasswordRoute,
-    verifyEmailRoute,
     accountRoute.addChildren([
       accountDashboardRoute,
       accountOrdersRoute.addChildren([accountOrderDetailRoute]),
@@ -175,6 +177,13 @@ const routeTree = rootRoute.addChildren([
       accountWishlistRoute,
       accountSettingsRoute,
     ]),
+  ]),
+  authLayoutRoute.addChildren([
+    loginRoute,
+    signupRoute,
+    forgotPasswordRoute,
+    resetPasswordRoute,
+    verifyEmailRoute,
   ]),
   adminRoute.addChildren([
     adminDashboardRoute,

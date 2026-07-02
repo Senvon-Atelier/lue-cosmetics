@@ -1,1 +1,26 @@
 /* Ported from Rue mockup — see spec §3. */
+
+/* Auth layout */
+.auth-wrap { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; background: var(--surface); }
+@media (max-width: 900px) { .auth-wrap { grid-template-columns: 1fr; } }
+.auth-visual { position: relative; overflow: hidden; background: var(--ink); }
+.auth-visual .ph { position: absolute; inset: 0; border-radius: 0; }
+.auth-visual-copy { position: absolute; left: 48px; right: 48px; bottom: 48px; color: white; z-index: 2; }
+.auth-visual-copy h2 { font-family: var(--font-display); font-size: clamp(36px, 4.5vw, 64px); line-height: 1; margin: 8px 0 16px; font-weight: 400; letter-spacing: 0.005em; }
+.auth-visual-copy p { color: rgba(255,255,255,0.7); max-width: 420px; font-size: 14px; }
+.auth-visual::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(26,21,32,0.85), rgba(26,21,32,0.2) 60%); z-index: 1; }
+.auth-form-wrap { display: flex; align-items: center; justify-content: center; padding: 48px clamp(24px, 6vw, 80px); }
+.auth-form { width: 100%; max-width: 440px; }
+.auth-form h1 { font-family: var(--font-display); font-size: clamp(36px, 5vw, 56px); margin: 8px 0 12px; font-weight: 400; letter-spacing: 0.005em; }
+.auth-form > p { color: var(--ink-soft); margin-bottom: 32px; }
+.auth-social { display: flex; gap: 12px; margin: 24px 0; }
+.auth-social button { flex: 1; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: white; font-family: var(--font-label); font-size: 13px; font-weight: 500; display: inline-flex; justify-content: center; align-items: center; gap: 8px; }
+.auth-social button:hover { border-color: var(--ink); }
+.auth-divider { text-align: center; font-family: var(--font-label); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-muted); margin: 16px 0; position: relative; }
+.auth-divider::before, .auth-divider::after { content: ''; position: absolute; top: 50%; width: calc(50% - 30px); height: 1px; background: var(--line); }
+.auth-divider::before { left: 0; } .auth-divider::after { right: 0; }
+.auth-meta { text-align: center; font-family: var(--font-label); font-size: 13px; color: var(--ink-soft); margin-top: 24px; }
+.auth-meta a { color: var(--ink); font-weight: 600; border-bottom: 1px solid; cursor: pointer; }
+.auth-link { font-family: var(--font-label); font-size: 12px; color: var(--lavender-700); cursor: pointer; }
+.back-link { font-family: var(--font-label); font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); display: inline-flex; align-items: center; gap: 6px; cursor: pointer; margin-bottom: 16px; }
+.back-link:hover { color: var(--ink); }

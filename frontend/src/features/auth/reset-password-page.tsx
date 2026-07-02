@@ -1,7 +1,8 @@
 import { useState, FormEvent, useEffect } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { postAuthPasswordResetConfirm } from '../../lib/api/generated/rueCosmeticsAPI';
-import { Button } from '../shared/ui/button';
+import { Icon } from '../shared/ui/icons';
+import { AuthShell } from './auth-shell';
 
 export function ResetPasswordPage() {
   const navigate = useNavigate();
@@ -77,165 +78,105 @@ export function ResetPasswordPage() {
 
   if (!isValidToken) {
     return (
-      <div className="min-h-screen bg-paper text-ink font-body flex items-center justify-center py-12 px-4">
-        <div className="max-w-md w-full space-y-8 text-center">
-          {/* Invalid token */}
-          <div className="bg-rose-50 border border-rose-200 text-rose-800 px-6 py-8 rounded-lg">
-            <div className="text-5xl mb-4">⚠️</div>
-            <h1 className="font-display text-2xl mb-2">Invalid Reset Link</h1>
-            <p className="text-ink-muted mb-4">
-              This password reset link is invalid or has expired.
-            </p>
+      <AuthShell
+        title="Choose a new one."
+        sub="Reset password"
+        footer={
+          <div className="auth-meta">
+            <Link to="/forgot-password">Request a new reset link</Link>
           </div>
-
-          {/* Request new link */}
-          <div className="text-sm">
-            <Link
-              to="/forgot-password"
-              className="text-lavender-600 hover:text-lavender-700 font-label font-medium transition-colors"
-            >
-              Request a new reset link
-            </Link>
-          </div>
-        </div>
-      </div>
+        }
+      >
+        <p className="auth-meta" style={{ marginTop: 0, textAlign: 'left', color: 'var(--lavender-700)' }}>
+          This password reset link is invalid or has expired.
+        </p>
+      </AuthShell>
     );
   }
 
   if (success) {
     return (
-      <div className="min-h-screen bg-paper text-ink font-body flex items-center justify-center py-12 px-4">
-        <div className="max-w-md w-full space-y-8 text-center">
-          {/* Success message */}
-          <div className="bg-green-50 border border-green-200 text-green-800 px-6 py-8 rounded-lg">
-            <div className="text-5xl mb-4">✓</div>
-            <h1 className="font-display text-2xl mb-2">Password Reset</h1>
-            <p className="text-ink-muted">
-              Your password has been successfully reset.
-              <br />
-              You can now log in with your new password.
-            </p>
+      <AuthShell
+        title="Choose a new one."
+        sub="Reset password"
+        footer={
+          <div className="auth-meta">
+            <Link to="/login">Back to sign in</Link>
           </div>
-
-          {/* Login button */}
-          <Button
-            variant="primary"
-            size="lg"
-            onClick={() => navigate({ to: '/login' })}
-            className="w-full"
-          >
-            Go to Login
-          </Button>
-        </div>
-      </div>
+        }
+      >
+        <p className="auth-meta" style={{ marginTop: 0, textAlign: 'left' }}>
+          Your password has been successfully reset. You can now sign in with your new password.
+        </p>
+        <button
+          type="button"
+          className="btn btn-primary"
+          style={{ width: '100%', justifyContent: 'center' }}
+          onClick={() => navigate({ to: '/login' })}
+        >
+          Go to sign in <Icon name="arrow" size={14} />
+        </button>
+      </AuthShell>
     );
   }
 
   return (
-    <div className="min-h-screen bg-paper text-ink font-body flex items-center justify-center py-12 px-4">
-      <div className="max-w-md w-full space-y-8">
-        {/* Header */}
-        <div className="text-center">
-          <h1 className="font-display text-4xl mb-2">Reset Password</h1>
-          <p className="text-ink-muted">Enter your new password below</p>
+    <AuthShell
+      title="Choose a new one."
+      sub="Reset password"
+      footer={
+        <div className="auth-meta">
+          <Link to="/login">Back to sign in</Link>
         </div>
-
-        {/* Error message */}
+      }
+    >
+      <form onSubmit={handleSubmit}>
+        <div className="field" style={{ marginBottom: 16 }}>
+          <label htmlFor="password">New password</label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={8}
+            placeholder="••••••••"
+          />
+          {password && (
+            <span className="field-hint">
+              Password strength: <strong>{passwordStrength.strength}</strong>
+            </span>
+          )}
+        </div>
+        <div className="field" style={{ marginBottom: 24 }}>
+          <label htmlFor="confirmPassword">Confirm new password</label>
+          <input
+            id="confirmPassword"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            minLength={8}
+            placeholder="••••••••"
+          />
+          {confirmPassword && password !== confirmPassword && (
+            <span className="field-error">Passwords do not match</span>
+          )}
+        </div>
         {error && (
-          <div className="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-lg text-sm">
+          <div className="auth-meta" style={{ color: 'var(--lavender-700)', marginBottom: 16 }}>
             {error}
           </div>
         )}
-
-        {/* Reset form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* New password field */}
-          <div>
-            <label htmlFor="password" className="block font-label font-medium text-ink mb-2">
-              New Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={8}
-              className="w-full px-4 py-2 border-b border-line bg-transparent text-ink placeholder:text-ink-muted focus:outline-none focus:border-lavender-400 focus:ring-1 focus:ring-lavender-400 transition-colors"
-              placeholder="••••••••"
-            />
-
-            {/* Password strength indicator */}
-            {password && (
-              <div className="mt-2">
-                <div className="flex gap-1 mb-1">
-                  {[1, 2, 3, 4].map((level) => (
-                    <div
-                      key={level}
-                      className={`h-1 flex-1 rounded-full transition-colors ${
-                        passwordStrength.score >= level
-                          ? level === 1
-                            ? 'bg-rose-400'
-                            : level === 2
-                            ? 'bg-yellow-400'
-                            : level === 3
-                            ? 'bg-lavender-400'
-                            : 'bg-green-400'
-                          : 'bg-gray-200'
-                      }`}
-                    />
-                  ))}
-                </div>
-                <p className="text-xs text-ink-muted">
-                  Password strength: <span className="font-medium">{passwordStrength.strength}</span>
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Confirm password field */}
-          <div>
-            <label htmlFor="confirmPassword" className="block font-label font-medium text-ink mb-2">
-              Confirm New Password
-            </label>
-            <input
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              minLength={8}
-              className="w-full px-4 py-2 border-b border-line bg-transparent text-ink placeholder:text-ink-muted focus:outline-none focus:border-lavender-400 focus:ring-1 focus:ring-lavender-400 transition-colors"
-              placeholder="••••••••"
-            />
-            {confirmPassword && password !== confirmPassword && (
-              <p className="mt-1 text-xs text-rose-600">Passwords do not match</p>
-            )}
-          </div>
-
-          {/* Submit button */}
-          <Button
-            type="submit"
-            variant="primary"
-            size="lg"
-            isLoading={isLoading}
-            disabled={password !== confirmPassword || password.length < 8}
-            className="w-full"
-          >
-            Reset Password
-          </Button>
-        </form>
-
-        {/* Back to login */}
-        <div className="text-center text-sm">
-          <Link
-            to="/login"
-            className="text-lavender-600 hover:text-lavender-700 font-label font-medium transition-colors"
-          >
-            ← Back to login
-          </Link>
-        </div>
-      </div>
-    </div>
+        <button
+          type="submit"
+          className="btn btn-primary"
+          style={{ width: '100%', justifyContent: 'center' }}
+          disabled={isLoading || password !== confirmPassword || password.length < 8}
+        >
+          Save new password <Icon name="arrow" size={14} />
+        </button>
+      </form>
+    </AuthShell>
   );
 }
