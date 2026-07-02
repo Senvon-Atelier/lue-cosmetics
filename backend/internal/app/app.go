@@ -30,6 +30,7 @@ type Application struct {
 	Addresses *addresses.Service
 	Paystack  *paystack.Client
 	Admin     *admin.Service
+	Catalog   *catalog.Repository
 }
 
 func New(ctx context.Context, cfg *config.Config) (*Application, error) {
@@ -89,6 +90,7 @@ func New(ctx context.Context, cfg *config.Config) (*Application, error) {
 		Addresses: addressesSvc,
 		Paystack:  paystackClient,
 		Admin:     adminSvc,
+		Catalog:   catalogRepo,
 	}, nil
 }
 

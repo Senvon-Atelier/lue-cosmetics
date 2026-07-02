@@ -9,19 +9,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/oti-adjei/ruecosmetics/internal/addresses"
-	"github.com/oti-adjei/ruecosmetics/internal/admin"
+	"github.com/oti-adjei/ruecosmetics/internal/api"
 	"github.com/oti-adjei/ruecosmetics/internal/app"
-	"github.com/oti-adjei/ruecosmetics/internal/auth"
-	"github.com/oti-adjei/ruecosmetics/internal/cart"
-	"github.com/oti-adjei/ruecosmetics/internal/catalog"
 	"github.com/oti-adjei/ruecosmetics/internal/config"
-	"github.com/oti-adjei/ruecosmetics/internal/health"
-	"github.com/oti-adjei/ruecosmetics/internal/httpx"
-	"github.com/oti-adjei/ruecosmetics/internal/me"
-	"github.com/oti-adjei/ruecosmetics/internal/orders"
-	"github.com/oti-adjei/ruecosmetics/internal/shipping"
 	"go.uber.org/zap"
 )
 
@@ -50,61 +40,11 @@ func run() error {
 	}
 	defer a.Close()
 
-	r := chi.NewRouter()
-	r.Use(httpx.Recovery(a.Logger))
-	r.Use(httpx.RequestID)
-	r.Use(httpx.RequestLogger(a.Logger))
-	r.Use(httpx.CORS(cfg.CORSOrigins))
-
-	// /healthz stays at the root for uptime monitoring.
-	r.Get("/healthz", health.Handler(a))
-
-	// All public + future protected APIs mount under /api/v1.
-	catalogHandlers := catalog.NewHandlers(catalog.NewRepository(a.Pool), a.Logger)
-	shippingHandlers := shipping.NewHandlers(a.Shipping, a.Logger)
-	r.Route("/api/v1", func(api chi.Router) {
-		catalogHandlers.Mount(api)
-		shippingHandlers.Mount(api)
-
-		secure := cfg.Env != "development"
-		authHandlers := auth.NewHandlers(a.Auth, cfg.SessionCookieName, cfg.SessionCookieDomain, secure)
-		authHandlers.GoogleClientID = cfg.GoogleClientID
-		authHandlers.GoogleClientSecret = cfg.GoogleClientSecret
-		authHandlers.GoogleRedirectURL = cfg.GoogleRedirectURL
-		authHandlers.FrontendBaseURL = cfg.FrontendBaseURL
-		authHandlers.Mount(api) // public: /auth/signup, /auth/login, /auth/logout, /auth/session, /auth/google/start, /auth/google/callback
-
-		cartHandlers := cart.NewHandlers(a.Cart, a.Auth, cfg.SessionCookieName, cfg.SessionCookieDomain, secure)
-		cartHandlers.Mount(api) // public: GET /cart, POST/PATCH/DELETE /cart/items
-
-		ordersHandlers := orders.NewHandlers(a.Orders, cfg.PaystackSecretKey, a.Logger)
-		ordersHandlers.MountPublic(api) // public: POST /webhooks/paystack
-
-		// Admin routes (require admin role)
-		adminHandlers := admin.NewHandlers(a.Admin, authHandlers, a.Logger)
-		adminHandlers.MountPublic(api) // GET /api/v1/admin/* (requires admin role)
-
-		// Auth-gated routes (one Group with RequireSession middleware)
-		api.Group(func(r chi.Router) {
-			r.Use(authHandlers.RequireSession)
-			ordersRepo := orders.NewRepository(a.Pool)
-			profileSvc := me.NewProfileService(auth.NewRepository(a.Pool), a.Logger)
-			meHandlers := me.NewHandlers(ordersRepo, profileSvc, a.Logger)
-			authHandlers.MountAuthGated(r)   // POST /auth/verify-email/resend
-			cartHandlers.MountAuthGated(r)   // POST /cart/merge
-			ordersHandlers.MountAuthGated(r) // POST /checkout/init, GET /checkout/verify/{reference}
-
-			addressesHandlers := addresses.NewHandlers(a.Addresses, a.Logger)
-			r.Route("/me", func(meRouter chi.Router) {
-				meHandlers.MountRoutes(meRouter)  // GET /me, GET /me/orders, GET /me/orders/:id, PATCH /me
-				addressesHandlers.Mount(meRouter) // POST/GET/PATCH/DELETE /me/addresses*, POST /me/addresses/{id}/default
-			})
-		})
-	})
+	handler := api.New(a)
 
 	srv := &http.Server{
 		Addr:              fmt.Sprintf(":%d", cfg.Port),
-		Handler:           r,
+		Handler:           handler,
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 
