@@ -1,217 +1,235 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { Link } from '@tanstack/react-router';
 import { useCart } from '../cart/cart-provider';
 import { Icon } from '../shared/ui/icons';
-import { Button } from '../shared/ui/button';
 import { ProductPlaceholder } from '../shared/ui/placeholder';
-import { formatPrice, formatRating, getImageUrl } from '../../lib/format/utils';
-import { getProductsSlug } from '../../lib/api/generated/rueCosmeticsAPI';
-import type { InternalCatalogProductView } from '../../lib/api/generated/rueCosmeticsAPI';
+import { formatGhs } from '../../lib/format/utils';
+import {
+  useGetProductsSlug,
+  useGetBrands,
+  useGetCategories,
+  useGetProducts,
+} from '../../lib/api/generated/rueCosmeticsAPI';
+import { ProductCard } from './product-card';
+import { getProductCopy, PERKS } from '../../content/product-copy';
 
 interface ProductDetailProps {
   slug: string;
 }
 
+type TabKey = 'desc' | 'how' | 'ings';
+
 export function ProductDetail({ slug }: ProductDetailProps) {
-  const [product, setProduct] = useState<InternalCatalogProductView | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [quantity, setQuantity] = useState(1);
+  const [qty, setQty] = useState(1);
+  const [tab, setTab] = useState<TabKey>('desc');
+
   const { addItem } = useCart();
 
-  useEffect(() => {
-    const loadProduct = async () => {
-      if (!slug) return;
-      setLoading(true);
-      try {
-        const response = await getProductsSlug(slug);
-        setProduct(response);
-      } catch (error) {
-        console.error('Failed to load product:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadProduct();
-  }, [slug]);
+  const { data: product, isLoading, error } = useGetProductsSlug(slug);
+  const { data: categories } = useGetCategories();
+  const { data: brands } = useGetBrands();
 
-  const handleAddToCart = async () => {
-    if (!product || !product.id) return;
-    try {
-      await addItem(product.id, quantity, product.name);
-    } catch (error) {
-      console.error('Failed to add to cart:', error);
-    }
-  };
+  const category = categories?.find(c => c.id === product?.category_id);
+  const categorySlug = category?.slug;
+  const categoryLabel = category?.label;
+  const brand = brands?.find(b => b.id === product?.brand_id);
+  const brandName = brand?.name ?? '';
 
-  if (loading) {
+  const { data: relatedData } = useGetProducts(
+    { category: categorySlug, limit: 5 },
+    { query: { enabled: !!categorySlug } },
+  );
+  const related = (relatedData?.items ?? [])
+    .filter(p => p.slug !== slug)
+    .slice(0, 4);
+
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-paper text-ink font-body flex items-center justify-center">
-        <div className="text-ink-muted">Loading...</div>
-      </div>
+      <main className="fade-up">
+        <div className="wrap" style={{ padding: '80px 0', textAlign: 'center' }}>
+          <p className="eyebrow" style={{ color: 'var(--ink-muted)' }}>Loading product…</p>
+        </div>
+      </main>
     );
   }
 
-  if (!product) {
+  if (error || !product) {
     return (
-      <div className="min-h-screen bg-paper text-ink font-body flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="font-display text-4xl mb-4">Product Not Found</h1>
-          <p className="text-ink-muted">The product you're looking for doesn't exist.</p>
+      <main className="fade-up">
+        <div className="wrap" style={{ padding: '80px 0', textAlign: 'center' }}>
+          <p className="eyebrow" style={{ color: 'var(--ink-muted)' }}>Product not found.</p>
         </div>
-      </div>
+      </main>
     );
   }
 
   const {
     name = 'Product',
-    price_ghs_minor: price = 0,
-    was_price_ghs_minor: wasPrice,
+    price_ghs_minor: priceMinor = 0,
+    was_price_ghs_minor: wasPriceMinor,
     rating,
     review_count: reviewCount,
     image_path: imagePath,
-    tags,
     size,
+    tone,
   } = product;
 
-  const hasDiscount = wasPrice && wasPrice > price;
-  const displayPrice = formatPrice(price);
-  const displayWasPrice = wasPrice ? formatPrice(wasPrice) : null;
-  const displayRating = formatRating(rating, reviewCount);
-  const imageUrl = getImageUrl(imagePath);
-  const tone = (imagePath?.includes('tone=') ? imagePath.split('tone=')[1]?.split('&')[0] : 'lavender') as 'lavender' | 'cream' | 'ink' | 'rose';
+  const copy = getProductCopy(categorySlug);
+  const safeTone = (
+    tone === 'lavender' || tone === 'cream' || tone === 'ink' || tone === 'rose'
+      ? tone
+      : 'lavender'
+  ) as 'lavender' | 'cream' | 'ink' | 'rose';
 
+  // Shop category filter is client-state-only (not URL-driven) — all breadcrumb
+  // and lede category links go to /shop without search params. See task-3-report.
   return (
-    <div className="section">
-      <div className="wrap">
-        {/* Breadcrumb Navigation */}
-        <nav className="font-label text-xs text-ink-muted mb-6 flex items-center gap-2">
-          <a href="/" className="hover:text-ink transition-colors">Home</a>
-          <Icon name="chevronRight" size={12} />
-          <a href="/shop" className="hover:text-ink transition-colors">Shop</a>
-          <Icon name="chevronRight" size={12} />
-          <span className="text-ink">{name ?? 'Product'}</span>
-        </nav>
+    <main className="fade-up">
+      <nav className="wrap breadcrumb">
+        <Link to="/">Home</Link>
+        <Icon name="chevronRight" size={12} />
+        <Link to="/shop">Shop</Link>
+        <Icon name="chevronRight" size={12} />
+        <Link to="/shop">{categoryLabel ?? 'Category'}</Link>
+        <Icon name="chevronRight" size={12} />
+        <span>{name}</span>
+      </nav>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-12">
-          {/* Product Images */}
-          <div className="space-y-4">
-            <div className="aspect-[4/5] rounded overflow-hidden bg-lavender-50 group">
-              {imageUrl ? (
-                <img
-                  src={imageUrl}
-                  alt={name || 'Product'}
-                  className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-[280ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]"
-                  loading="eager"
-                />
-              ) : (
-                <ProductPlaceholder tone={tone} label={name?.substring(0, 2)} />
-              )}
+      <section className="wrap product-grid">
+        {/* Gallery — single image, no thumb rail per spec §4.1 */}
+        <div className="product-main">
+          {imagePath ? (
+            <img
+              src={imagePath}
+              alt={name}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          ) : (
+            <ProductPlaceholder tone={safeTone} label={brandName} />
+          )}
+        </div>
+
+        <div className="product-info">
+          <div className="eyebrow">{brandName}</div>
+          <h1 className="h-display product-name">{name}</h1>
+
+          {typeof rating === 'number' && (
+            <div className="product-rating">
+              <div className="stars">
+                {[0, 1, 2, 3, 4].map(i => (
+                  <Icon key={i} name="starFilled" size={14} />
+                ))}
+              </div>
+              <span>{rating} · {reviewCount ?? 0} reviews</span>
             </div>
+          )}
+
+          <div className="product-price">
+            <span className="price">{formatGhs(priceMinor)}</span>
+            {typeof wasPriceMinor === 'number' && wasPriceMinor > 0 && (
+              <span className="price-was">{formatGhs(wasPriceMinor)}</span>
+            )}
+            {size && <span className="product-size">· {size}</span>}
           </div>
 
-          {/* Product Info */}
-          <div className="space-y-6 lg:sticky lg:top-24 lg:self-start">
-            <div>
-              {tags && tags.length > 0 && (
-                <div className="flex gap-2 mb-3">
-                  {tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-2 py-1 bg-paper/90 backdrop-blur-sm text-ink text-xs font-label font-medium rounded-full"
-                      style={{ fontSize: '10px' }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
+          <p className="product-lede">
+            {copy.lede}{' '}Part of our{' '}
+            <Link to="/shop">
+              {categoryLabel?.toLowerCase() ?? 'beauty'}
+            </Link>{' '}
+            edit.
+          </p>
 
-              <h1 className="font-display text-[clamp(32px,4vw,56px)] font-normal leading-[1.1] tracking-[-0.01em] mb-3">
-                {name ?? 'Product'}
-              </h1>
-
-              {displayRating && (
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="flex items-center gap-1">
-                    <Icon name="starFilled" size={16} className="text-lavender-600" />
-                    <span className="font-label font-semibold text-sm">{displayRating}</span>
-                  </div>
-                </div>
-              )}
-
-              <div className="flex items-baseline gap-3 mb-4">
-                <span className="font-label font-semibold text-xl">{displayPrice}</span>
-                {hasDiscount && (
-                  <span className="text-sm text-ink-muted line-through">{displayWasPrice}</span>
-                )}
-              </div>
-
-              {size && (
-                <p className="text-sm text-ink-muted">Size: {size}</p>
-              )}
+          <div className="product-actions">
+            <div className="qty qty-lg">
+              <button onClick={() => setQty(Math.max(1, qty - 1))}>
+                <Icon name="minus" size={14} />
+              </button>
+              <span>{qty}</span>
+              <button onClick={() => setQty(qty + 1)}>
+                <Icon name="plus" size={14} />
+              </button>
             </div>
+            <button
+              className="btn btn-primary"
+              style={{ flex: 1, justifyContent: 'center' }}
+              onClick={() => addItem(product.id ?? '', qty, product.name)}
+            >
+              Add to bag · {formatGhs(priceMinor * qty)}
+            </button>
+            <button
+              className="icon-btn icon-btn-lg"
+              disabled
+              title="Saved items coming soon"
+            >
+              <Icon name="heart" />
+            </button>
+          </div>
 
-            {/* Perks List */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm">
-                <Icon name="check" size={16} className="text-lavender-600" />
-                <span>In stock, ready to ship</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Icon name="truck" size={16} className="text-lavender-600" />
-                <span>Free delivery on orders over GHS 250</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Icon name="shield" size={16} className="text-lavender-600" />
-                <span>100% authentic, sourced directly</span>
-              </div>
-            </div>
+          <ul className="product-perks">
+            {PERKS.map((perk, i) => (
+              <li key={i}>
+                <Icon
+                  name={i === 0 ? 'truck' : i === 1 ? 'shield' : 'whatsapp'}
+                  size={14}
+                />
+                {perk}
+              </li>
+            ))}
+          </ul>
 
-            {/* Quantity Selector */}
-            <div>
-              <label className="font-label font-semibold text-xs uppercase tracking-wider mb-2 block">Quantity</label>
-              <div className="flex items-center gap-3">
+          <div className="product-tabs">
+            <div className="tab-heads">
+              <button
+                className={`tab-head${tab === 'desc' ? ' active' : ''}`}
+                onClick={() => setTab('desc')}
+              >
+                Description
+              </button>
+              {copy.howTo && (
                 <button
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-10 h-10 flex items-center justify-center border border-line rounded-full hover:bg-lavender-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={quantity <= 1}
+                  className={`tab-head${tab === 'how' ? ' active' : ''}`}
+                  onClick={() => setTab('how')}
                 >
-                  <Icon name="minus" size={16} />
+                  How to use
                 </button>
-                <span className="w-12 text-center font-label font-semibold">{quantity}</span>
+              )}
+              {copy.ingredients && (
                 <button
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="w-10 h-10 flex items-center justify-center border border-line rounded-full hover:bg-lavender-50 transition-colors"
+                  className={`tab-head${tab === 'ings' ? ' active' : ''}`}
+                  onClick={() => setTab('ings')}
                 >
-                  <Icon name="plus" size={16} />
-                </button>
-              </div>
-            </div>
-
-            {/* Add to Cart Button */}
-            <Button onClick={handleAddToCart} className="w-full" size="lg" icon="arrow" iconPosition="right">
-              Add to Cart
-            </Button>
-
-            {/* Product Features - Tabbed Content */}
-            <div className="pt-6 border-t border-line-soft">
-              <div className="flex gap-6 border-b border-line mb-4">
-                <button className="pb-2 font-label font-semibold text-xs uppercase tracking-wider text-ink border-b-2 border-lavender-600">
-                  Description
-                </button>
-                <button className="pb-2 font-label font-semibold text-xs uppercase tracking-wider text-ink-muted hover:text-ink transition-colors">
-                  How to Use
-                </button>
-                <button className="pb-2 font-label font-semibold text-xs uppercase tracking-wider text-ink-muted hover:text-ink transition-colors">
                   Ingredients
                 </button>
-              </div>
-              <div className="text-sm text-ink-soft leading-relaxed">
-                <p>A premium skincare product carefully formulated to deliver visible results. Perfect for daily use as part of your skincare routine.</p>
-              </div>
+              )}
+            </div>
+            <div className="tab-body">
+              {tab === 'desc' && <p>{copy.description}</p>}
+              {tab === 'how' && copy.howTo && <p>{copy.howTo}</p>}
+              {tab === 'ings' && copy.ingredients && (
+                <p className="ing-list">{copy.ingredients}</p>
+              )}
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </section>
+
+      {related.length > 0 && (
+        <section className="section">
+          <div className="wrap">
+            <div className="section-head">
+              <h2 className="h-display" style={{ fontSize: 'clamp(28px, 3.5vw, 48px)' }}>
+                You might also <em>love</em>.
+              </h2>
+            </div>
+            <div className="grid-4">
+              {related.map(r => (
+                <ProductCard key={r.id} product={r} variant="default" />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+    </main>
   );
 }
