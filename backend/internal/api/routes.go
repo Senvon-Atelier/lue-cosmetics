@@ -54,9 +54,11 @@ func New(a *app.Application) http.Handler {
 		ordersHandlers := orders.NewHandlers(a.Orders, cfg.PaystackSecretKey, a.Logger)
 		ordersHandlers.MountPublic(apiRouter) // public: POST /webhooks/paystack
 
-		// Admin routes (require admin role)
+		// Admin routes (require admin role) — mounted under /admin so all paths
+		// match the OpenAPI contract (/api/v1/admin/...) and don't collide with
+		// public catalog routes.
 		adminHandlers := admin.NewHandlers(a.Admin, authHandlers, a.Logger)
-		adminHandlers.MountPublic(apiRouter) // renamed to Mount in Task 4
+		adminHandlers.Mount(apiRouter)
 
 		// Auth-gated routes (one Group with RequireSession middleware)
 		apiRouter.Group(func(r chi.Router) {

@@ -30,11 +30,14 @@ func NewHandlers(svc *Service, authHandlers *auth.Handlers, log *zap.Logger) *Ha
 	}
 }
 
-// MountPublic mounts admin routes under /api/v1/admin.
-// All routes require authentication + admin role.
-func (h *Handlers) MountPublic(r chi.Router) {
-	// All admin routes require session + admin role
-	r.Group(func(r chi.Router) {
+// Mount mounts all admin routes under /admin on the given router. Every route
+// is gated by RequireSession + RequireRole("admin") at the group level, and
+// each handler additionally calls auth.MustBeAdmin as belt-and-suspenders (the
+// same convention rbac_test.go documents) so a future mis-mount cannot expose
+// an admin endpoint unguarded.
+func (h *Handlers) Mount(r chi.Router) {
+	r.Route("/admin", func(r chi.Router) {
+		// All admin routes require session + admin role.
 		r.Use(h.AuthHandlers.RequireSession)
 		r.Use(h.AuthHandlers.RequireRole("admin"))
 
