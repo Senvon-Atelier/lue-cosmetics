@@ -5,9 +5,23 @@
  * E-commerce backend for the Rue Cosmetics case study.
  * OpenAPI spec version: 0.1.0
  */
-import * as axios from "axios";
-import type { AxiosRequestConfig, AxiosResponse } from "axios";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import type {
+  DataTag,
+  DefinedInitialDataOptions,
+  DefinedUseQueryResult,
+  MutationFunction,
+  QueryClient,
+  QueryFunction,
+  QueryKey,
+  UndefinedInitialDataOptions,
+  UseMutationOptions,
+  UseMutationResult,
+  UseQueryOptions,
+  UseQueryResult,
+} from "@tanstack/react-query";
 
+import { customInstance } from "../client";
 export type GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorBodyFields = {
   [key: string]: string;
 };
@@ -57,21 +71,6 @@ export interface InternalAddressesPatchAddressRequest {
   region?: string;
 }
 
-export interface InternalAdminCustomerDetailResponse {
-  customer?: InternalAdminCustomerInfo;
-  orders?: InternalAdminOrderSummary[];
-}
-
-export interface InternalAdminCustomerInfo {
-  created_at?: string;
-  email?: string;
-  email_verified?: boolean;
-  id?: string;
-  image?: string;
-  name?: string;
-  updated_at?: string;
-}
-
 export interface InternalAdminCustomerStats {
   active_customers_30d?: number;
   customers_with_orders?: number;
@@ -111,34 +110,6 @@ export interface InternalAdminDashboardStats {
   total_orders?: number;
   total_products?: number;
   total_revenue_ghs_minor?: number;
-}
-
-export interface InternalAdminOrderDetailResponse {
-  items?: InternalAdminOrderItemInfo[];
-  order?: InternalAdminOrderInfo;
-}
-
-export interface InternalAdminOrderInfo {
-  created_at?: string;
-  id?: string;
-  paystack_reference?: string;
-  shipping_address?: InternalAdminShippingAddress;
-  shipping_ghs_minor?: number;
-  status?: string;
-  subtotal_ghs_minor?: number;
-  total_ghs_minor?: number;
-  updated_at?: string;
-  user_id?: string;
-}
-
-export interface InternalAdminOrderItemInfo {
-  id?: string;
-  product_brand_snapshot?: string;
-  product_id?: string;
-  product_image_snapshot?: string;
-  product_name_snapshot?: string;
-  qty?: number;
-  unit_price_ghs_minor?: number;
 }
 
 export interface InternalAdminOrderStats {
@@ -243,15 +214,6 @@ export interface InternalAdminRevenueByDate {
   revenue_ghs_minor?: number;
 }
 
-export interface InternalAdminShippingAddress {
-  city?: string;
-  label?: string;
-  line1?: string;
-  line2?: string;
-  phone?: string;
-  region?: string;
-}
-
 export interface InternalAdminStatsResponse {
   customer_stats?: InternalAdminCustomerStats;
   product_stats?: InternalAdminProductStats;
@@ -271,10 +233,6 @@ export interface InternalAdminTopProduct {
   slug?: string;
   tone?: string;
   total_sold?: number;
-}
-
-export interface InternalAdminUpdateOrderStatusRequest {
-  status?: string;
 }
 
 export interface InternalAuthLoginBody {
@@ -395,6 +353,7 @@ export interface InternalMeListOrdersResponse {
 export interface InternalMeMeResponse {
   email?: string;
   email_verified?: boolean;
+  image?: string;
   name?: string;
   role?: string;
   user_id?: string;
@@ -438,6 +397,7 @@ export interface InternalMeOrderResponse {
 
 export interface InternalMeUpdateProfileRequest {
   email?: string;
+  image?: string;
   name?: string;
 }
 
@@ -473,7 +433,67 @@ export interface InternalShippingQuote {
   free_shipping_remainder_ghs_minor?: number;
 }
 
-export type GetApiV1MeOrdersParams = {
+export type GetAdminAnalyticsRevenueParams = {
+  /**
+   * day|week|month
+   */
+  granularity?: string;
+  /**
+   * RFC3339 lower bound
+   */
+  date_from?: string;
+  /**
+   * RFC3339 upper bound
+   */
+  date_to?: string;
+};
+
+export type GetAdminCustomersParams = {
+  /**
+   * Page number (1-based)
+   */
+  page?: number;
+  /**
+   * Items per page
+   */
+  page_size?: number;
+};
+
+export type GetAdminOrdersParams = {
+  /**
+   * Page number (1-based)
+   */
+  page?: number;
+  /**
+   * Items per page
+   */
+  page_size?: number;
+  /**
+   * Filter by order status
+   */
+  status?: string;
+  /**
+   * RFC3339 lower bound
+   */
+  date_from?: string;
+  /**
+   * RFC3339 upper bound
+   */
+  date_to?: string;
+};
+
+export type GetAdminProductsParams = {
+  /**
+   * Page number (1-based)
+   */
+  page?: number;
+  /**
+   * Items per page
+   */
+  page_size?: number;
+};
+
+export type GetMeOrdersParams = {
   /**
    * Filter by status
    */
@@ -529,570 +549,4940 @@ export type GetShippingQuoteParams = {
 /**
  * @summary Get revenue analytics
  */
-export const getApiV1AdminAnalyticsRevenue = <
-  TData = AxiosResponse<InternalAdminRevenueAnalyticsResponse>,
->(
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.get(`/api/v1/admin/analytics/revenue`, options);
+export const getAdminAnalyticsRevenue = (
+  params?: GetAdminAnalyticsRevenueParams,
+  signal?: AbortSignal,
+) => {
+  return customInstance<InternalAdminRevenueAnalyticsResponse>({
+    url: `/admin/analytics/revenue`,
+    method: "GET",
+    params,
+    signal,
+  });
 };
+
+export const getGetAdminAnalyticsRevenueQueryKey = (
+  params?: GetAdminAnalyticsRevenueParams,
+) => {
+  return [`/admin/analytics/revenue`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetAdminAnalyticsRevenueQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAdminAnalyticsRevenue>>,
+  TError = unknown,
+>(
+  params?: GetAdminAnalyticsRevenueParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminAnalyticsRevenue>>,
+        TError,
+        TData
+      >
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetAdminAnalyticsRevenueQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getAdminAnalyticsRevenue>>
+  > = ({ signal }) => getAdminAnalyticsRevenue(params, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getAdminAnalyticsRevenue>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData> };
+};
+
+export type GetAdminAnalyticsRevenueQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAdminAnalyticsRevenue>>
+>;
+export type GetAdminAnalyticsRevenueQueryError = unknown;
+
+export function useGetAdminAnalyticsRevenue<
+  TData = Awaited<ReturnType<typeof getAdminAnalyticsRevenue>>,
+  TError = unknown,
+>(
+  params: undefined | GetAdminAnalyticsRevenueParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminAnalyticsRevenue>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAdminAnalyticsRevenue>>,
+          TError,
+          Awaited<ReturnType<typeof getAdminAnalyticsRevenue>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData>;
+};
+export function useGetAdminAnalyticsRevenue<
+  TData = Awaited<ReturnType<typeof getAdminAnalyticsRevenue>>,
+  TError = unknown,
+>(
+  params?: GetAdminAnalyticsRevenueParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminAnalyticsRevenue>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAdminAnalyticsRevenue>>,
+          TError,
+          Awaited<ReturnType<typeof getAdminAnalyticsRevenue>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+export function useGetAdminAnalyticsRevenue<
+  TData = Awaited<ReturnType<typeof getAdminAnalyticsRevenue>>,
+  TError = unknown,
+>(
+  params?: GetAdminAnalyticsRevenueParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminAnalyticsRevenue>>,
+        TError,
+        TData
+      >
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+/**
+ * @summary Get revenue analytics
+ */
+
+export function useGetAdminAnalyticsRevenue<
+  TData = Awaited<ReturnType<typeof getAdminAnalyticsRevenue>>,
+  TError = unknown,
+>(
+  params?: GetAdminAnalyticsRevenueParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminAnalyticsRevenue>>,
+        TError,
+        TData
+      >
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
+  const queryOptions = getGetAdminAnalyticsRevenueQueryOptions(params, options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
 
 /**
  * @summary Get admin statistics
  */
-export const getApiV1AdminAnalyticsStats = <
-  TData = AxiosResponse<InternalAdminStatsResponse>,
->(
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.get(`/api/v1/admin/analytics/stats`, options);
+export const getAdminAnalyticsStats = (signal?: AbortSignal) => {
+  return customInstance<InternalAdminStatsResponse>({
+    url: `/admin/analytics/stats`,
+    method: "GET",
+    signal,
+  });
 };
+
+export const getGetAdminAnalyticsStatsQueryKey = () => {
+  return [`/admin/analytics/stats`] as const;
+};
+
+export const getGetAdminAnalyticsStatsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAdminAnalyticsStats>>,
+  TError = unknown,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<
+      Awaited<ReturnType<typeof getAdminAnalyticsStats>>,
+      TError,
+      TData
+    >
+  >;
+}) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetAdminAnalyticsStatsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getAdminAnalyticsStats>>
+  > = ({ signal }) => getAdminAnalyticsStats(signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getAdminAnalyticsStats>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData> };
+};
+
+export type GetAdminAnalyticsStatsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAdminAnalyticsStats>>
+>;
+export type GetAdminAnalyticsStatsQueryError = unknown;
+
+export function useGetAdminAnalyticsStats<
+  TData = Awaited<ReturnType<typeof getAdminAnalyticsStats>>,
+  TError = unknown,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminAnalyticsStats>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAdminAnalyticsStats>>,
+          TError,
+          Awaited<ReturnType<typeof getAdminAnalyticsStats>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData>;
+};
+export function useGetAdminAnalyticsStats<
+  TData = Awaited<ReturnType<typeof getAdminAnalyticsStats>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminAnalyticsStats>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAdminAnalyticsStats>>,
+          TError,
+          Awaited<ReturnType<typeof getAdminAnalyticsStats>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+export function useGetAdminAnalyticsStats<
+  TData = Awaited<ReturnType<typeof getAdminAnalyticsStats>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminAnalyticsStats>>,
+        TError,
+        TData
+      >
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+/**
+ * @summary Get admin statistics
+ */
+
+export function useGetAdminAnalyticsStats<
+  TData = Awaited<ReturnType<typeof getAdminAnalyticsStats>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminAnalyticsStats>>,
+        TError,
+        TData
+      >
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
+  const queryOptions = getGetAdminAnalyticsStatsQueryOptions(options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
 
 /**
  * @summary List all customers
  */
-export const getApiV1AdminCustomers = <
-  TData = AxiosResponse<InternalAdminCustomersResponse>,
->(
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.get(`/api/v1/admin/customers`, options);
+export const getAdminCustomers = (
+  params?: GetAdminCustomersParams,
+  signal?: AbortSignal,
+) => {
+  return customInstance<InternalAdminCustomersResponse>({
+    url: `/admin/customers`,
+    method: "GET",
+    params,
+    signal,
+  });
 };
 
+export const getGetAdminCustomersQueryKey = (
+  params?: GetAdminCustomersParams,
+) => {
+  return [`/admin/customers`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetAdminCustomersQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAdminCustomers>>,
+  TError = unknown,
+>(
+  params?: GetAdminCustomersParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminCustomers>>,
+        TError,
+        TData
+      >
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetAdminCustomersQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getAdminCustomers>>
+  > = ({ signal }) => getAdminCustomers(params, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getAdminCustomers>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData> };
+};
+
+export type GetAdminCustomersQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAdminCustomers>>
+>;
+export type GetAdminCustomersQueryError = unknown;
+
+export function useGetAdminCustomers<
+  TData = Awaited<ReturnType<typeof getAdminCustomers>>,
+  TError = unknown,
+>(
+  params: undefined | GetAdminCustomersParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminCustomers>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAdminCustomers>>,
+          TError,
+          Awaited<ReturnType<typeof getAdminCustomers>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData>;
+};
+export function useGetAdminCustomers<
+  TData = Awaited<ReturnType<typeof getAdminCustomers>>,
+  TError = unknown,
+>(
+  params?: GetAdminCustomersParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminCustomers>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAdminCustomers>>,
+          TError,
+          Awaited<ReturnType<typeof getAdminCustomers>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+export function useGetAdminCustomers<
+  TData = Awaited<ReturnType<typeof getAdminCustomers>>,
+  TError = unknown,
+>(
+  params?: GetAdminCustomersParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminCustomers>>,
+        TError,
+        TData
+      >
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
 /**
- * @summary Get customer details
+ * @summary List all customers
  */
-export const getApiV1AdminCustomersId = <
-  TData = AxiosResponse<InternalAdminCustomerDetailResponse>,
+
+export function useGetAdminCustomers<
+  TData = Awaited<ReturnType<typeof getAdminCustomers>>,
+  TError = unknown,
+>(
+  params?: GetAdminCustomersParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminCustomers>>,
+        TError,
+        TData
+      >
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
+  const queryOptions = getGetAdminCustomersQueryOptions(params, options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+/**
+ * @summary Get customer by ID
+ */
+export const getAdminCustomersId = (id: string, signal?: AbortSignal) => {
+  return customInstance<InternalAdminCustomerSummary>({
+    url: `/admin/customers/${id}`,
+    method: "GET",
+    signal,
+  });
+};
+
+export const getGetAdminCustomersIdQueryKey = (id?: string) => {
+  return [`/admin/customers/${id}`] as const;
+};
+
+export const getGetAdminCustomersIdQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAdminCustomersId>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
 >(
   id: string,
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.get(`/api/v1/admin/customers/${id}`, options);
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminCustomersId>>,
+        TError,
+        TData
+      >
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetAdminCustomersIdQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getAdminCustomersId>>
+  > = ({ signal }) => getAdminCustomersId(id, signal);
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getAdminCustomersId>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData> };
 };
+
+export type GetAdminCustomersIdQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAdminCustomersId>>
+>;
+export type GetAdminCustomersIdQueryError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+export function useGetAdminCustomersId<
+  TData = Awaited<ReturnType<typeof getAdminCustomersId>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  id: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminCustomersId>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAdminCustomersId>>,
+          TError,
+          Awaited<ReturnType<typeof getAdminCustomersId>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData>;
+};
+export function useGetAdminCustomersId<
+  TData = Awaited<ReturnType<typeof getAdminCustomersId>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminCustomersId>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAdminCustomersId>>,
+          TError,
+          Awaited<ReturnType<typeof getAdminCustomersId>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+export function useGetAdminCustomersId<
+  TData = Awaited<ReturnType<typeof getAdminCustomersId>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminCustomersId>>,
+        TError,
+        TData
+      >
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+/**
+ * @summary Get customer by ID
+ */
+
+export function useGetAdminCustomersId<
+  TData = Awaited<ReturnType<typeof getAdminCustomersId>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminCustomersId>>,
+        TError,
+        TData
+      >
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
+  const queryOptions = getGetAdminCustomersIdQueryOptions(id, options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
 
 /**
  * @summary Get admin dashboard
  */
-export const getApiV1AdminDashboard = <
-  TData = AxiosResponse<InternalAdminDashboardResponse>,
->(
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.get(`/api/v1/admin/dashboard`, options);
+export const getAdminDashboard = (signal?: AbortSignal) => {
+  return customInstance<InternalAdminDashboardResponse>({
+    url: `/admin/dashboard`,
+    method: "GET",
+    signal,
+  });
 };
+
+export const getGetAdminDashboardQueryKey = () => {
+  return [`/admin/dashboard`] as const;
+};
+
+export const getGetAdminDashboardQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAdminDashboard>>,
+  TError = unknown,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<
+      Awaited<ReturnType<typeof getAdminDashboard>>,
+      TError,
+      TData
+    >
+  >;
+}) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetAdminDashboardQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getAdminDashboard>>
+  > = ({ signal }) => getAdminDashboard(signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getAdminDashboard>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData> };
+};
+
+export type GetAdminDashboardQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAdminDashboard>>
+>;
+export type GetAdminDashboardQueryError = unknown;
+
+export function useGetAdminDashboard<
+  TData = Awaited<ReturnType<typeof getAdminDashboard>>,
+  TError = unknown,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminDashboard>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAdminDashboard>>,
+          TError,
+          Awaited<ReturnType<typeof getAdminDashboard>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData>;
+};
+export function useGetAdminDashboard<
+  TData = Awaited<ReturnType<typeof getAdminDashboard>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminDashboard>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAdminDashboard>>,
+          TError,
+          Awaited<ReturnType<typeof getAdminDashboard>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+export function useGetAdminDashboard<
+  TData = Awaited<ReturnType<typeof getAdminDashboard>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminDashboard>>,
+        TError,
+        TData
+      >
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+/**
+ * @summary Get admin dashboard
+ */
+
+export function useGetAdminDashboard<
+  TData = Awaited<ReturnType<typeof getAdminDashboard>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminDashboard>>,
+        TError,
+        TData
+      >
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
+  const queryOptions = getGetAdminDashboardQueryOptions(options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
 
 /**
  * @summary List all orders
  */
-export const getApiV1AdminOrders = <
-  TData = AxiosResponse<InternalAdminOrdersResponse>,
->(
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.get(`/api/v1/admin/orders`, options);
+export const getAdminOrders = (
+  params?: GetAdminOrdersParams,
+  signal?: AbortSignal,
+) => {
+  return customInstance<InternalAdminOrdersResponse>({
+    url: `/admin/orders`,
+    method: "GET",
+    params,
+    signal,
+  });
 };
 
+export const getGetAdminOrdersQueryKey = (params?: GetAdminOrdersParams) => {
+  return [`/admin/orders`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetAdminOrdersQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAdminOrders>>,
+  TError = unknown,
+>(
+  params?: GetAdminOrdersParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getAdminOrders>>, TError, TData>
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetAdminOrdersQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getAdminOrders>>> = ({
+    signal,
+  }) => getAdminOrders(params, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getAdminOrders>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData> };
+};
+
+export type GetAdminOrdersQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAdminOrders>>
+>;
+export type GetAdminOrdersQueryError = unknown;
+
+export function useGetAdminOrders<
+  TData = Awaited<ReturnType<typeof getAdminOrders>>,
+  TError = unknown,
+>(
+  params: undefined | GetAdminOrdersParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getAdminOrders>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAdminOrders>>,
+          TError,
+          Awaited<ReturnType<typeof getAdminOrders>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData>;
+};
+export function useGetAdminOrders<
+  TData = Awaited<ReturnType<typeof getAdminOrders>>,
+  TError = unknown,
+>(
+  params?: GetAdminOrdersParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getAdminOrders>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAdminOrders>>,
+          TError,
+          Awaited<ReturnType<typeof getAdminOrders>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+export function useGetAdminOrders<
+  TData = Awaited<ReturnType<typeof getAdminOrders>>,
+  TError = unknown,
+>(
+  params?: GetAdminOrdersParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getAdminOrders>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
 /**
- * @summary Get order details
+ * @summary List all orders
  */
-export const getApiV1AdminOrdersId = <
-  TData = AxiosResponse<InternalAdminOrderDetailResponse>,
+
+export function useGetAdminOrders<
+  TData = Awaited<ReturnType<typeof getAdminOrders>>,
+  TError = unknown,
+>(
+  params?: GetAdminOrdersParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getAdminOrders>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
+  const queryOptions = getGetAdminOrdersQueryOptions(params, options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+/**
+ * @summary Get order by ID
+ */
+export const getAdminOrdersId = (id: string, signal?: AbortSignal) => {
+  return customInstance<InternalAdminOrderSummary>({
+    url: `/admin/orders/${id}`,
+    method: "GET",
+    signal,
+  });
+};
+
+export const getGetAdminOrdersIdQueryKey = (id?: string) => {
+  return [`/admin/orders/${id}`] as const;
+};
+
+export const getGetAdminOrdersIdQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAdminOrdersId>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
 >(
   id: string,
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.get(`/api/v1/admin/orders/${id}`, options);
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminOrdersId>>,
+        TError,
+        TData
+      >
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetAdminOrdersIdQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getAdminOrdersId>>
+  > = ({ signal }) => getAdminOrdersId(id, signal);
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getAdminOrdersId>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData> };
 };
+
+export type GetAdminOrdersIdQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAdminOrdersId>>
+>;
+export type GetAdminOrdersIdQueryError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+export function useGetAdminOrdersId<
+  TData = Awaited<ReturnType<typeof getAdminOrdersId>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  id: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminOrdersId>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAdminOrdersId>>,
+          TError,
+          Awaited<ReturnType<typeof getAdminOrdersId>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData>;
+};
+export function useGetAdminOrdersId<
+  TData = Awaited<ReturnType<typeof getAdminOrdersId>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminOrdersId>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAdminOrdersId>>,
+          TError,
+          Awaited<ReturnType<typeof getAdminOrdersId>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+export function useGetAdminOrdersId<
+  TData = Awaited<ReturnType<typeof getAdminOrdersId>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminOrdersId>>,
+        TError,
+        TData
+      >
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+/**
+ * @summary Get order by ID
+ */
+
+export function useGetAdminOrdersId<
+  TData = Awaited<ReturnType<typeof getAdminOrdersId>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminOrdersId>>,
+        TError,
+        TData
+      >
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
+  const queryOptions = getGetAdminOrdersIdQueryOptions(id, options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
 
 /**
  * @summary Update order status
  */
-export const patchApiV1AdminOrdersIdStatus = <TData = AxiosResponse<void>>(
-  id: string,
-  internalAdminUpdateOrderStatusRequest: InternalAdminUpdateOrderStatusRequest,
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.patch(
-    `/api/v1/admin/orders/${id}/status`,
-    internalAdminUpdateOrderStatusRequest,
-    options,
-  );
+export const patchAdminOrdersIdStatus = (id: string) => {
+  return customInstance<InternalAdminOrderSummary>({
+    url: `/admin/orders/${id}/status`,
+    method: "PATCH",
+  });
+};
+
+export const getPatchAdminOrdersIdStatusMutationOptions = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof patchAdminOrdersIdStatus>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof patchAdminOrdersIdStatus>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["patchAdminOrdersIdStatus"];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof patchAdminOrdersIdStatus>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return patchAdminOrdersIdStatus(id);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PatchAdminOrdersIdStatusMutationResult = NonNullable<
+  Awaited<ReturnType<typeof patchAdminOrdersIdStatus>>
+>;
+
+export type PatchAdminOrdersIdStatusMutationError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+/**
+ * @summary Update order status
+ */
+export const usePatchAdminOrdersIdStatus = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof patchAdminOrdersIdStatus>>,
+      TError,
+      { id: string },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof patchAdminOrdersIdStatus>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationOptions = getPatchAdminOrdersIdStatusMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
 };
 
 /**
  * @summary List all products
  */
-export const getApiV1AdminProducts = <
-  TData = AxiosResponse<InternalAdminProductsResponse>,
->(
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.get(`/api/v1/admin/products`, options);
-};
-
-/**
- * @summary Get product details
- */
-export const getApiV1AdminProductsId = <
-  TData = AxiosResponse<InternalAdminProductSummary>,
->(
-  id: string,
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.get(`/api/v1/admin/products/${id}`, options);
-};
-
-/**
- * @summary List user's orders
- */
-export const getApiV1MeOrders = <
-  TData = AxiosResponse<InternalMeListOrdersResponse>,
->(
-  params?: GetApiV1MeOrdersParams,
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.get(`/api/v1/me/orders`, {
-    ...options,
-    params: { ...params, ...options?.params },
+export const getAdminProducts = (
+  params?: GetAdminProductsParams,
+  signal?: AbortSignal,
+) => {
+  return customInstance<InternalAdminProductsResponse>({
+    url: `/admin/products`,
+    method: "GET",
+    params,
+    signal,
   });
 };
 
+export const getGetAdminProductsQueryKey = (
+  params?: GetAdminProductsParams,
+) => {
+  return [`/admin/products`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetAdminProductsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAdminProducts>>,
+  TError = unknown,
+>(
+  params?: GetAdminProductsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminProducts>>,
+        TError,
+        TData
+      >
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetAdminProductsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getAdminProducts>>
+  > = ({ signal }) => getAdminProducts(params, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getAdminProducts>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData> };
+};
+
+export type GetAdminProductsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAdminProducts>>
+>;
+export type GetAdminProductsQueryError = unknown;
+
+export function useGetAdminProducts<
+  TData = Awaited<ReturnType<typeof getAdminProducts>>,
+  TError = unknown,
+>(
+  params: undefined | GetAdminProductsParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminProducts>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAdminProducts>>,
+          TError,
+          Awaited<ReturnType<typeof getAdminProducts>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData>;
+};
+export function useGetAdminProducts<
+  TData = Awaited<ReturnType<typeof getAdminProducts>>,
+  TError = unknown,
+>(
+  params?: GetAdminProductsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminProducts>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAdminProducts>>,
+          TError,
+          Awaited<ReturnType<typeof getAdminProducts>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+export function useGetAdminProducts<
+  TData = Awaited<ReturnType<typeof getAdminProducts>>,
+  TError = unknown,
+>(
+  params?: GetAdminProductsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminProducts>>,
+        TError,
+        TData
+      >
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
 /**
- * @summary Get a specific order
+ * @summary List all products
  */
-export const getApiV1MeOrdersId = <
-  TData = AxiosResponse<InternalMeOrderDetailResponse>,
+
+export function useGetAdminProducts<
+  TData = Awaited<ReturnType<typeof getAdminProducts>>,
+  TError = unknown,
+>(
+  params?: GetAdminProductsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminProducts>>,
+        TError,
+        TData
+      >
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
+  const queryOptions = getGetAdminProductsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+/**
+ * @summary Get product by ID
+ */
+export const getAdminProductsId = (id: string, signal?: AbortSignal) => {
+  return customInstance<InternalAdminProductSummary>({
+    url: `/admin/products/${id}`,
+    method: "GET",
+    signal,
+  });
+};
+
+export const getGetAdminProductsIdQueryKey = (id?: string) => {
+  return [`/admin/products/${id}`] as const;
+};
+
+export const getGetAdminProductsIdQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAdminProductsId>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
 >(
   id: string,
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.get(`/api/v1/me/orders/${id}`, options);
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminProductsId>>,
+        TError,
+        TData
+      >
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetAdminProductsIdQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getAdminProductsId>>
+  > = ({ signal }) => getAdminProductsId(id, signal);
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getAdminProductsId>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData> };
 };
+
+export type GetAdminProductsIdQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAdminProductsId>>
+>;
+export type GetAdminProductsIdQueryError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+export function useGetAdminProductsId<
+  TData = Awaited<ReturnType<typeof getAdminProductsId>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  id: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminProductsId>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAdminProductsId>>,
+          TError,
+          Awaited<ReturnType<typeof getAdminProductsId>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData>;
+};
+export function useGetAdminProductsId<
+  TData = Awaited<ReturnType<typeof getAdminProductsId>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminProductsId>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAdminProductsId>>,
+          TError,
+          Awaited<ReturnType<typeof getAdminProductsId>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+export function useGetAdminProductsId<
+  TData = Awaited<ReturnType<typeof getAdminProductsId>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminProductsId>>,
+        TError,
+        TData
+      >
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+/**
+ * @summary Get product by ID
+ */
+
+export function useGetAdminProductsId<
+  TData = Awaited<ReturnType<typeof getAdminProductsId>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAdminProductsId>>,
+        TError,
+        TData
+      >
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
+  const queryOptions = getGetAdminProductsIdQueryOptions(id, options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
 
 /**
  * @summary Handle Google OAuth callback
  */
-export const getAuthGoogleCallback = <TData = AxiosResponse<unknown>>(
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.get(`/auth/google/callback`, options);
+export const getAuthGoogleCallback = (signal?: AbortSignal) => {
+  return customInstance<unknown>({
+    url: `/auth/google/callback`,
+    method: "GET",
+    signal,
+  });
 };
+
+export const getGetAuthGoogleCallbackQueryKey = () => {
+  return [`/auth/google/callback`] as const;
+};
+
+export const getGetAuthGoogleCallbackQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAuthGoogleCallback>>,
+  TError = void | GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<
+      Awaited<ReturnType<typeof getAuthGoogleCallback>>,
+      TError,
+      TData
+    >
+  >;
+}) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetAuthGoogleCallbackQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getAuthGoogleCallback>>
+  > = ({ signal }) => getAuthGoogleCallback(signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getAuthGoogleCallback>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData> };
+};
+
+export type GetAuthGoogleCallbackQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAuthGoogleCallback>>
+>;
+export type GetAuthGoogleCallbackQueryError =
+  void | GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+export function useGetAuthGoogleCallback<
+  TData = Awaited<ReturnType<typeof getAuthGoogleCallback>>,
+  TError = void | GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAuthGoogleCallback>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAuthGoogleCallback>>,
+          TError,
+          Awaited<ReturnType<typeof getAuthGoogleCallback>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData>;
+};
+export function useGetAuthGoogleCallback<
+  TData = Awaited<ReturnType<typeof getAuthGoogleCallback>>,
+  TError = void | GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAuthGoogleCallback>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAuthGoogleCallback>>,
+          TError,
+          Awaited<ReturnType<typeof getAuthGoogleCallback>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+export function useGetAuthGoogleCallback<
+  TData = Awaited<ReturnType<typeof getAuthGoogleCallback>>,
+  TError = void | GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAuthGoogleCallback>>,
+        TError,
+        TData
+      >
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+/**
+ * @summary Handle Google OAuth callback
+ */
+
+export function useGetAuthGoogleCallback<
+  TData = Awaited<ReturnType<typeof getAuthGoogleCallback>>,
+  TError = void | GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAuthGoogleCallback>>,
+        TError,
+        TData
+      >
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
+  const queryOptions = getGetAuthGoogleCallbackQueryOptions(options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
 
 /**
  * @summary Begin Google OAuth login
  */
-export const getAuthGoogleStart = <TData = AxiosResponse<unknown>>(
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.get(`/auth/google/start`, options);
+export const getAuthGoogleStart = (signal?: AbortSignal) => {
+  return customInstance<unknown>({
+    url: `/auth/google/start`,
+    method: "GET",
+    signal,
+  });
 };
+
+export const getGetAuthGoogleStartQueryKey = () => {
+  return [`/auth/google/start`] as const;
+};
+
+export const getGetAuthGoogleStartQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAuthGoogleStart>>,
+  TError = void | GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<
+      Awaited<ReturnType<typeof getAuthGoogleStart>>,
+      TError,
+      TData
+    >
+  >;
+}) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetAuthGoogleStartQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getAuthGoogleStart>>
+  > = ({ signal }) => getAuthGoogleStart(signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getAuthGoogleStart>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData> };
+};
+
+export type GetAuthGoogleStartQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAuthGoogleStart>>
+>;
+export type GetAuthGoogleStartQueryError =
+  void | GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+export function useGetAuthGoogleStart<
+  TData = Awaited<ReturnType<typeof getAuthGoogleStart>>,
+  TError = void | GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAuthGoogleStart>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAuthGoogleStart>>,
+          TError,
+          Awaited<ReturnType<typeof getAuthGoogleStart>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData>;
+};
+export function useGetAuthGoogleStart<
+  TData = Awaited<ReturnType<typeof getAuthGoogleStart>>,
+  TError = void | GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAuthGoogleStart>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAuthGoogleStart>>,
+          TError,
+          Awaited<ReturnType<typeof getAuthGoogleStart>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+export function useGetAuthGoogleStart<
+  TData = Awaited<ReturnType<typeof getAuthGoogleStart>>,
+  TError = void | GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAuthGoogleStart>>,
+        TError,
+        TData
+      >
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+/**
+ * @summary Begin Google OAuth login
+ */
+
+export function useGetAuthGoogleStart<
+  TData = Awaited<ReturnType<typeof getAuthGoogleStart>>,
+  TError = void | GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getAuthGoogleStart>>,
+        TError,
+        TData
+      >
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
+  const queryOptions = getGetAuthGoogleStartQueryOptions(options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
 
 /**
  * @summary Log in with email and password
  */
-export const postAuthLogin = <
-  TData = AxiosResponse<InternalAuthSessionResponse>,
->(
+export const postAuthLogin = (
   internalAuthLoginBody: InternalAuthLoginBody,
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.post(`/auth/login`, internalAuthLoginBody, options);
+  signal?: AbortSignal,
+) => {
+  return customInstance<InternalAuthSessionResponse>({
+    url: `/auth/login`,
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    data: internalAuthLoginBody,
+    signal,
+  });
+};
+
+export const getPostAuthLoginMutationOptions = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postAuthLogin>>,
+    TError,
+    { data: InternalAuthLoginBody },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postAuthLogin>>,
+  TError,
+  { data: InternalAuthLoginBody },
+  TContext
+> => {
+  const mutationKey = ["postAuthLogin"];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postAuthLogin>>,
+    { data: InternalAuthLoginBody }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return postAuthLogin(data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PostAuthLoginMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postAuthLogin>>
+>;
+export type PostAuthLoginMutationBody = InternalAuthLoginBody;
+export type PostAuthLoginMutationError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+/**
+ * @summary Log in with email and password
+ */
+export const usePostAuthLogin = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postAuthLogin>>,
+      TError,
+      { data: InternalAuthLoginBody },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof postAuthLogin>>,
+  TError,
+  { data: InternalAuthLoginBody },
+  TContext
+> => {
+  const mutationOptions = getPostAuthLoginMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
 };
 
 /**
  * @summary Log out (clear session)
  */
-export const postAuthLogout = <TData = AxiosResponse<void>>(
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.post(`/auth/logout`, undefined, options);
+export const postAuthLogout = (signal?: AbortSignal) => {
+  return customInstance<void>({ url: `/auth/logout`, method: "POST", signal });
+};
+
+export const getPostAuthLogoutMutationOptions = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postAuthLogout>>,
+    TError,
+    void,
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postAuthLogout>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ["postAuthLogout"];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postAuthLogout>>,
+    void
+  > = () => {
+    return postAuthLogout();
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PostAuthLogoutMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postAuthLogout>>
+>;
+
+export type PostAuthLogoutMutationError = unknown;
+
+/**
+ * @summary Log out (clear session)
+ */
+export const usePostAuthLogout = <TError = unknown, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postAuthLogout>>,
+      TError,
+      void,
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof postAuthLogout>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationOptions = getPostAuthLogoutMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
 };
 
 /**
  * @summary Confirm password reset with token
  */
-export const postAuthPasswordResetConfirm = <TData = AxiosResponse<void>>(
+export const postAuthPasswordResetConfirm = (
   internalAuthPrConfBody: InternalAuthPrConfBody,
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.post(
-    `/auth/password-reset/confirm`,
-    internalAuthPrConfBody,
-    options,
-  );
+  signal?: AbortSignal,
+) => {
+  return customInstance<void>({
+    url: `/auth/password-reset/confirm`,
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    data: internalAuthPrConfBody,
+    signal,
+  });
+};
+
+export const getPostAuthPasswordResetConfirmMutationOptions = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postAuthPasswordResetConfirm>>,
+    TError,
+    { data: InternalAuthPrConfBody },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postAuthPasswordResetConfirm>>,
+  TError,
+  { data: InternalAuthPrConfBody },
+  TContext
+> => {
+  const mutationKey = ["postAuthPasswordResetConfirm"];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postAuthPasswordResetConfirm>>,
+    { data: InternalAuthPrConfBody }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return postAuthPasswordResetConfirm(data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PostAuthPasswordResetConfirmMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postAuthPasswordResetConfirm>>
+>;
+export type PostAuthPasswordResetConfirmMutationBody = InternalAuthPrConfBody;
+export type PostAuthPasswordResetConfirmMutationError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+/**
+ * @summary Confirm password reset with token
+ */
+export const usePostAuthPasswordResetConfirm = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postAuthPasswordResetConfirm>>,
+      TError,
+      { data: InternalAuthPrConfBody },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof postAuthPasswordResetConfirm>>,
+  TError,
+  { data: InternalAuthPrConfBody },
+  TContext
+> => {
+  const mutationOptions =
+    getPostAuthPasswordResetConfirmMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
 };
 
 /**
  * @summary Request a password-reset email
  */
-export const postAuthPasswordResetRequest = <TData = AxiosResponse<void>>(
+export const postAuthPasswordResetRequest = (
   internalAuthPrReqBody: InternalAuthPrReqBody,
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.post(
-    `/auth/password-reset/request`,
-    internalAuthPrReqBody,
-    options,
-  );
+  signal?: AbortSignal,
+) => {
+  return customInstance<void>({
+    url: `/auth/password-reset/request`,
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    data: internalAuthPrReqBody,
+    signal,
+  });
+};
+
+export const getPostAuthPasswordResetRequestMutationOptions = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postAuthPasswordResetRequest>>,
+    TError,
+    { data: InternalAuthPrReqBody },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postAuthPasswordResetRequest>>,
+  TError,
+  { data: InternalAuthPrReqBody },
+  TContext
+> => {
+  const mutationKey = ["postAuthPasswordResetRequest"];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postAuthPasswordResetRequest>>,
+    { data: InternalAuthPrReqBody }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return postAuthPasswordResetRequest(data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PostAuthPasswordResetRequestMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postAuthPasswordResetRequest>>
+>;
+export type PostAuthPasswordResetRequestMutationBody = InternalAuthPrReqBody;
+export type PostAuthPasswordResetRequestMutationError = unknown;
+
+/**
+ * @summary Request a password-reset email
+ */
+export const usePostAuthPasswordResetRequest = <
+  TError = unknown,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postAuthPasswordResetRequest>>,
+      TError,
+      { data: InternalAuthPrReqBody },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof postAuthPasswordResetRequest>>,
+  TError,
+  { data: InternalAuthPrReqBody },
+  TContext
+> => {
+  const mutationOptions =
+    getPostAuthPasswordResetRequestMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
 };
 
 /**
  * @summary Get current session
  */
-export const getAuthSession = <
-  TData = AxiosResponse<InternalAuthSessionResponse | void>,
->(
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.get(`/auth/session`, options);
+export const getAuthSession = (signal?: AbortSignal) => {
+  return customInstance<InternalAuthSessionResponse | void>({
+    url: `/auth/session`,
+    method: "GET",
+    signal,
+  });
 };
+
+export const getGetAuthSessionQueryKey = () => {
+  return [`/auth/session`] as const;
+};
+
+export const getGetAuthSessionQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAuthSession>>,
+  TError = unknown,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getAuthSession>>, TError, TData>
+  >;
+}) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetAuthSessionQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getAuthSession>>> = ({
+    signal,
+  }) => getAuthSession(signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getAuthSession>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData> };
+};
+
+export type GetAuthSessionQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAuthSession>>
+>;
+export type GetAuthSessionQueryError = unknown;
+
+export function useGetAuthSession<
+  TData = Awaited<ReturnType<typeof getAuthSession>>,
+  TError = unknown,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getAuthSession>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAuthSession>>,
+          TError,
+          Awaited<ReturnType<typeof getAuthSession>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData>;
+};
+export function useGetAuthSession<
+  TData = Awaited<ReturnType<typeof getAuthSession>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getAuthSession>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAuthSession>>,
+          TError,
+          Awaited<ReturnType<typeof getAuthSession>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+export function useGetAuthSession<
+  TData = Awaited<ReturnType<typeof getAuthSession>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getAuthSession>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+/**
+ * @summary Get current session
+ */
+
+export function useGetAuthSession<
+  TData = Awaited<ReturnType<typeof getAuthSession>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getAuthSession>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
+  const queryOptions = getGetAuthSessionQueryOptions(options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
 
 /**
  * @summary Sign up with email and password
  */
-export const postAuthSignup = <
-  TData = AxiosResponse<InternalAuthSessionResponse>,
->(
+export const postAuthSignup = (
   internalAuthSignupBody: InternalAuthSignupBody,
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.post(`/auth/signup`, internalAuthSignupBody, options);
+  signal?: AbortSignal,
+) => {
+  return customInstance<InternalAuthSessionResponse>({
+    url: `/auth/signup`,
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    data: internalAuthSignupBody,
+    signal,
+  });
+};
+
+export const getPostAuthSignupMutationOptions = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postAuthSignup>>,
+    TError,
+    { data: InternalAuthSignupBody },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postAuthSignup>>,
+  TError,
+  { data: InternalAuthSignupBody },
+  TContext
+> => {
+  const mutationKey = ["postAuthSignup"];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postAuthSignup>>,
+    { data: InternalAuthSignupBody }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return postAuthSignup(data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PostAuthSignupMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postAuthSignup>>
+>;
+export type PostAuthSignupMutationBody = InternalAuthSignupBody;
+export type PostAuthSignupMutationError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+/**
+ * @summary Sign up with email and password
+ */
+export const usePostAuthSignup = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postAuthSignup>>,
+      TError,
+      { data: InternalAuthSignupBody },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof postAuthSignup>>,
+  TError,
+  { data: InternalAuthSignupBody },
+  TContext
+> => {
+  const mutationOptions = getPostAuthSignupMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
 };
 
 /**
  * @summary Verify email by token
  */
-export const postAuthVerifyEmail = <TData = AxiosResponse<void>>(
+export const postAuthVerifyEmail = (
   internalAuthVerifyEmailBody: InternalAuthVerifyEmailBody,
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.post(
-    `/auth/verify-email`,
-    internalAuthVerifyEmailBody,
-    options,
-  );
+  signal?: AbortSignal,
+) => {
+  return customInstance<void>({
+    url: `/auth/verify-email`,
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    data: internalAuthVerifyEmailBody,
+    signal,
+  });
+};
+
+export const getPostAuthVerifyEmailMutationOptions = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postAuthVerifyEmail>>,
+    TError,
+    { data: InternalAuthVerifyEmailBody },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postAuthVerifyEmail>>,
+  TError,
+  { data: InternalAuthVerifyEmailBody },
+  TContext
+> => {
+  const mutationKey = ["postAuthVerifyEmail"];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postAuthVerifyEmail>>,
+    { data: InternalAuthVerifyEmailBody }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return postAuthVerifyEmail(data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PostAuthVerifyEmailMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postAuthVerifyEmail>>
+>;
+export type PostAuthVerifyEmailMutationBody = InternalAuthVerifyEmailBody;
+export type PostAuthVerifyEmailMutationError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+/**
+ * @summary Verify email by token
+ */
+export const usePostAuthVerifyEmail = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postAuthVerifyEmail>>,
+      TError,
+      { data: InternalAuthVerifyEmailBody },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof postAuthVerifyEmail>>,
+  TError,
+  { data: InternalAuthVerifyEmailBody },
+  TContext
+> => {
+  const mutationOptions = getPostAuthVerifyEmailMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
 };
 
 /**
  * @summary Resend verification email
  */
-export const postAuthVerifyEmailResend = <TData = AxiosResponse<void>>(
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.post(`/auth/verify-email/resend`, undefined, options);
+export const postAuthVerifyEmailResend = (signal?: AbortSignal) => {
+  return customInstance<void>({
+    url: `/auth/verify-email/resend`,
+    method: "POST",
+    signal,
+  });
+};
+
+export const getPostAuthVerifyEmailResendMutationOptions = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postAuthVerifyEmailResend>>,
+    TError,
+    void,
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postAuthVerifyEmailResend>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ["postAuthVerifyEmailResend"];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postAuthVerifyEmailResend>>,
+    void
+  > = () => {
+    return postAuthVerifyEmailResend();
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PostAuthVerifyEmailResendMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postAuthVerifyEmailResend>>
+>;
+
+export type PostAuthVerifyEmailResendMutationError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+/**
+ * @summary Resend verification email
+ */
+export const usePostAuthVerifyEmailResend = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postAuthVerifyEmailResend>>,
+      TError,
+      void,
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof postAuthVerifyEmailResend>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationOptions = getPostAuthVerifyEmailResendMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
 };
 
 /**
  * @summary List brands
  */
-export const getBrands = <TData = AxiosResponse<InternalCatalogBrandView[]>>(
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.get(`/brands`, options);
+export const getBrands = (signal?: AbortSignal) => {
+  return customInstance<InternalCatalogBrandView[]>({
+    url: `/brands`,
+    method: "GET",
+    signal,
+  });
 };
+
+export const getGetBrandsQueryKey = () => {
+  return [`/brands`] as const;
+};
+
+export const getGetBrandsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getBrands>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getBrands>>, TError, TData>
+  >;
+}) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetBrandsQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getBrands>>> = ({
+    signal,
+  }) => getBrands(signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getBrands>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData> };
+};
+
+export type GetBrandsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getBrands>>
+>;
+export type GetBrandsQueryError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+export function useGetBrands<
+  TData = Awaited<ReturnType<typeof getBrands>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getBrands>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getBrands>>,
+          TError,
+          Awaited<ReturnType<typeof getBrands>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData>;
+};
+export function useGetBrands<
+  TData = Awaited<ReturnType<typeof getBrands>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getBrands>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getBrands>>,
+          TError,
+          Awaited<ReturnType<typeof getBrands>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+export function useGetBrands<
+  TData = Awaited<ReturnType<typeof getBrands>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getBrands>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+/**
+ * @summary List brands
+ */
+
+export function useGetBrands<
+  TData = Awaited<ReturnType<typeof getBrands>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getBrands>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
+  const queryOptions = getGetBrandsQueryOptions(options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
 
 /**
  * @summary Get the caller's cart (mints a guest cart on first call)
  */
-export const getCart = <TData = AxiosResponse<InternalCartCartResponse>>(
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.get(`/cart`, options);
+export const getCart = (signal?: AbortSignal) => {
+  return customInstance<InternalCartCartResponse>({
+    url: `/cart`,
+    method: "GET",
+    signal,
+  });
 };
+
+export const getGetCartQueryKey = () => {
+  return [`/cart`] as const;
+};
+
+export const getGetCartQueryOptions = <
+  TData = Awaited<ReturnType<typeof getCart>>,
+  TError = unknown,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getCart>>, TError, TData>
+  >;
+}) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetCartQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getCart>>> = ({
+    signal,
+  }) => getCart(signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getCart>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData> };
+};
+
+export type GetCartQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getCart>>
+>;
+export type GetCartQueryError = unknown;
+
+export function useGetCart<
+  TData = Awaited<ReturnType<typeof getCart>>,
+  TError = unknown,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getCart>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getCart>>,
+          TError,
+          Awaited<ReturnType<typeof getCart>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData>;
+};
+export function useGetCart<
+  TData = Awaited<ReturnType<typeof getCart>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getCart>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getCart>>,
+          TError,
+          Awaited<ReturnType<typeof getCart>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+export function useGetCart<
+  TData = Awaited<ReturnType<typeof getCart>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getCart>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+/**
+ * @summary Get the caller's cart (mints a guest cart on first call)
+ */
+
+export function useGetCart<
+  TData = Awaited<ReturnType<typeof getCart>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getCart>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
+  const queryOptions = getGetCartQueryOptions(options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
 
 /**
  * @summary Add an item to the cart (upserts: qty is summed on conflict)
  */
-export const postCartItems = <TData = AxiosResponse<InternalCartCartResponse>>(
+export const postCartItems = (
   internalCartPostItemBody: InternalCartPostItemBody,
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.post(`/cart/items`, internalCartPostItemBody, options);
+  signal?: AbortSignal,
+) => {
+  return customInstance<InternalCartCartResponse>({
+    url: `/cart/items`,
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    data: internalCartPostItemBody,
+    signal,
+  });
+};
+
+export const getPostCartItemsMutationOptions = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postCartItems>>,
+    TError,
+    { data: InternalCartPostItemBody },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postCartItems>>,
+  TError,
+  { data: InternalCartPostItemBody },
+  TContext
+> => {
+  const mutationKey = ["postCartItems"];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postCartItems>>,
+    { data: InternalCartPostItemBody }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return postCartItems(data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PostCartItemsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postCartItems>>
+>;
+export type PostCartItemsMutationBody = InternalCartPostItemBody;
+export type PostCartItemsMutationError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+/**
+ * @summary Add an item to the cart (upserts: qty is summed on conflict)
+ */
+export const usePostCartItems = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postCartItems>>,
+      TError,
+      { data: InternalCartPostItemBody },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof postCartItems>>,
+  TError,
+  { data: InternalCartPostItemBody },
+  TContext
+> => {
+  const mutationOptions = getPostCartItemsMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
 };
 
 /**
  * @summary Remove an item from the cart
  */
-export const deleteCartItemsId = <TData = AxiosResponse<void>>(
-  id: string,
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.delete(`/cart/items/${id}`, options);
+export const deleteCartItemsId = (id: string) => {
+  return customInstance<void>({ url: `/cart/items/${id}`, method: "DELETE" });
+};
+
+export const getDeleteCartItemsIdMutationOptions = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteCartItemsId>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteCartItemsId>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["deleteCartItemsId"];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteCartItemsId>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteCartItemsId(id);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteCartItemsIdMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteCartItemsId>>
+>;
+
+export type DeleteCartItemsIdMutationError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+/**
+ * @summary Remove an item from the cart
+ */
+export const useDeleteCartItemsId = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof deleteCartItemsId>>,
+      TError,
+      { id: string },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof deleteCartItemsId>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationOptions = getDeleteCartItemsIdMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
 };
 
 /**
  * @summary Update an item's qty
  */
-export const patchCartItemsId = <
-  TData = AxiosResponse<InternalCartCartResponse>,
->(
+export const patchCartItemsId = (
   id: string,
   internalCartPatchItemBody: InternalCartPatchItemBody,
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.patch(
-    `/cart/items/${id}`,
-    internalCartPatchItemBody,
-    options,
-  );
+) => {
+  return customInstance<InternalCartCartResponse>({
+    url: `/cart/items/${id}`,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    data: internalCartPatchItemBody,
+  });
+};
+
+export const getPatchCartItemsIdMutationOptions = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof patchCartItemsId>>,
+    TError,
+    { id: string; data: InternalCartPatchItemBody },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof patchCartItemsId>>,
+  TError,
+  { id: string; data: InternalCartPatchItemBody },
+  TContext
+> => {
+  const mutationKey = ["patchCartItemsId"];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof patchCartItemsId>>,
+    { id: string; data: InternalCartPatchItemBody }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return patchCartItemsId(id, data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PatchCartItemsIdMutationResult = NonNullable<
+  Awaited<ReturnType<typeof patchCartItemsId>>
+>;
+export type PatchCartItemsIdMutationBody = InternalCartPatchItemBody;
+export type PatchCartItemsIdMutationError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+/**
+ * @summary Update an item's qty
+ */
+export const usePatchCartItemsId = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof patchCartItemsId>>,
+      TError,
+      { id: string; data: InternalCartPatchItemBody },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof patchCartItemsId>>,
+  TError,
+  { id: string; data: InternalCartPatchItemBody },
+  TContext
+> => {
+  const mutationOptions = getPatchCartItemsIdMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
 };
 
 /**
  * @summary Merge a guest cart into the user's cart (auth required)
  */
-export const postCartMerge = <TData = AxiosResponse<InternalCartCartResponse>>(
+export const postCartMerge = (
   internalCartMergeRequestBody: InternalCartMergeRequestBody,
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.post(
-    `/cart/merge`,
-    internalCartMergeRequestBody,
-    options,
-  );
+  signal?: AbortSignal,
+) => {
+  return customInstance<InternalCartCartResponse>({
+    url: `/cart/merge`,
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    data: internalCartMergeRequestBody,
+    signal,
+  });
+};
+
+export const getPostCartMergeMutationOptions = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postCartMerge>>,
+    TError,
+    { data: InternalCartMergeRequestBody },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postCartMerge>>,
+  TError,
+  { data: InternalCartMergeRequestBody },
+  TContext
+> => {
+  const mutationKey = ["postCartMerge"];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postCartMerge>>,
+    { data: InternalCartMergeRequestBody }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return postCartMerge(data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PostCartMergeMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postCartMerge>>
+>;
+export type PostCartMergeMutationBody = InternalCartMergeRequestBody;
+export type PostCartMergeMutationError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+/**
+ * @summary Merge a guest cart into the user's cart (auth required)
+ */
+export const usePostCartMerge = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postCartMerge>>,
+      TError,
+      { data: InternalCartMergeRequestBody },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof postCartMerge>>,
+  TError,
+  { data: InternalCartMergeRequestBody },
+  TContext
+> => {
+  const mutationOptions = getPostCartMergeMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
 };
 
 /**
  * @summary List categories
  */
-export const getCategories = <
-  TData = AxiosResponse<InternalCatalogCategoryView[]>,
->(
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.get(`/categories`, options);
+export const getCategories = (signal?: AbortSignal) => {
+  return customInstance<InternalCatalogCategoryView[]>({
+    url: `/categories`,
+    method: "GET",
+    signal,
+  });
 };
+
+export const getGetCategoriesQueryKey = () => {
+  return [`/categories`] as const;
+};
+
+export const getGetCategoriesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getCategories>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getCategories>>, TError, TData>
+  >;
+}) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetCategoriesQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getCategories>>> = ({
+    signal,
+  }) => getCategories(signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getCategories>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData> };
+};
+
+export type GetCategoriesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getCategories>>
+>;
+export type GetCategoriesQueryError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+export function useGetCategories<
+  TData = Awaited<ReturnType<typeof getCategories>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getCategories>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getCategories>>,
+          TError,
+          Awaited<ReturnType<typeof getCategories>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData>;
+};
+export function useGetCategories<
+  TData = Awaited<ReturnType<typeof getCategories>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getCategories>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getCategories>>,
+          TError,
+          Awaited<ReturnType<typeof getCategories>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+export function useGetCategories<
+  TData = Awaited<ReturnType<typeof getCategories>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getCategories>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+/**
+ * @summary List categories
+ */
+
+export function useGetCategories<
+  TData = Awaited<ReturnType<typeof getCategories>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getCategories>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
+  const queryOptions = getGetCategoriesQueryOptions(options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
 
 /**
  * @summary Initialize a Paystack-hosted checkout for the caller's cart
  */
-export const postCheckoutInit = <
-  TData = AxiosResponse<InternalOrdersInitCheckoutResponse>,
->(
+export const postCheckoutInit = (
   internalOrdersInitCheckoutBody: InternalOrdersInitCheckoutBody,
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.post(
-    `/checkout/init`,
-    internalOrdersInitCheckoutBody,
-    options,
-  );
+  signal?: AbortSignal,
+) => {
+  return customInstance<InternalOrdersInitCheckoutResponse>({
+    url: `/checkout/init`,
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    data: internalOrdersInitCheckoutBody,
+    signal,
+  });
+};
+
+export const getPostCheckoutInitMutationOptions = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postCheckoutInit>>,
+    TError,
+    { data: InternalOrdersInitCheckoutBody },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postCheckoutInit>>,
+  TError,
+  { data: InternalOrdersInitCheckoutBody },
+  TContext
+> => {
+  const mutationKey = ["postCheckoutInit"];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postCheckoutInit>>,
+    { data: InternalOrdersInitCheckoutBody }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return postCheckoutInit(data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PostCheckoutInitMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postCheckoutInit>>
+>;
+export type PostCheckoutInitMutationBody = InternalOrdersInitCheckoutBody;
+export type PostCheckoutInitMutationError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+/**
+ * @summary Initialize a Paystack-hosted checkout for the caller's cart
+ */
+export const usePostCheckoutInit = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postCheckoutInit>>,
+      TError,
+      { data: InternalOrdersInitCheckoutBody },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof postCheckoutInit>>,
+  TError,
+  { data: InternalOrdersInitCheckoutBody },
+  TContext
+> => {
+  const mutationOptions = getPostCheckoutInitMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
 };
 
 /**
  * @summary Verify a checkout (poll path) — calls Paystack verify and converges with the webhook
  */
-export const getCheckoutVerifyReference = <
-  TData = AxiosResponse<InternalOrdersVerifyCheckoutResponse>,
+export const getCheckoutVerifyReference = (
+  reference: string,
+  signal?: AbortSignal,
+) => {
+  return customInstance<InternalOrdersVerifyCheckoutResponse>({
+    url: `/checkout/verify/${reference}`,
+    method: "GET",
+    signal,
+  });
+};
+
+export const getGetCheckoutVerifyReferenceQueryKey = (reference?: string) => {
+  return [`/checkout/verify/${reference}`] as const;
+};
+
+export const getGetCheckoutVerifyReferenceQueryOptions = <
+  TData = Awaited<ReturnType<typeof getCheckoutVerifyReference>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
 >(
   reference: string,
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.get(`/checkout/verify/${reference}`, options);
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getCheckoutVerifyReference>>,
+        TError,
+        TData
+      >
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetCheckoutVerifyReferenceQueryKey(reference);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getCheckoutVerifyReference>>
+  > = ({ signal }) => getCheckoutVerifyReference(reference, signal);
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!reference,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getCheckoutVerifyReference>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData> };
 };
+
+export type GetCheckoutVerifyReferenceQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getCheckoutVerifyReference>>
+>;
+export type GetCheckoutVerifyReferenceQueryError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+export function useGetCheckoutVerifyReference<
+  TData = Awaited<ReturnType<typeof getCheckoutVerifyReference>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  reference: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getCheckoutVerifyReference>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getCheckoutVerifyReference>>,
+          TError,
+          Awaited<ReturnType<typeof getCheckoutVerifyReference>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData>;
+};
+export function useGetCheckoutVerifyReference<
+  TData = Awaited<ReturnType<typeof getCheckoutVerifyReference>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  reference: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getCheckoutVerifyReference>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getCheckoutVerifyReference>>,
+          TError,
+          Awaited<ReturnType<typeof getCheckoutVerifyReference>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+export function useGetCheckoutVerifyReference<
+  TData = Awaited<ReturnType<typeof getCheckoutVerifyReference>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  reference: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getCheckoutVerifyReference>>,
+        TError,
+        TData
+      >
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+/**
+ * @summary Verify a checkout (poll path) — calls Paystack verify and converges with the webhook
+ */
+
+export function useGetCheckoutVerifyReference<
+  TData = Awaited<ReturnType<typeof getCheckoutVerifyReference>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  reference: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getCheckoutVerifyReference>>,
+        TError,
+        TData
+      >
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
+  const queryOptions = getGetCheckoutVerifyReferenceQueryOptions(
+    reference,
+    options,
+  );
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
 
 /**
  * Verifies the service is up and the database is reachable.
  * @summary Health check
  */
-export const getHealthz = <TData = AxiosResponse<InternalHealthResponse>>(
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.get(`/healthz`, options);
+export const getHealthz = (signal?: AbortSignal) => {
+  return customInstance<InternalHealthResponse>({
+    url: `/healthz`,
+    method: "GET",
+    signal,
+  });
 };
+
+export const getGetHealthzQueryKey = () => {
+  return [`/healthz`] as const;
+};
+
+export const getGetHealthzQueryOptions = <
+  TData = Awaited<ReturnType<typeof getHealthz>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getHealthz>>, TError, TData>
+  >;
+}) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetHealthzQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getHealthz>>> = ({
+    signal,
+  }) => getHealthz(signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getHealthz>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData> };
+};
+
+export type GetHealthzQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getHealthz>>
+>;
+export type GetHealthzQueryError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+export function useGetHealthz<
+  TData = Awaited<ReturnType<typeof getHealthz>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getHealthz>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getHealthz>>,
+          TError,
+          Awaited<ReturnType<typeof getHealthz>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData>;
+};
+export function useGetHealthz<
+  TData = Awaited<ReturnType<typeof getHealthz>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getHealthz>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getHealthz>>,
+          TError,
+          Awaited<ReturnType<typeof getHealthz>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+export function useGetHealthz<
+  TData = Awaited<ReturnType<typeof getHealthz>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getHealthz>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+/**
+ * @summary Health check
+ */
+
+export function useGetHealthz<
+  TData = Awaited<ReturnType<typeof getHealthz>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getHealthz>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
+  const queryOptions = getGetHealthzQueryOptions(options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
 
 /**
  * @summary Get the current user
  */
-export const getMe = <TData = AxiosResponse<InternalMeMeResponse>>(
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.get(`/me`, options);
+export const getMe = (signal?: AbortSignal) => {
+  return customInstance<InternalMeMeResponse>({
+    url: `/me`,
+    method: "GET",
+    signal,
+  });
 };
+
+export const getGetMeQueryKey = () => {
+  return [`/me`] as const;
+};
+
+export const getGetMeQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMe>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getMe>>, TError, TData>
+  >;
+}) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetMeQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getMe>>> = ({
+    signal,
+  }) => getMe(signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMe>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData> };
+};
+
+export type GetMeQueryResult = NonNullable<Awaited<ReturnType<typeof getMe>>>;
+export type GetMeQueryError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+export function useGetMe<
+  TData = Awaited<ReturnType<typeof getMe>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getMe>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getMe>>,
+          TError,
+          Awaited<ReturnType<typeof getMe>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData>;
+};
+export function useGetMe<
+  TData = Awaited<ReturnType<typeof getMe>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getMe>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getMe>>,
+          TError,
+          Awaited<ReturnType<typeof getMe>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+export function useGetMe<
+  TData = Awaited<ReturnType<typeof getMe>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getMe>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+/**
+ * @summary Get the current user
+ */
+
+export function useGetMe<
+  TData = Awaited<ReturnType<typeof getMe>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getMe>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
+  const queryOptions = getGetMeQueryOptions(options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
 
 /**
  * @summary Update user profile
  */
-export const patchMe = <TData = AxiosResponse<InternalMeMeResponse>>(
+export const patchMe = (
   internalMeUpdateProfileRequest: InternalMeUpdateProfileRequest,
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.patch(`/me`, internalMeUpdateProfileRequest, options);
+) => {
+  return customInstance<InternalMeMeResponse>({
+    url: `/me`,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    data: internalMeUpdateProfileRequest,
+  });
+};
+
+export const getPatchMeMutationOptions = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof patchMe>>,
+    TError,
+    { data: InternalMeUpdateProfileRequest },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof patchMe>>,
+  TError,
+  { data: InternalMeUpdateProfileRequest },
+  TContext
+> => {
+  const mutationKey = ["patchMe"];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof patchMe>>,
+    { data: InternalMeUpdateProfileRequest }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return patchMe(data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PatchMeMutationResult = NonNullable<
+  Awaited<ReturnType<typeof patchMe>>
+>;
+export type PatchMeMutationBody = InternalMeUpdateProfileRequest;
+export type PatchMeMutationError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+/**
+ * @summary Update user profile
+ */
+export const usePatchMe = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof patchMe>>,
+      TError,
+      { data: InternalMeUpdateProfileRequest },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof patchMe>>,
+  TError,
+  { data: InternalMeUpdateProfileRequest },
+  TContext
+> => {
+  const mutationOptions = getPatchMeMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
 };
 
 /**
  * @summary List addresses
  */
-export const getMeAddresses = <
-  TData = AxiosResponse<InternalAddressesListAddressesResponse>,
->(
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.get(`/me/addresses`, options);
+export const getMeAddresses = (signal?: AbortSignal) => {
+  return customInstance<InternalAddressesListAddressesResponse>({
+    url: `/me/addresses`,
+    method: "GET",
+    signal,
+  });
 };
+
+export const getGetMeAddressesQueryKey = () => {
+  return [`/me/addresses`] as const;
+};
+
+export const getGetMeAddressesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMeAddresses>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getMeAddresses>>, TError, TData>
+  >;
+}) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetMeAddressesQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getMeAddresses>>> = ({
+    signal,
+  }) => getMeAddresses(signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMeAddresses>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData> };
+};
+
+export type GetMeAddressesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMeAddresses>>
+>;
+export type GetMeAddressesQueryError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+export function useGetMeAddresses<
+  TData = Awaited<ReturnType<typeof getMeAddresses>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getMeAddresses>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getMeAddresses>>,
+          TError,
+          Awaited<ReturnType<typeof getMeAddresses>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData>;
+};
+export function useGetMeAddresses<
+  TData = Awaited<ReturnType<typeof getMeAddresses>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getMeAddresses>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getMeAddresses>>,
+          TError,
+          Awaited<ReturnType<typeof getMeAddresses>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+export function useGetMeAddresses<
+  TData = Awaited<ReturnType<typeof getMeAddresses>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getMeAddresses>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+/**
+ * @summary List addresses
+ */
+
+export function useGetMeAddresses<
+  TData = Awaited<ReturnType<typeof getMeAddresses>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getMeAddresses>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
+  const queryOptions = getGetMeAddressesQueryOptions(options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
 
 /**
  * @summary Create an address
  */
-export const postMeAddresses = <
-  TData = AxiosResponse<InternalAddressesAddressResponse>,
->(
+export const postMeAddresses = (
   internalAddressesCreateAddressRequest: InternalAddressesCreateAddressRequest,
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.post(
-    `/me/addresses`,
-    internalAddressesCreateAddressRequest,
-    options,
-  );
+  signal?: AbortSignal,
+) => {
+  return customInstance<InternalAddressesAddressResponse>({
+    url: `/me/addresses`,
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    data: internalAddressesCreateAddressRequest,
+    signal,
+  });
+};
+
+export const getPostMeAddressesMutationOptions = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postMeAddresses>>,
+    TError,
+    { data: InternalAddressesCreateAddressRequest },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postMeAddresses>>,
+  TError,
+  { data: InternalAddressesCreateAddressRequest },
+  TContext
+> => {
+  const mutationKey = ["postMeAddresses"];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postMeAddresses>>,
+    { data: InternalAddressesCreateAddressRequest }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return postMeAddresses(data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PostMeAddressesMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postMeAddresses>>
+>;
+export type PostMeAddressesMutationBody = InternalAddressesCreateAddressRequest;
+export type PostMeAddressesMutationError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+/**
+ * @summary Create an address
+ */
+export const usePostMeAddresses = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postMeAddresses>>,
+      TError,
+      { data: InternalAddressesCreateAddressRequest },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof postMeAddresses>>,
+  TError,
+  { data: InternalAddressesCreateAddressRequest },
+  TContext
+> => {
+  const mutationOptions = getPostMeAddressesMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
 };
 
 /**
  * @summary Delete an address
  */
-export const deleteMeAddressesId = <TData = AxiosResponse<void>>(
-  id: string,
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.delete(`/me/addresses/${id}`, options);
+export const deleteMeAddressesId = (id: string) => {
+  return customInstance<void>({ url: `/me/addresses/${id}`, method: "DELETE" });
+};
+
+export const getDeleteMeAddressesIdMutationOptions = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteMeAddressesId>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteMeAddressesId>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["deleteMeAddressesId"];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteMeAddressesId>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteMeAddressesId(id);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteMeAddressesIdMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteMeAddressesId>>
+>;
+
+export type DeleteMeAddressesIdMutationError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+/**
+ * @summary Delete an address
+ */
+export const useDeleteMeAddressesId = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof deleteMeAddressesId>>,
+      TError,
+      { id: string },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof deleteMeAddressesId>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationOptions = getDeleteMeAddressesIdMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
 };
 
 /**
  * @summary Update an address
  */
-export const patchMeAddressesId = <
-  TData = AxiosResponse<InternalAddressesAddressResponse>,
->(
+export const patchMeAddressesId = (
   id: string,
   internalAddressesPatchAddressRequest: InternalAddressesPatchAddressRequest,
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.patch(
-    `/me/addresses/${id}`,
-    internalAddressesPatchAddressRequest,
-    options,
-  );
+) => {
+  return customInstance<InternalAddressesAddressResponse>({
+    url: `/me/addresses/${id}`,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    data: internalAddressesPatchAddressRequest,
+  });
+};
+
+export const getPatchMeAddressesIdMutationOptions = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof patchMeAddressesId>>,
+    TError,
+    { id: string; data: InternalAddressesPatchAddressRequest },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof patchMeAddressesId>>,
+  TError,
+  { id: string; data: InternalAddressesPatchAddressRequest },
+  TContext
+> => {
+  const mutationKey = ["patchMeAddressesId"];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof patchMeAddressesId>>,
+    { id: string; data: InternalAddressesPatchAddressRequest }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return patchMeAddressesId(id, data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PatchMeAddressesIdMutationResult = NonNullable<
+  Awaited<ReturnType<typeof patchMeAddressesId>>
+>;
+export type PatchMeAddressesIdMutationBody =
+  InternalAddressesPatchAddressRequest;
+export type PatchMeAddressesIdMutationError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+/**
+ * @summary Update an address
+ */
+export const usePatchMeAddressesId = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof patchMeAddressesId>>,
+      TError,
+      { id: string; data: InternalAddressesPatchAddressRequest },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof patchMeAddressesId>>,
+  TError,
+  { id: string; data: InternalAddressesPatchAddressRequest },
+  TContext
+> => {
+  const mutationOptions = getPatchMeAddressesIdMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
 };
 
 /**
  * @summary Set an address as default
  */
-export const postMeAddressesIdDefault = <
-  TData = AxiosResponse<InternalAddressesAddressResponse>,
+export const postMeAddressesIdDefault = (id: string, signal?: AbortSignal) => {
+  return customInstance<InternalAddressesAddressResponse>({
+    url: `/me/addresses/${id}/default`,
+    method: "POST",
+    signal,
+  });
+};
+
+export const getPostMeAddressesIdDefaultMutationOptions = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postMeAddressesIdDefault>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postMeAddressesIdDefault>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["postMeAddressesIdDefault"];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postMeAddressesIdDefault>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return postMeAddressesIdDefault(id);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PostMeAddressesIdDefaultMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postMeAddressesIdDefault>>
+>;
+
+export type PostMeAddressesIdDefaultMutationError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+/**
+ * @summary Set an address as default
+ */
+export const usePostMeAddressesIdDefault = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postMeAddressesIdDefault>>,
+      TError,
+      { id: string },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof postMeAddressesIdDefault>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationOptions = getPostMeAddressesIdDefaultMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
+};
+
+/**
+ * @summary List user's orders
+ */
+export const getMeOrders = (
+  params?: GetMeOrdersParams,
+  signal?: AbortSignal,
+) => {
+  return customInstance<InternalMeListOrdersResponse>({
+    url: `/me/orders`,
+    method: "GET",
+    params,
+    signal,
+  });
+};
+
+export const getGetMeOrdersQueryKey = (params?: GetMeOrdersParams) => {
+  return [`/me/orders`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetMeOrdersQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMeOrders>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  params?: GetMeOrdersParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getMeOrders>>, TError, TData>
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetMeOrdersQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getMeOrders>>> = ({
+    signal,
+  }) => getMeOrders(params, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMeOrders>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData> };
+};
+
+export type GetMeOrdersQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMeOrders>>
+>;
+export type GetMeOrdersQueryError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+export function useGetMeOrders<
+  TData = Awaited<ReturnType<typeof getMeOrders>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  params: undefined | GetMeOrdersParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getMeOrders>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getMeOrders>>,
+          TError,
+          Awaited<ReturnType<typeof getMeOrders>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData>;
+};
+export function useGetMeOrders<
+  TData = Awaited<ReturnType<typeof getMeOrders>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  params?: GetMeOrdersParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getMeOrders>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getMeOrders>>,
+          TError,
+          Awaited<ReturnType<typeof getMeOrders>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+export function useGetMeOrders<
+  TData = Awaited<ReturnType<typeof getMeOrders>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  params?: GetMeOrdersParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getMeOrders>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+/**
+ * @summary List user's orders
+ */
+
+export function useGetMeOrders<
+  TData = Awaited<ReturnType<typeof getMeOrders>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  params?: GetMeOrdersParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getMeOrders>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
+  const queryOptions = getGetMeOrdersQueryOptions(params, options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+/**
+ * @summary Get a specific order
+ */
+export const getMeOrdersId = (id: string, signal?: AbortSignal) => {
+  return customInstance<InternalMeOrderDetailResponse>({
+    url: `/me/orders/${id}`,
+    method: "GET",
+    signal,
+  });
+};
+
+export const getGetMeOrdersIdQueryKey = (id?: string) => {
+  return [`/me/orders/${id}`] as const;
+};
+
+export const getGetMeOrdersIdQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMeOrdersId>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
 >(
   id: string,
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.post(`/me/addresses/${id}/default`, undefined, options);
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getMeOrdersId>>, TError, TData>
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetMeOrdersIdQueryKey(id);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getMeOrdersId>>> = ({
+    signal,
+  }) => getMeOrdersId(id, signal);
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMeOrdersId>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData> };
 };
+
+export type GetMeOrdersIdQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMeOrdersId>>
+>;
+export type GetMeOrdersIdQueryError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+export function useGetMeOrdersId<
+  TData = Awaited<ReturnType<typeof getMeOrdersId>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  id: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getMeOrdersId>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getMeOrdersId>>,
+          TError,
+          Awaited<ReturnType<typeof getMeOrdersId>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData>;
+};
+export function useGetMeOrdersId<
+  TData = Awaited<ReturnType<typeof getMeOrdersId>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getMeOrdersId>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getMeOrdersId>>,
+          TError,
+          Awaited<ReturnType<typeof getMeOrdersId>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+export function useGetMeOrdersId<
+  TData = Awaited<ReturnType<typeof getMeOrdersId>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getMeOrdersId>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+/**
+ * @summary Get a specific order
+ */
+
+export function useGetMeOrdersId<
+  TData = Awaited<ReturnType<typeof getMeOrdersId>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getMeOrdersId>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
+  const queryOptions = getGetMeOrdersIdQueryOptions(id, options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
 
 /**
  * @summary List products
  */
-export const getProducts = <
-  TData = AxiosResponse<InternalCatalogProductsResponse>,
->(
+export const getProducts = (
   params?: GetProductsParams,
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.get(`/products`, {
-    ...options,
-    params: { ...params, ...options?.params },
+  signal?: AbortSignal,
+) => {
+  return customInstance<InternalCatalogProductsResponse>({
+    url: `/products`,
+    method: "GET",
+    params,
+    signal,
   });
 };
+
+export const getGetProductsQueryKey = (params?: GetProductsParams) => {
+  return [`/products`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetProductsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getProducts>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  params?: GetProductsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getProducts>>, TError, TData>
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetProductsQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getProducts>>> = ({
+    signal,
+  }) => getProducts(params, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getProducts>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData> };
+};
+
+export type GetProductsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getProducts>>
+>;
+export type GetProductsQueryError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+export function useGetProducts<
+  TData = Awaited<ReturnType<typeof getProducts>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  params: undefined | GetProductsParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getProducts>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProducts>>,
+          TError,
+          Awaited<ReturnType<typeof getProducts>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData>;
+};
+export function useGetProducts<
+  TData = Awaited<ReturnType<typeof getProducts>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  params?: GetProductsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getProducts>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProducts>>,
+          TError,
+          Awaited<ReturnType<typeof getProducts>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+export function useGetProducts<
+  TData = Awaited<ReturnType<typeof getProducts>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  params?: GetProductsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getProducts>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+/**
+ * @summary List products
+ */
+
+export function useGetProducts<
+  TData = Awaited<ReturnType<typeof getProducts>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  params?: GetProductsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getProducts>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
+  const queryOptions = getGetProductsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
 
 /**
  * @summary Get product by slug
  */
-export const getProductsSlug = <
-  TData = AxiosResponse<InternalCatalogProductView>,
+export const getProductsSlug = (slug: string, signal?: AbortSignal) => {
+  return customInstance<InternalCatalogProductView>({
+    url: `/products/${slug}`,
+    method: "GET",
+    signal,
+  });
+};
+
+export const getGetProductsSlugQueryKey = (slug?: string) => {
+  return [`/products/${slug}`] as const;
+};
+
+export const getGetProductsSlugQueryOptions = <
+  TData = Awaited<ReturnType<typeof getProductsSlug>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
 >(
   slug: string,
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.get(`/products/${slug}`, options);
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getProductsSlug>>,
+        TError,
+        TData
+      >
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetProductsSlugQueryKey(slug);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getProductsSlug>>> = ({
+    signal,
+  }) => getProductsSlug(slug, signal);
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!slug,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getProductsSlug>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData> };
 };
+
+export type GetProductsSlugQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getProductsSlug>>
+>;
+export type GetProductsSlugQueryError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+export function useGetProductsSlug<
+  TData = Awaited<ReturnType<typeof getProductsSlug>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  slug: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getProductsSlug>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProductsSlug>>,
+          TError,
+          Awaited<ReturnType<typeof getProductsSlug>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData>;
+};
+export function useGetProductsSlug<
+  TData = Awaited<ReturnType<typeof getProductsSlug>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  slug: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getProductsSlug>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProductsSlug>>,
+          TError,
+          Awaited<ReturnType<typeof getProductsSlug>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+export function useGetProductsSlug<
+  TData = Awaited<ReturnType<typeof getProductsSlug>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  slug: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getProductsSlug>>,
+        TError,
+        TData
+      >
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+/**
+ * @summary Get product by slug
+ */
+
+export function useGetProductsSlug<
+  TData = Awaited<ReturnType<typeof getProductsSlug>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  slug: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getProductsSlug>>,
+        TError,
+        TData
+      >
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
+  const queryOptions = getGetProductsSlugQueryOptions(slug, options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
 
 /**
  * @summary Get shipping quote
  */
-export const getShippingQuote = <TData = AxiosResponse<InternalShippingQuote>>(
+export const getShippingQuote = (
   params: GetShippingQuoteParams,
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.get(`/shipping/quote`, {
-    ...options,
-    params: { ...params, ...options?.params },
+  signal?: AbortSignal,
+) => {
+  return customInstance<InternalShippingQuote>({
+    url: `/shipping/quote`,
+    method: "GET",
+    params,
+    signal,
   });
 };
+
+export const getGetShippingQuoteQueryKey = (
+  params?: GetShippingQuoteParams,
+) => {
+  return [`/shipping/quote`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetShippingQuoteQueryOptions = <
+  TData = Awaited<ReturnType<typeof getShippingQuote>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  params: GetShippingQuoteParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getShippingQuote>>,
+        TError,
+        TData
+      >
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetShippingQuoteQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getShippingQuote>>
+  > = ({ signal }) => getShippingQuote(params, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getShippingQuote>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData> };
+};
+
+export type GetShippingQuoteQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getShippingQuote>>
+>;
+export type GetShippingQuoteQueryError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+export function useGetShippingQuote<
+  TData = Awaited<ReturnType<typeof getShippingQuote>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  params: GetShippingQuoteParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getShippingQuote>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getShippingQuote>>,
+          TError,
+          Awaited<ReturnType<typeof getShippingQuote>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData>;
+};
+export function useGetShippingQuote<
+  TData = Awaited<ReturnType<typeof getShippingQuote>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  params: GetShippingQuoteParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getShippingQuote>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getShippingQuote>>,
+          TError,
+          Awaited<ReturnType<typeof getShippingQuote>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+export function useGetShippingQuote<
+  TData = Awaited<ReturnType<typeof getShippingQuote>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  params: GetShippingQuoteParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getShippingQuote>>,
+        TError,
+        TData
+      >
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
+/**
+ * @summary Get shipping quote
+ */
+
+export function useGetShippingQuote<
+  TData = Awaited<ReturnType<typeof getShippingQuote>>,
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+>(
+  params: GetShippingQuoteParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getShippingQuote>>,
+        TError,
+        TData
+      >
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> } {
+  const queryOptions = getGetShippingQuoteQueryOptions(params, options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
 
 /**
  * @summary Paystack webhook receiver (public, HMAC-verified)
  */
-export const postWebhooksPaystack = <TData = AxiosResponse<void>>(
-  options?: AxiosRequestConfig,
-): Promise<TData> => {
-  return axios.default.post(`/webhooks/paystack`, undefined, options);
+export const postWebhooksPaystack = (signal?: AbortSignal) => {
+  return customInstance<void>({
+    url: `/webhooks/paystack`,
+    method: "POST",
+    signal,
+  });
 };
 
-export type GetApiV1AdminAnalyticsRevenueResult =
-  AxiosResponse<InternalAdminRevenueAnalyticsResponse>;
-export type GetApiV1AdminAnalyticsStatsResult =
-  AxiosResponse<InternalAdminStatsResponse>;
-export type GetApiV1AdminCustomersResult =
-  AxiosResponse<InternalAdminCustomersResponse>;
-export type GetApiV1AdminCustomersIdResult =
-  AxiosResponse<InternalAdminCustomerDetailResponse>;
-export type GetApiV1AdminDashboardResult =
-  AxiosResponse<InternalAdminDashboardResponse>;
-export type GetApiV1AdminOrdersResult =
-  AxiosResponse<InternalAdminOrdersResponse>;
-export type GetApiV1AdminOrdersIdResult =
-  AxiosResponse<InternalAdminOrderDetailResponse>;
-export type PatchApiV1AdminOrdersIdStatusResult = AxiosResponse<void>;
-export type GetApiV1AdminProductsResult =
-  AxiosResponse<InternalAdminProductsResponse>;
-export type GetApiV1AdminProductsIdResult =
-  AxiosResponse<InternalAdminProductSummary>;
-export type GetApiV1MeOrdersResult =
-  AxiosResponse<InternalMeListOrdersResponse>;
-export type GetApiV1MeOrdersIdResult =
-  AxiosResponse<InternalMeOrderDetailResponse>;
-export type GetAuthGoogleCallbackResult = AxiosResponse<unknown>;
-export type GetAuthGoogleStartResult = AxiosResponse<unknown>;
-export type PostAuthLoginResult = AxiosResponse<InternalAuthSessionResponse>;
-export type PostAuthLogoutResult = AxiosResponse<void>;
-export type PostAuthPasswordResetConfirmResult = AxiosResponse<void>;
-export type PostAuthPasswordResetRequestResult = AxiosResponse<void>;
-export type GetAuthSessionResult =
-  AxiosResponse<InternalAuthSessionResponse | void>;
-export type PostAuthSignupResult = AxiosResponse<InternalAuthSessionResponse>;
-export type PostAuthVerifyEmailResult = AxiosResponse<void>;
-export type PostAuthVerifyEmailResendResult = AxiosResponse<void>;
-export type GetBrandsResult = AxiosResponse<InternalCatalogBrandView[]>;
-export type GetCartResult = AxiosResponse<InternalCartCartResponse>;
-export type PostCartItemsResult = AxiosResponse<InternalCartCartResponse>;
-export type DeleteCartItemsIdResult = AxiosResponse<void>;
-export type PatchCartItemsIdResult = AxiosResponse<InternalCartCartResponse>;
-export type PostCartMergeResult = AxiosResponse<InternalCartCartResponse>;
-export type GetCategoriesResult = AxiosResponse<InternalCatalogCategoryView[]>;
-export type PostCheckoutInitResult =
-  AxiosResponse<InternalOrdersInitCheckoutResponse>;
-export type GetCheckoutVerifyReferenceResult =
-  AxiosResponse<InternalOrdersVerifyCheckoutResponse>;
-export type GetHealthzResult = AxiosResponse<InternalHealthResponse>;
-export type GetMeResult = AxiosResponse<InternalMeMeResponse>;
-export type PatchMeResult = AxiosResponse<InternalMeMeResponse>;
-export type GetMeAddressesResult =
-  AxiosResponse<InternalAddressesListAddressesResponse>;
-export type PostMeAddressesResult =
-  AxiosResponse<InternalAddressesAddressResponse>;
-export type DeleteMeAddressesIdResult = AxiosResponse<void>;
-export type PatchMeAddressesIdResult =
-  AxiosResponse<InternalAddressesAddressResponse>;
-export type PostMeAddressesIdDefaultResult =
-  AxiosResponse<InternalAddressesAddressResponse>;
-export type GetProductsResult = AxiosResponse<InternalCatalogProductsResponse>;
-export type GetProductsSlugResult = AxiosResponse<InternalCatalogProductView>;
-export type GetShippingQuoteResult = AxiosResponse<InternalShippingQuote>;
-export type PostWebhooksPaystackResult = AxiosResponse<void>;
+export const getPostWebhooksPaystackMutationOptions = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postWebhooksPaystack>>,
+    TError,
+    void,
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postWebhooksPaystack>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ["postWebhooksPaystack"];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postWebhooksPaystack>>,
+    void
+  > = () => {
+    return postWebhooksPaystack();
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PostWebhooksPaystackMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postWebhooksPaystack>>
+>;
+
+export type PostWebhooksPaystackMutationError =
+  GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
+
+/**
+ * @summary Paystack webhook receiver (public, HMAC-verified)
+ */
+export const usePostWebhooksPaystack = <
+  TError = GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postWebhooksPaystack>>,
+      TError,
+      void,
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof postWebhooksPaystack>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationOptions = getPostWebhooksPaystackMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
+};

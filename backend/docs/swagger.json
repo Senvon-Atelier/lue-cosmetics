@@ -1,2561 +1,2754 @@
 {
-    "swagger": "2.0",
-    "info": {
-        "description": "E-commerce backend for the Rue Cosmetics case study.",
-        "title": "Rue Cosmetics API",
-        "contact": {},
-        "version": "0.1.0"
-    },
-    "basePath": "/api/v1",
-    "paths": {
-        "/admin/analytics/revenue": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "admin"
-                ],
-                "summary": "Get revenue analytics",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "day|week|month",
-                        "name": "granularity",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "RFC3339 lower bound",
-                        "name": "date_from",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "RFC3339 upper bound",
-                        "name": "date_to",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_admin.RevenueAnalyticsResponse"
-                        }
-                    }
-                }
+  "swagger": "2.0",
+  "info": {
+    "description": "E-commerce backend for the Rue Cosmetics case study.",
+    "title": "Rue Cosmetics API",
+    "contact": {},
+    "version": "0.1.0"
+  },
+  "basePath": "/api/v1",
+  "paths": {
+    "/admin/analytics/revenue": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "admin"
+        ],
+        "summary": "Get revenue analytics",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "day|week|month",
+            "name": "granularity",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "RFC3339 lower bound",
+            "name": "date_from",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "RFC3339 upper bound",
+            "name": "date_to",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_admin.RevenueAnalyticsResponse"
             }
-        },
-        "/admin/analytics/stats": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "admin"
-                ],
-                "summary": "Get admin statistics",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_admin.StatsResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/admin/customers": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "admin"
-                ],
-                "summary": "List all customers",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Page number (1-based)",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Items per page",
-                        "name": "page_size",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_admin.CustomersResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/admin/customers/{id}": {
-            "get": {
-                "responses": {}
-            }
-        },
-        "/admin/dashboard": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "admin"
-                ],
-                "summary": "Get admin dashboard",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_admin.DashboardResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/admin/orders": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "admin"
-                ],
-                "summary": "List all orders",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Page number (1-based)",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Items per page",
-                        "name": "page_size",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by order status",
-                        "name": "status",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "RFC3339 lower bound",
-                        "name": "date_from",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "RFC3339 upper bound",
-                        "name": "date_to",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_admin.OrdersResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/admin/orders/{id}": {
-            "get": {
-                "responses": {}
-            }
-        },
-        "/admin/orders/{id}/status": {
-            "patch": {
-                "responses": {}
-            }
-        },
-        "/admin/products": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "admin"
-                ],
-                "summary": "List all products",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Page number (1-based)",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Items per page",
-                        "name": "page_size",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_admin.ProductsResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/admin/products/{id}": {
-            "get": {
-                "responses": {}
-            }
-        },
-        "/auth/google/callback": {
-            "get": {
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Handle Google OAuth callback",
-                "responses": {
-                    "302": {
-                        "description": "Found"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    },
-                    "503": {
-                        "description": "Service Unavailable",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/google/start": {
-            "get": {
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Begin Google OAuth login",
-                "responses": {
-                    "302": {
-                        "description": "redirect to Google"
-                    },
-                    "503": {
-                        "description": "Service Unavailable",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/login": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Log in with email and password",
-                "parameters": [
-                    {
-                        "description": "Login payload",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_auth.loginBody"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_auth.sessionResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/logout": {
-            "post": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Log out (clear session)",
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    }
-                }
-            }
-        },
-        "/auth/password-reset/confirm": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Confirm password reset with token",
-                "parameters": [
-                    {
-                        "description": "Token + new password",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_auth.prConfBody"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/password-reset/request": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Request a password-reset email",
-                "parameters": [
-                    {
-                        "description": "Email payload",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_auth.prReqBody"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    }
-                }
-            }
-        },
-        "/auth/session": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Get current session",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_auth.sessionResponse"
-                        }
-                    },
-                    "204": {
-                        "description": "no active session"
-                    }
-                }
-            }
-        },
-        "/auth/signup": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Sign up with email and password",
-                "parameters": [
-                    {
-                        "description": "Signup payload",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_auth.signupBody"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/internal_auth.sessionResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/verify-email": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Verify email by token",
-                "parameters": [
-                    {
-                        "description": "Token payload",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_auth.verifyEmailBody"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/verify-email/resend": {
-            "post": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Resend verification email",
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            }
-        },
-        "/brands": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "catalog"
-                ],
-                "summary": "List brands",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/internal_catalog.brandView"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            }
-        },
-        "/cart": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "cart"
-                ],
-                "summary": "Get the caller's cart (mints a guest cart on first call)",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_cart.cartResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/cart/items": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "cart"
-                ],
-                "summary": "Add an item to the cart (upserts: qty is summed on conflict)",
-                "parameters": [
-                    {
-                        "description": "Item payload",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_cart.postItemBody"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_cart.cartResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            }
-        },
-        "/cart/items/{id}": {
-            "delete": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "cart"
-                ],
-                "summary": "Remove an item from the cart",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Cart item id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "cart"
-                ],
-                "summary": "Update an item's qty",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Cart item id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Qty payload",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_cart.patchItemBody"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_cart.cartResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            }
-        },
-        "/cart/merge": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "cart"
-                ],
-                "summary": "Merge a guest cart into the user's cart (auth required)",
-                "parameters": [
-                    {
-                        "description": "Guest token from localStorage",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_cart.mergeRequestBody"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_cart.cartResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            }
-        },
-        "/categories": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "catalog"
-                ],
-                "summary": "List categories",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/internal_catalog.categoryView"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            }
-        },
-        "/checkout/init": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "checkout"
-                ],
-                "summary": "Initialize a Paystack-hosted checkout for the caller's cart",
-                "parameters": [
-                    {
-                        "description": "Shipping address + method",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_orders.initCheckoutBody"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_orders.initCheckoutResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    },
-                    "503": {
-                        "description": "Service Unavailable",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            }
-        },
-        "/checkout/verify/{reference}": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "checkout"
-                ],
-                "summary": "Verify a checkout (poll path) — calls Paystack verify and converges with the webhook",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Paystack reference, e.g. RUE-XXXXXXXX",
-                        "name": "reference",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_orders.verifyCheckoutResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    },
-                    "503": {
-                        "description": "Service Unavailable",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            }
-        },
-        "/healthz": {
-            "get": {
-                "description": "Verifies the service is up and the database is reachable.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "meta"
-                ],
-                "summary": "Health check",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_health.response"
-                        }
-                    },
-                    "503": {
-                        "description": "Service Unavailable",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            }
-        },
-        "/me": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "me"
-                ],
-                "summary": "Get the current user",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_me.meResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "me"
-                ],
-                "summary": "Update user profile",
-                "parameters": [
-                    {
-                        "description": "Profile update data",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_me.updateProfileRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_me.meResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            }
-        },
-        "/me/addresses": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "addresses"
-                ],
-                "summary": "List addresses",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_addresses.listAddressesResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "addresses"
-                ],
-                "summary": "Create an address",
-                "parameters": [
-                    {
-                        "description": "Address data",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_addresses.createAddressRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/internal_addresses.addressResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            }
-        },
-        "/me/addresses/{id}": {
-            "delete": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "addresses"
-                ],
-                "summary": "Delete an address",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Address ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "addresses"
-                ],
-                "summary": "Update an address",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Address ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Patch data",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_addresses.patchAddressRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_addresses.addressResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            }
-        },
-        "/me/addresses/{id}/default": {
-            "post": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "addresses"
-                ],
-                "summary": "Set an address as default",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Address ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_addresses.addressResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            }
-        },
-        "/me/orders": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "me"
-                ],
-                "summary": "List user's orders",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Filter by status",
-                        "name": "status",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 20,
-                        "description": "Pagination limit",
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 0,
-                        "description": "Pagination offset",
-                        "name": "offset",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_me.listOrdersResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            }
-        },
-        "/me/orders/{id}": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "me"
-                ],
-                "summary": "Get a specific order",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Order ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_me.orderDetailResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            }
-        },
-        "/products": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "catalog"
-                ],
-                "summary": "List products",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Category slug",
-                        "name": "category",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Brand slug",
-                        "name": "brand",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tag",
-                        "name": "tag",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Search query against name",
-                        "name": "q",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "newest|price_asc|price_desc|rating_desc|name_asc",
-                        "name": "sort",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page (1-based)",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page size (default 24, max 100)",
-                        "name": "limit",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_catalog.productsResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            }
-        },
-        "/products/{slug}": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "catalog"
-                ],
-                "summary": "Get product by slug",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Slug",
-                        "name": "slug",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_catalog.ProductView"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            }
-        },
-        "/shipping/quote": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "shipping"
-                ],
-                "summary": "Get shipping quote",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Cart subtotal in pesewas (\u003e= 0)",
-                        "name": "subtotal",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_shipping.Quote"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            }
-        },
-        "/webhooks/paystack": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "checkout"
-                ],
-                "summary": "Paystack webhook receiver (public, HMAC-verified)",
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
-                        }
-                    }
-                }
-            }
+          }
         }
+      }
     },
-    "definitions": {
-        "github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorBody": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "fields": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                },
-                "message": {
-                    "type": "string"
-                }
+    "/admin/analytics/stats": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "admin"
+        ],
+        "summary": "Get admin statistics",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_admin.StatsResponse"
             }
-        },
-        "github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorBody"
-                }
-            }
-        },
-        "internal_addresses.addressResponse": {
-            "type": "object",
-            "properties": {
-                "city": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "is_default": {
-                    "type": "boolean"
-                },
-                "label": {
-                    "type": "string"
-                },
-                "line1": {
-                    "type": "string"
-                },
-                "line2": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "region": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_addresses.createAddressRequest": {
-            "type": "object",
-            "properties": {
-                "city": {
-                    "type": "string"
-                },
-                "label": {
-                    "type": "string"
-                },
-                "line1": {
-                    "type": "string"
-                },
-                "line2": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "region": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_addresses.listAddressesResponse": {
-            "type": "object",
-            "properties": {
-                "addresses": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/internal_addresses.addressResponse"
-                    }
-                }
-            }
-        },
-        "internal_addresses.patchAddressRequest": {
-            "type": "object",
-            "properties": {
-                "city": {
-                    "type": "string"
-                },
-                "label": {
-                    "type": "string"
-                },
-                "line1": {
-                    "type": "string"
-                },
-                "line2": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "region": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_admin.CustomerStats": {
-            "type": "object",
-            "properties": {
-                "active_customers_30d": {
-                    "type": "integer"
-                },
-                "customers_with_orders": {
-                    "type": "integer"
-                },
-                "total_customers": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_admin.CustomerSummary": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "email_verified": {
-                    "type": "boolean"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "last_order_at": {
-                    "type": "string"
-                },
-                "lifetime_value_ghs_minor": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "order_count": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_admin.CustomersResponse": {
-            "type": "object",
-            "properties": {
-                "customers": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/internal_admin.CustomerSummary"
-                    }
-                },
-                "page": {
-                    "type": "integer"
-                },
-                "page_size": {
-                    "type": "integer"
-                },
-                "total": {
-                    "type": "integer"
-                },
-                "total_pages": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_admin.DashboardResponse": {
-            "type": "object",
-            "properties": {
-                "recent_orders": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/internal_admin.RecentOrder"
-                    }
-                },
-                "stats": {
-                    "$ref": "#/definitions/internal_admin.DashboardStats"
-                }
-            }
-        },
-        "internal_admin.DashboardStats": {
-            "type": "object",
-            "properties": {
-                "delivered_orders": {
-                    "type": "integer"
-                },
-                "paid_orders": {
-                    "type": "integer"
-                },
-                "pending_orders": {
-                    "type": "integer"
-                },
-                "shipped_orders": {
-                    "type": "integer"
-                },
-                "total_customers": {
-                    "type": "integer"
-                },
-                "total_orders": {
-                    "type": "integer"
-                },
-                "total_products": {
-                    "type": "integer"
-                },
-                "total_revenue_ghs_minor": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_admin.OrderStats": {
-            "type": "object",
-            "properties": {
-                "cancelled_count": {
-                    "type": "integer"
-                },
-                "delivered_count": {
-                    "type": "integer"
-                },
-                "delivered_revenue_ghs_minor": {
-                    "type": "integer"
-                },
-                "fulfilled_count": {
-                    "type": "integer"
-                },
-                "paid_count": {
-                    "type": "integer"
-                },
-                "paid_revenue_ghs_minor": {
-                    "type": "integer"
-                },
-                "pending_count": {
-                    "type": "integer"
-                },
-                "refunded_count": {
-                    "type": "integer"
-                },
-                "shipped_count": {
-                    "type": "integer"
-                },
-                "total_completed_revenue_ghs_minor": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_admin.OrderSummary": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "customer_email": {
-                    "type": "string"
-                },
-                "customer_name": {
-                    "type": "string"
-                },
-                "customer_phone": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "paystack_reference": {
-                    "type": "string"
-                },
-                "shipping_ghs_minor": {
-                    "type": "integer"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "subtotal_ghs_minor": {
-                    "type": "integer"
-                },
-                "total_ghs_minor": {
-                    "type": "integer"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_admin.OrdersResponse": {
-            "type": "object",
-            "properties": {
-                "orders": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/internal_admin.OrderSummary"
-                    }
-                },
-                "page": {
-                    "type": "integer"
-                },
-                "page_size": {
-                    "type": "integer"
-                },
-                "total": {
-                    "type": "integer"
-                },
-                "total_pages": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_admin.ProductStats": {
-            "type": "object",
-            "properties": {
-                "cream_count": {
-                    "type": "integer"
-                },
-                "ink_count": {
-                    "type": "integer"
-                },
-                "lavender_count": {
-                    "type": "integer"
-                },
-                "low_stock": {
-                    "type": "integer"
-                },
-                "out_of_stock": {
-                    "type": "integer"
-                },
-                "rose_count": {
-                    "type": "integer"
-                },
-                "total_products": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_admin.ProductSummary": {
-            "type": "object",
-            "properties": {
-                "brand_id": {
-                    "type": "string"
-                },
-                "category_id": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "image_path": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "price_ghs_minor": {
-                    "type": "integer"
-                },
-                "rating": {
-                    "type": "number"
-                },
-                "review_count": {
-                    "type": "integer"
-                },
-                "size": {
-                    "type": "string"
-                },
-                "slug": {
-                    "type": "string"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "tone": {
-                    "type": "string"
-                },
-                "was_price_ghs_minor": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_admin.ProductsResponse": {
-            "type": "object",
-            "properties": {
-                "page": {
-                    "type": "integer"
-                },
-                "page_size": {
-                    "type": "integer"
-                },
-                "products": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/internal_admin.ProductSummary"
-                    }
-                },
-                "total": {
-                    "type": "integer"
-                },
-                "total_pages": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_admin.RecentOrder": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "customer_email": {
-                    "type": "string"
-                },
-                "customer_name": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "paystack_reference": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "total_ghs_minor": {
-                    "type": "integer"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_admin.RevenueAnalyticsResponse": {
-            "type": "object",
-            "properties": {
-                "by_category": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/internal_admin.RevenueByCategory"
-                    }
-                },
-                "by_date": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/internal_admin.RevenueByDate"
-                    }
-                },
-                "order_stats": {
-                    "$ref": "#/definitions/internal_admin.OrderStats"
-                }
-            }
-        },
-        "internal_admin.RevenueByCategory": {
-            "type": "object",
-            "properties": {
-                "category_id": {
-                    "type": "string"
-                },
-                "category_name": {
-                    "type": "string"
-                },
-                "category_slug": {
-                    "type": "string"
-                },
-                "order_count": {
-                    "type": "integer"
-                },
-                "revenue_ghs_minor": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_admin.RevenueByDate": {
-            "type": "object",
-            "properties": {
-                "date": {
-                    "type": "string"
-                },
-                "order_count": {
-                    "type": "integer"
-                },
-                "revenue_ghs_minor": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_admin.StatsResponse": {
-            "type": "object",
-            "properties": {
-                "customer_stats": {
-                    "$ref": "#/definitions/internal_admin.CustomerStats"
-                },
-                "product_stats": {
-                    "$ref": "#/definitions/internal_admin.ProductStats"
-                },
-                "top_products": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/internal_admin.TopProduct"
-                    }
-                }
-            }
-        },
-        "internal_admin.TopProduct": {
-            "type": "object",
-            "properties": {
-                "brand_id": {
-                    "type": "string"
-                },
-                "brand_name": {
-                    "type": "string"
-                },
-                "category_id": {
-                    "type": "string"
-                },
-                "category_label": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "image_path": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "price_ghs_minor": {
-                    "type": "integer"
-                },
-                "revenue_ghs_minor": {
-                    "type": "integer"
-                },
-                "slug": {
-                    "type": "string"
-                },
-                "tone": {
-                    "type": "string"
-                },
-                "total_sold": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_auth.loginBody": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_auth.prConfBody": {
-            "type": "object",
-            "properties": {
-                "new_password": {
-                    "type": "string"
-                },
-                "token": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_auth.prReqBody": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_auth.sessionResponse": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "email_verified": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "role": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_auth.signupBody": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_auth.verifyEmailBody": {
-            "type": "object",
-            "properties": {
-                "token": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_cart.cartItemResponse": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "line_total_ghs_minor": {
-                    "type": "integer"
-                },
-                "product_id": {
-                    "type": "string"
-                },
-                "product_image_path": {
-                    "type": "string"
-                },
-                "product_name": {
-                    "type": "string"
-                },
-                "product_slug": {
-                    "type": "string"
-                },
-                "qty": {
-                    "type": "integer"
-                },
-                "unit_price_ghs_minor": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_cart.cartResponse": {
-            "type": "object",
-            "properties": {
-                "cart_id": {
-                    "type": "string"
-                },
-                "free_shipping_remainder_ghs_minor": {
-                    "type": "integer"
-                },
-                "guest_token": {
-                    "type": "string"
-                },
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/internal_cart.cartItemResponse"
-                    }
-                },
-                "shipping_cost_ghs_minor": {
-                    "type": "integer"
-                },
-                "subtotal_ghs_minor": {
-                    "type": "integer"
-                },
-                "total_ghs_minor": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_cart.mergeRequestBody": {
-            "type": "object",
-            "properties": {
-                "guest_token": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_cart.patchItemBody": {
-            "type": "object",
-            "properties": {
-                "qty": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_cart.postItemBody": {
-            "type": "object",
-            "properties": {
-                "product_id": {
-                    "type": "string"
-                },
-                "qty": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_catalog.ProductView": {
-            "type": "object",
-            "properties": {
-                "brand_id": {
-                    "type": "string"
-                },
-                "category_id": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "image_path": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "price_ghs_minor": {
-                    "type": "integer"
-                },
-                "rating": {
-                    "type": "number"
-                },
-                "review_count": {
-                    "type": "integer"
-                },
-                "size": {
-                    "type": "string"
-                },
-                "slug": {
-                    "type": "string"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "tone": {
-                    "type": "string"
-                },
-                "was_price_ghs_minor": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_catalog.brandView": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "slug": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_catalog.categoryView": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "label": {
-                    "type": "string"
-                },
-                "slug": {
-                    "type": "string"
-                },
-                "sort_order": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_catalog.productsResponse": {
-            "type": "object",
-            "properties": {
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/internal_catalog.ProductView"
-                    }
-                },
-                "limit": {
-                    "type": "integer"
-                },
-                "page": {
-                    "type": "integer"
-                },
-                "total": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_health.response": {
-            "type": "object",
-            "properties": {
-                "db": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_me.listOrdersResponse": {
-            "type": "object",
-            "properties": {
-                "limit": {
-                    "type": "integer"
-                },
-                "offset": {
-                    "type": "integer"
-                },
-                "orders": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/internal_me.orderResponse"
-                    }
-                },
-                "total": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_me.meResponse": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "email_verified": {
-                    "type": "boolean"
-                },
-                "image": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "role": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_me.orderDetailResponse": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/internal_me.orderItemResponse"
-                    }
-                },
-                "paystack_reference": {
-                    "type": "string"
-                },
-                "shipping_address": {
-                    "type": "string"
-                },
-                "shipping_ghs": {
-                    "type": "number"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "subtotal_ghs": {
-                    "type": "number"
-                },
-                "total_ghs": {
-                    "type": "number"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_me.orderItemResponse": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "product_brand_snapshot": {
-                    "type": "string"
-                },
-                "product_id": {
-                    "type": "string"
-                },
-                "product_image_snapshot": {
-                    "type": "string"
-                },
-                "product_name_snapshot": {
-                    "type": "string"
-                },
-                "qty": {
-                    "type": "integer"
-                },
-                "unit_price_ghs": {
-                    "type": "number"
-                }
-            }
-        },
-        "internal_me.orderResponse": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "paystack_reference": {
-                    "type": "string"
-                },
-                "shipping_ghs": {
-                    "type": "number"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "subtotal_ghs": {
-                    "type": "number"
-                },
-                "total_ghs": {
-                    "type": "number"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_me.updateProfileRequest": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "image": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_orders.ShippingAddress": {
-            "type": "object",
-            "properties": {
-                "city": {
-                    "type": "string"
-                },
-                "label": {
-                    "type": "string"
-                },
-                "line1": {
-                    "type": "string"
-                },
-                "line2": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "region": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_orders.initCheckoutBody": {
-            "type": "object",
-            "properties": {
-                "shipping_address": {
-                    "$ref": "#/definitions/internal_orders.ShippingAddress"
-                },
-                "shipping_method": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_orders.initCheckoutResponse": {
-            "type": "object",
-            "properties": {
-                "authorization_url": {
-                    "type": "string"
-                },
-                "order_id": {
-                    "type": "string"
-                },
-                "reference": {
-                    "type": "string"
-                },
-                "total_ghs_minor": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_orders.verifyCheckoutResponse": {
-            "type": "object",
-            "properties": {
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_shipping.Quote": {
-            "type": "object",
-            "properties": {
-                "applied_cost_ghs_minor": {
-                    "type": "integer"
-                },
-                "flat_rate_ghs_minor": {
-                    "type": "integer"
-                },
-                "free_over_ghs_minor": {
-                    "type": "integer"
-                },
-                "free_shipping_remainder_ghs_minor": {
-                    "type": "integer"
-                }
-            }
+          }
         }
+      }
+    },
+    "/admin/customers": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "admin"
+        ],
+        "summary": "List all customers",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "Page number (1-based)",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "Items per page",
+            "name": "page_size",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_admin.CustomersResponse"
+            }
+          }
+        }
+      }
+    },
+    "/admin/customers/{id}": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_admin.CustomerSummary"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "admin"
+        ],
+        "summary": "Get customer by ID",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Customer ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/admin/dashboard": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "admin"
+        ],
+        "summary": "Get admin dashboard",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_admin.DashboardResponse"
+            }
+          }
+        }
+      }
+    },
+    "/admin/orders": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "admin"
+        ],
+        "summary": "List all orders",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "Page number (1-based)",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "Items per page",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by order status",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "RFC3339 lower bound",
+            "name": "date_from",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "RFC3339 upper bound",
+            "name": "date_to",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_admin.OrdersResponse"
+            }
+          }
+        }
+      }
+    },
+    "/admin/orders/{id}": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_admin.OrderSummary"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "admin"
+        ],
+        "summary": "Get order by ID",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Order ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/admin/orders/{id}/status": {
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_admin.OrderSummary"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "admin"
+        ],
+        "summary": "Update order status",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Order ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/admin/products": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "admin"
+        ],
+        "summary": "List all products",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "Page number (1-based)",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "Items per page",
+            "name": "page_size",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_admin.ProductsResponse"
+            }
+          }
+        }
+      }
+    },
+    "/admin/products/{id}": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_admin.ProductSummary"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "admin"
+        ],
+        "summary": "Get product by ID",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Product ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/auth/google/callback": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Handle Google OAuth callback",
+        "responses": {
+          "302": {
+            "description": "Found"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      }
+    },
+    "/auth/google/start": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Begin Google OAuth login",
+        "responses": {
+          "302": {
+            "description": "redirect to Google"
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "auth"
+        ],
+        "summary": "Log in with email and password",
+        "parameters": [
+          {
+            "description": "Login payload",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/internal_auth.loginBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_auth.sessionResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "auth"
+        ],
+        "summary": "Log out (clear session)",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/auth/password-reset/confirm": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "auth"
+        ],
+        "summary": "Confirm password reset with token",
+        "parameters": [
+          {
+            "description": "Token + new password",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/internal_auth.prConfBody"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      }
+    },
+    "/auth/password-reset/request": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "auth"
+        ],
+        "summary": "Request a password-reset email",
+        "parameters": [
+          {
+            "description": "Email payload",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/internal_auth.prReqBody"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/auth/session": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "auth"
+        ],
+        "summary": "Get current session",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_auth.sessionResponse"
+            }
+          },
+          "204": {
+            "description": "no active session"
+          }
+        }
+      }
+    },
+    "/auth/signup": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "auth"
+        ],
+        "summary": "Sign up with email and password",
+        "parameters": [
+          {
+            "description": "Signup payload",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/internal_auth.signupBody"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/internal_auth.sessionResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      }
+    },
+    "/auth/verify-email": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "auth"
+        ],
+        "summary": "Verify email by token",
+        "parameters": [
+          {
+            "description": "Token payload",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/internal_auth.verifyEmailBody"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      }
+    },
+    "/auth/verify-email/resend": {
+      "post": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "auth"
+        ],
+        "summary": "Resend verification email",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      }
+    },
+    "/brands": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "catalog"
+        ],
+        "summary": "List brands",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/internal_catalog.brandView"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      }
+    },
+    "/cart": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "cart"
+        ],
+        "summary": "Get the caller's cart (mints a guest cart on first call)",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_cart.cartResponse"
+            }
+          }
+        }
+      }
+    },
+    "/cart/items": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "cart"
+        ],
+        "summary": "Add an item to the cart (upserts: qty is summed on conflict)",
+        "parameters": [
+          {
+            "description": "Item payload",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/internal_cart.postItemBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_cart.cartResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      }
+    },
+    "/cart/items/{id}": {
+      "delete": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "cart"
+        ],
+        "summary": "Remove an item from the cart",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Cart item id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      },
+      "patch": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "cart"
+        ],
+        "summary": "Update an item's qty",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Cart item id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Qty payload",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/internal_cart.patchItemBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_cart.cartResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      }
+    },
+    "/cart/merge": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "cart"
+        ],
+        "summary": "Merge a guest cart into the user's cart (auth required)",
+        "parameters": [
+          {
+            "description": "Guest token from localStorage",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/internal_cart.mergeRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_cart.cartResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      }
+    },
+    "/categories": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "catalog"
+        ],
+        "summary": "List categories",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/internal_catalog.categoryView"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      }
+    },
+    "/checkout/init": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "checkout"
+        ],
+        "summary": "Initialize a Paystack-hosted checkout for the caller's cart",
+        "parameters": [
+          {
+            "description": "Shipping address + method",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/internal_orders.initCheckoutBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_orders.initCheckoutResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      }
+    },
+    "/checkout/verify/{reference}": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "checkout"
+        ],
+        "summary": "Verify a checkout (poll path) \u2014 calls Paystack verify and converges with the webhook",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Paystack reference, e.g. RUE-XXXXXXXX",
+            "name": "reference",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_orders.verifyCheckoutResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      }
+    },
+    "/healthz": {
+      "get": {
+        "description": "Verifies the service is up and the database is reachable.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "meta"
+        ],
+        "summary": "Health check",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_health.response"
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      }
+    },
+    "/me": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "me"
+        ],
+        "summary": "Get the current user",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_me.meResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      },
+      "patch": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "me"
+        ],
+        "summary": "Update user profile",
+        "parameters": [
+          {
+            "description": "Profile update data",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/internal_me.updateProfileRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_me.meResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      }
+    },
+    "/me/addresses": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "addresses"
+        ],
+        "summary": "List addresses",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_addresses.listAddressesResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      },
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "addresses"
+        ],
+        "summary": "Create an address",
+        "parameters": [
+          {
+            "description": "Address data",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/internal_addresses.createAddressRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/internal_addresses.addressResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      }
+    },
+    "/me/addresses/{id}": {
+      "delete": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "addresses"
+        ],
+        "summary": "Delete an address",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Address ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      },
+      "patch": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "addresses"
+        ],
+        "summary": "Update an address",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Address ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Patch data",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/internal_addresses.patchAddressRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_addresses.addressResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      }
+    },
+    "/me/addresses/{id}/default": {
+      "post": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "addresses"
+        ],
+        "summary": "Set an address as default",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Address ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_addresses.addressResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      }
+    },
+    "/me/orders": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "me"
+        ],
+        "summary": "List user's orders",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Filter by status",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 20,
+            "description": "Pagination limit",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 0,
+            "description": "Pagination offset",
+            "name": "offset",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_me.listOrdersResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      }
+    },
+    "/me/orders/{id}": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "me"
+        ],
+        "summary": "Get a specific order",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Order ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_me.orderDetailResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "catalog"
+        ],
+        "summary": "List products",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Category slug",
+            "name": "category",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Brand slug",
+            "name": "brand",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Tag",
+            "name": "tag",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Search query against name",
+            "name": "q",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "newest|price_asc|price_desc|rating_desc|name_asc",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "Page (1-based)",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "Page size (default 24, max 100)",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_catalog.productsResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      }
+    },
+    "/products/{slug}": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "catalog"
+        ],
+        "summary": "Get product by slug",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Slug",
+            "name": "slug",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_catalog.ProductView"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      }
+    },
+    "/shipping/quote": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipping"
+        ],
+        "summary": "Get shipping quote",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "Cart subtotal in pesewas (>= 0)",
+            "name": "subtotal",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_shipping.Quote"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      }
+    },
+    "/webhooks/paystack": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "checkout"
+        ],
+        "summary": "Paystack webhook receiver (public, HMAC-verified)",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope"
+            }
+          }
+        }
+      }
     }
+  },
+  "definitions": {
+    "github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorBody": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "$ref": "#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorBody"
+        }
+      }
+    },
+    "internal_addresses.addressResponse": {
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "is_default": {
+          "type": "boolean"
+        },
+        "label": {
+          "type": "string"
+        },
+        "line1": {
+          "type": "string"
+        },
+        "line2": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_addresses.createAddressRequest": {
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "line1": {
+          "type": "string"
+        },
+        "line2": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_addresses.listAddressesResponse": {
+      "type": "object",
+      "properties": {
+        "addresses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/internal_addresses.addressResponse"
+          }
+        }
+      }
+    },
+    "internal_addresses.patchAddressRequest": {
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "line1": {
+          "type": "string"
+        },
+        "line2": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_admin.CustomerStats": {
+      "type": "object",
+      "properties": {
+        "active_customers_30d": {
+          "type": "integer"
+        },
+        "customers_with_orders": {
+          "type": "integer"
+        },
+        "total_customers": {
+          "type": "integer"
+        }
+      }
+    },
+    "internal_admin.CustomerSummary": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "email_verified": {
+          "type": "boolean"
+        },
+        "id": {
+          "type": "string"
+        },
+        "last_order_at": {
+          "type": "string"
+        },
+        "lifetime_value_ghs_minor": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "order_count": {
+          "type": "integer"
+        }
+      }
+    },
+    "internal_admin.CustomersResponse": {
+      "type": "object",
+      "properties": {
+        "customers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/internal_admin.CustomerSummary"
+          }
+        },
+        "page": {
+          "type": "integer"
+        },
+        "page_size": {
+          "type": "integer"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "total_pages": {
+          "type": "integer"
+        }
+      }
+    },
+    "internal_admin.DashboardResponse": {
+      "type": "object",
+      "properties": {
+        "recent_orders": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/internal_admin.RecentOrder"
+          }
+        },
+        "stats": {
+          "$ref": "#/definitions/internal_admin.DashboardStats"
+        }
+      }
+    },
+    "internal_admin.DashboardStats": {
+      "type": "object",
+      "properties": {
+        "delivered_orders": {
+          "type": "integer"
+        },
+        "paid_orders": {
+          "type": "integer"
+        },
+        "pending_orders": {
+          "type": "integer"
+        },
+        "shipped_orders": {
+          "type": "integer"
+        },
+        "total_customers": {
+          "type": "integer"
+        },
+        "total_orders": {
+          "type": "integer"
+        },
+        "total_products": {
+          "type": "integer"
+        },
+        "total_revenue_ghs_minor": {
+          "type": "integer"
+        }
+      }
+    },
+    "internal_admin.OrderStats": {
+      "type": "object",
+      "properties": {
+        "cancelled_count": {
+          "type": "integer"
+        },
+        "delivered_count": {
+          "type": "integer"
+        },
+        "delivered_revenue_ghs_minor": {
+          "type": "integer"
+        },
+        "fulfilled_count": {
+          "type": "integer"
+        },
+        "paid_count": {
+          "type": "integer"
+        },
+        "paid_revenue_ghs_minor": {
+          "type": "integer"
+        },
+        "pending_count": {
+          "type": "integer"
+        },
+        "refunded_count": {
+          "type": "integer"
+        },
+        "shipped_count": {
+          "type": "integer"
+        },
+        "total_completed_revenue_ghs_minor": {
+          "type": "integer"
+        }
+      }
+    },
+    "internal_admin.OrderSummary": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string"
+        },
+        "customer_email": {
+          "type": "string"
+        },
+        "customer_name": {
+          "type": "string"
+        },
+        "customer_phone": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "paystack_reference": {
+          "type": "string"
+        },
+        "shipping_ghs_minor": {
+          "type": "integer"
+        },
+        "status": {
+          "type": "string"
+        },
+        "subtotal_ghs_minor": {
+          "type": "integer"
+        },
+        "total_ghs_minor": {
+          "type": "integer"
+        },
+        "updated_at": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_admin.OrdersResponse": {
+      "type": "object",
+      "properties": {
+        "orders": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/internal_admin.OrderSummary"
+          }
+        },
+        "page": {
+          "type": "integer"
+        },
+        "page_size": {
+          "type": "integer"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "total_pages": {
+          "type": "integer"
+        }
+      }
+    },
+    "internal_admin.ProductStats": {
+      "type": "object",
+      "properties": {
+        "cream_count": {
+          "type": "integer"
+        },
+        "ink_count": {
+          "type": "integer"
+        },
+        "lavender_count": {
+          "type": "integer"
+        },
+        "low_stock": {
+          "type": "integer"
+        },
+        "out_of_stock": {
+          "type": "integer"
+        },
+        "rose_count": {
+          "type": "integer"
+        },
+        "total_products": {
+          "type": "integer"
+        }
+      }
+    },
+    "internal_admin.ProductSummary": {
+      "type": "object",
+      "properties": {
+        "brand_id": {
+          "type": "string"
+        },
+        "category_id": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "image_path": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "price_ghs_minor": {
+          "type": "integer"
+        },
+        "rating": {
+          "type": "number"
+        },
+        "review_count": {
+          "type": "integer"
+        },
+        "size": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tone": {
+          "type": "string"
+        },
+        "was_price_ghs_minor": {
+          "type": "integer"
+        }
+      }
+    },
+    "internal_admin.ProductsResponse": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "page_size": {
+          "type": "integer"
+        },
+        "products": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/internal_admin.ProductSummary"
+          }
+        },
+        "total": {
+          "type": "integer"
+        },
+        "total_pages": {
+          "type": "integer"
+        }
+      }
+    },
+    "internal_admin.RecentOrder": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string"
+        },
+        "customer_email": {
+          "type": "string"
+        },
+        "customer_name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "paystack_reference": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "total_ghs_minor": {
+          "type": "integer"
+        },
+        "user_id": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_admin.RevenueAnalyticsResponse": {
+      "type": "object",
+      "properties": {
+        "by_category": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/internal_admin.RevenueByCategory"
+          }
+        },
+        "by_date": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/internal_admin.RevenueByDate"
+          }
+        },
+        "order_stats": {
+          "$ref": "#/definitions/internal_admin.OrderStats"
+        }
+      }
+    },
+    "internal_admin.RevenueByCategory": {
+      "type": "object",
+      "properties": {
+        "category_id": {
+          "type": "string"
+        },
+        "category_name": {
+          "type": "string"
+        },
+        "category_slug": {
+          "type": "string"
+        },
+        "order_count": {
+          "type": "integer"
+        },
+        "revenue_ghs_minor": {
+          "type": "integer"
+        }
+      }
+    },
+    "internal_admin.RevenueByDate": {
+      "type": "object",
+      "properties": {
+        "date": {
+          "type": "string"
+        },
+        "order_count": {
+          "type": "integer"
+        },
+        "revenue_ghs_minor": {
+          "type": "integer"
+        }
+      }
+    },
+    "internal_admin.StatsResponse": {
+      "type": "object",
+      "properties": {
+        "customer_stats": {
+          "$ref": "#/definitions/internal_admin.CustomerStats"
+        },
+        "product_stats": {
+          "$ref": "#/definitions/internal_admin.ProductStats"
+        },
+        "top_products": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/internal_admin.TopProduct"
+          }
+        }
+      }
+    },
+    "internal_admin.TopProduct": {
+      "type": "object",
+      "properties": {
+        "brand_id": {
+          "type": "string"
+        },
+        "brand_name": {
+          "type": "string"
+        },
+        "category_id": {
+          "type": "string"
+        },
+        "category_label": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "image_path": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "price_ghs_minor": {
+          "type": "integer"
+        },
+        "revenue_ghs_minor": {
+          "type": "integer"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "tone": {
+          "type": "string"
+        },
+        "total_sold": {
+          "type": "integer"
+        }
+      }
+    },
+    "internal_auth.loginBody": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_auth.prConfBody": {
+      "type": "object",
+      "properties": {
+        "new_password": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_auth.prReqBody": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_auth.sessionResponse": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "email_verified": {
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_auth.signupBody": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_auth.verifyEmailBody": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_cart.cartItemResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "line_total_ghs_minor": {
+          "type": "integer"
+        },
+        "product_id": {
+          "type": "string"
+        },
+        "product_image_path": {
+          "type": "string"
+        },
+        "product_name": {
+          "type": "string"
+        },
+        "product_slug": {
+          "type": "string"
+        },
+        "qty": {
+          "type": "integer"
+        },
+        "unit_price_ghs_minor": {
+          "type": "integer"
+        }
+      }
+    },
+    "internal_cart.cartResponse": {
+      "type": "object",
+      "properties": {
+        "cart_id": {
+          "type": "string"
+        },
+        "free_shipping_remainder_ghs_minor": {
+          "type": "integer"
+        },
+        "guest_token": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/internal_cart.cartItemResponse"
+          }
+        },
+        "shipping_cost_ghs_minor": {
+          "type": "integer"
+        },
+        "subtotal_ghs_minor": {
+          "type": "integer"
+        },
+        "total_ghs_minor": {
+          "type": "integer"
+        }
+      }
+    },
+    "internal_cart.mergeRequestBody": {
+      "type": "object",
+      "properties": {
+        "guest_token": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_cart.patchItemBody": {
+      "type": "object",
+      "properties": {
+        "qty": {
+          "type": "integer"
+        }
+      }
+    },
+    "internal_cart.postItemBody": {
+      "type": "object",
+      "properties": {
+        "product_id": {
+          "type": "string"
+        },
+        "qty": {
+          "type": "integer"
+        }
+      }
+    },
+    "internal_catalog.ProductView": {
+      "type": "object",
+      "properties": {
+        "brand_id": {
+          "type": "string"
+        },
+        "category_id": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "image_path": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "price_ghs_minor": {
+          "type": "integer"
+        },
+        "rating": {
+          "type": "number"
+        },
+        "review_count": {
+          "type": "integer"
+        },
+        "size": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tone": {
+          "type": "string"
+        },
+        "was_price_ghs_minor": {
+          "type": "integer"
+        }
+      }
+    },
+    "internal_catalog.brandView": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_catalog.categoryView": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "sort_order": {
+          "type": "integer"
+        }
+      }
+    },
+    "internal_catalog.productsResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/internal_catalog.ProductView"
+          }
+        },
+        "limit": {
+          "type": "integer"
+        },
+        "page": {
+          "type": "integer"
+        },
+        "total": {
+          "type": "integer"
+        }
+      }
+    },
+    "internal_health.response": {
+      "type": "object",
+      "properties": {
+        "db": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_me.listOrdersResponse": {
+      "type": "object",
+      "properties": {
+        "limit": {
+          "type": "integer"
+        },
+        "offset": {
+          "type": "integer"
+        },
+        "orders": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/internal_me.orderResponse"
+          }
+        },
+        "total": {
+          "type": "integer"
+        }
+      }
+    },
+    "internal_me.meResponse": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "email_verified": {
+          "type": "boolean"
+        },
+        "image": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_me.orderDetailResponse": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/internal_me.orderItemResponse"
+          }
+        },
+        "paystack_reference": {
+          "type": "string"
+        },
+        "shipping_address": {
+          "type": "string"
+        },
+        "shipping_ghs": {
+          "type": "number"
+        },
+        "status": {
+          "type": "string"
+        },
+        "subtotal_ghs": {
+          "type": "number"
+        },
+        "total_ghs": {
+          "type": "number"
+        },
+        "updated_at": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_me.orderItemResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "product_brand_snapshot": {
+          "type": "string"
+        },
+        "product_id": {
+          "type": "string"
+        },
+        "product_image_snapshot": {
+          "type": "string"
+        },
+        "product_name_snapshot": {
+          "type": "string"
+        },
+        "qty": {
+          "type": "integer"
+        },
+        "unit_price_ghs": {
+          "type": "number"
+        }
+      }
+    },
+    "internal_me.orderResponse": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "paystack_reference": {
+          "type": "string"
+        },
+        "shipping_ghs": {
+          "type": "number"
+        },
+        "status": {
+          "type": "string"
+        },
+        "subtotal_ghs": {
+          "type": "number"
+        },
+        "total_ghs": {
+          "type": "number"
+        },
+        "updated_at": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_me.updateProfileRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "image": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_orders.ShippingAddress": {
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "line1": {
+          "type": "string"
+        },
+        "line2": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_orders.initCheckoutBody": {
+      "type": "object",
+      "properties": {
+        "shipping_address": {
+          "$ref": "#/definitions/internal_orders.ShippingAddress"
+        },
+        "shipping_method": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_orders.initCheckoutResponse": {
+      "type": "object",
+      "properties": {
+        "authorization_url": {
+          "type": "string"
+        },
+        "order_id": {
+          "type": "string"
+        },
+        "reference": {
+          "type": "string"
+        },
+        "total_ghs_minor": {
+          "type": "integer"
+        }
+      }
+    },
+    "internal_orders.verifyCheckoutResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_shipping.Quote": {
+      "type": "object",
+      "properties": {
+        "applied_cost_ghs_minor": {
+          "type": "integer"
+        },
+        "flat_rate_ghs_minor": {
+          "type": "integer"
+        },
+        "free_over_ghs_minor": {
+          "type": "integer"
+        },
+        "free_shipping_remainder_ghs_minor": {
+          "type": "integer"
+        }
+      }
+    }
+  }
 }
