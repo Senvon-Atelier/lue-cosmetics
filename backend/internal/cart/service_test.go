@@ -14,7 +14,7 @@ import (
 	"github.com/oti-adjei/ruecosmetics/internal/testsupport"
 )
 
-// testShippingConfig mirrors backend/seed/config/shipping_config.json so the
+// testShippingConfig mirrors backend/config/shipping_config.json so the
 // integration tests don't need filesystem access.
 func testShippingConfig() shipping.Config {
 	return shipping.Config{FlatRateGhsMinor: 2500, FreeOverGhsMinor: 50000}

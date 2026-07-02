@@ -12,7 +12,7 @@ type Config struct {
 	DatabaseURL        string   `envconfig:"DATABASE_URL" required:"true"`
 	CORSOrigins        []string `envconfig:"CORS_ORIGINS" default:"http://localhost:5173"`
 	LogLevel           string   `envconfig:"LOG_LEVEL" default:"info"`
-	ShippingConfigPath   string   `envconfig:"SHIPPING_CONFIG_PATH" default:"seed/config/shipping_config.json"`
+	ShippingConfigPath   string   `envconfig:"SHIPPING_CONFIG_PATH" default:"config/shipping_config.json"`
 	SessionCookieName    string   `envconfig:"SESSION_COOKIE_NAME" default:"rue_session"`
 	SessionCookieDomain  string   `envconfig:"SESSION_COOKIE_DOMAIN" default:""`
 	GoogleClientID       string   `envconfig:"GOOGLE_CLIENT_ID" default:""`
