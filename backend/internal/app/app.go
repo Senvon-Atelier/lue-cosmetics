@@ -46,18 +46,16 @@ func New(ctx context.Context, cfg *config.Config) (*Application, error) {
 	}
 	ship := shipping.New(shipCfg)
 
-	// Email Sender chain: LogSender (default) → ResendSender (if configured) →
-	// AllowlistSender (always the outermost wrapper).
 	renderer, rerr := email.NewRenderer()
 	if rerr != nil {
 		pool.Close()
 		return nil, rerr
 	}
-	var inner email.Sender = email.LogSender{Log: logger}
-	if resendSender, sendErr := email.NewResendSender(cfg.ResendAPIKey, cfg.ResendFromEmail, renderer, logger); sendErr == nil {
-		inner = resendSender
+	mailSender, merr := email.Select(cfg.Env, cfg.ResendAPIKey, cfg.ResendFromEmail, cfg.EmailAllowlist, renderer, logger)
+	if merr != nil {
+		pool.Close()
+		return nil, merr
 	}
-	mailSender := email.NewAllowlistSender(inner, cfg.EmailAllowlist, logger)
 
 	catalogRepo := catalog.NewRepository(pool)
 
