@@ -90,3 +90,12 @@ New `src/content/product-copy.ts`: category-slug-keyed `{ lede, description, how
 - **Curated-copy decision (4.5)**: product tabs/lede use static category-level copy until the backend has real fields. Flagged for user veto.
 - The mockup renders prices as `GHS 480` while some existing components use `GH₵`; this tranche standardizes funnel pages on the mockup's `GHS {amount}` format via the shared formatter (single place to flip later).
 - Auth pages moving out of the storefront layout removes header/footer from them (mockup-intended); confirm nobody relies on the cart drawer being reachable from auth pages.
+
+## 8. Backend follow-ups (deferred, decided 2026-07-02)
+
+Frontend-only for this tranche. Queued for a later backend round, in priority order:
+
+1. **Product narrative fields** — migration adding nullable `description`, `how_to`, `ingredients` text columns; update sqlc query + product view + swag annotations; regenerate; extend `products.json` seed. PDP then prefers API values over the curated static copy automatically (§4.5).
+2. **Wishlist domain** — the originally-specced handler→repository single-table CRUD under `/me/wishlist`; unlocks the PDP heart and the account wishlist page.
+3. **Product gallery images** — `product_images` table (`product_id`, `path`, `sort_order`) + detail-query join; PDP thumb rail lights up automatically (§4.1).
+4. **Variants/shades** — full variant modeling (cart/order ripple); only if the business needs it. The swatch UI stays out until then.
