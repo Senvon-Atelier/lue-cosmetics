@@ -1,28 +1,17 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, ReactNode } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   postAuthSignup,
   postAuthLogin,
   postAuthLogout,
-  getAuthSession,
 } from '../api/generated/rueCosmeticsAPI';
+import { sessionQueryOptions, Session } from './session';
 
-// Auth types
-interface User {
-  user_id: string;
-  email: string;
-  name?: string;
-  email_verified: boolean;
-  role: 'customer' | 'admin';
-}
-
-interface AuthState {
-  user: User | null;
+interface AuthContextType {
+  user: Session | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   isAdmin: boolean;
-}
-
-interface AuthContextType extends AuthState {
   signup: (email: string, password: string, name?: string) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -31,67 +20,37 @@ interface AuthContextType extends AuthState {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Auth provider component
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<AuthState>({
-    user: null,
-    isLoading: true,
-    isAuthenticated: false,
-    isAdmin: false,
-  });
+  const queryClient = useQueryClient();
+  const { data: user = null, isLoading } = useQuery(sessionQueryOptions);
 
-  // Refresh session from backend
   const refreshSession = async () => {
-    try {
-      const user = await getAuthSession<User>();
-      setState({
-        user,
-        isLoading: false,
-        isAuthenticated: !!user,
-        isAdmin: user?.role === 'admin',
-      });
-    } catch (error) {
-      setState({
-        user: null,
-        isLoading: false,
-        isAuthenticated: false,
-        isAdmin: false,
-      });
-    }
+    await queryClient.invalidateQueries({ queryKey: sessionQueryOptions.queryKey });
   };
 
-  // Load session on mount
-  useEffect(() => {
-    refreshSession();
-  }, []);
-
-  // Signup
   const signup = async (email: string, password: string, name?: string) => {
     await postAuthSignup({ email, password, name });
     await refreshSession();
   };
 
-  // Login
   const login = async (email: string, password: string) => {
     await postAuthLogin({ email, password });
     await refreshSession();
   };
 
-  // Logout
   const logout = async () => {
     await postAuthLogout();
-    setState({
-      user: null,
-      isLoading: false,
-      isAuthenticated: false,
-      isAdmin: false,
-    });
+    queryClient.setQueryData(sessionQueryOptions.queryKey, null);
+    await queryClient.invalidateQueries();
   };
 
   return (
     <AuthContext.Provider
       value={{
-        ...state,
+        user,
+        isLoading,
+        isAuthenticated: !!user,
+        isAdmin: user?.role === 'admin',
         signup,
         login,
         logout,
@@ -103,7 +62,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// Hook to use auth context
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
