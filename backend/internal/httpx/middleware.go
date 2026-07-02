@@ -3,9 +3,11 @@ package httpx
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"go.uber.org/zap"
 
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/google/uuid"
 	"github.com/oti-adjei/ruecosmetics/internal/logging"
 )
@@ -69,6 +71,27 @@ func Recovery(base *zap.Logger) func(http.Handler) http.Handler {
 				}
 			}()
 			next.ServeHTTP(w, r)
+		})
+	}
+}
+
+// AccessLog emits one structured log line per request after it completes.
+// Install AFTER RequestID so the request_id field is populated. Query strings
+// are deliberately not logged (they can carry tokens).
+func AccessLog(base *zap.Logger) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
+			start := time.Now()
+			next.ServeHTTP(ww, r)
+			base.Info("http request",
+				zap.String("method", r.Method),
+				zap.String("path", r.URL.Path),
+				zap.Int("status", ww.Status()),
+				zap.Int64("duration_ms", time.Since(start).Milliseconds()),
+				zap.Int("bytes", ww.BytesWritten()),
+				zap.String("request_id", GetRequestID(r.Context())),
+			)
 		})
 	}
 }

@@ -26,6 +26,7 @@ func New(a *app.Application) http.Handler {
 	r := chi.NewRouter()
 	r.Use(httpx.Recovery(a.Logger))
 	r.Use(httpx.RequestID)
+	r.Use(httpx.AccessLog(a.Logger))
 	r.Use(httpx.RequestLogger(a.Logger))
 	r.Use(httpx.CORS(cfg.CORSOrigins))
 

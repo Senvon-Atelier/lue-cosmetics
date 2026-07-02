@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"go.uber.org/zap"
+	"go.uber.org/zap/zaptest/observer"
 
 	"github.com/oti-adjei/ruecosmetics/internal/httpx"
 )
@@ -55,5 +56,35 @@ func TestRecoveryReturnsEnvelope(t *testing.T) {
 	}
 	if !strings.Contains(rec.Body.String(), `"code":"internal_error"`) {
 		t.Errorf("body = %s", rec.Body.String())
+	}
+}
+
+func TestAccessLogEmitsOneEntryPerRequest(t *testing.T) {
+	core, logs := observer.New(zap.InfoLevel)
+	base := zap.New(core)
+
+	inner := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusTeapot)
+		_, _ = w.Write([]byte("short and stout"))
+	})
+	h := httpx.RequestID(httpx.AccessLog(base)(inner))
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/products?page=2", nil)
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, req)
+
+	entries := logs.All()
+	if len(entries) != 1 {
+		t.Fatalf("entries = %d, want 1", len(entries))
+	}
+	got := entries[0].ContextMap()
+	if got["method"] != "GET" || got["path"] != "/api/v1/products" {
+		t.Fatalf("context = %+v", got)
+	}
+	if got["status"] != int64(http.StatusTeapot) {
+		t.Fatalf("status = %v, want 418", got["status"])
+	}
+	if _, ok := got["request_id"]; !ok {
+		t.Fatal("missing request_id")
 	}
 }
