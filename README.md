@@ -6,7 +6,8 @@ See `docs/superpowers/specs/2026-06-27-rue-cosmetics-design.md` for the design s
 
 ## Prerequisites
 
-- Go 1.22+
+- Go 1.25.8+
+- Node 20+ with pnpm 9+
 - Docker (for Postgres and Mailpit)
 - `make`
 - `sqlc` (`go install github.com/sqlc-dev/sqlc/cmd/sqlc@v1.27.0`)
@@ -25,10 +26,26 @@ curl http://localhost:8080/healthz
 # {"status":"ok","db":"ok"}
 ```
 
+## Quickstart (frontend)
+
+```bash
+cd frontend
+pnpm install
+pnpm dev                      # Vite on :5173, proxies /api/* to :8080
+```
+
+Regenerate the API client after backend contract changes:
+
+```bash
+make openapi && cd frontend && pnpm orval
+```
+
 ## Tests
 
 ```bash
 make test                     # runs all Go tests; requires Docker for testcontainers
+make seed-run                 # requires DATABASE_URL exported in the shell (does not read backend/.env)
+cd frontend && pnpm vitest run
 ```
 
 ## OpenAPI
