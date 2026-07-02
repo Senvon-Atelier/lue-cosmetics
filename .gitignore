@@ -23,6 +23,4 @@ frontend/dist/
 
 # air
 .air.toml.bak
-docs/superpowers/plans/2026-06-28-rue-cosmetics-frontend.md
-docs/superpowers/
 backend/api
