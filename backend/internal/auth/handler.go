@@ -179,7 +179,7 @@ func (h *Handlers) session(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "session check failed", nil)
+		httpx.WriteInternal(w, r, zap.NewNop(), "session check failed", err)
 		return
 	}
 	httpx.WriteJSON(w, http.StatusOK, sessionResponse{
@@ -257,7 +257,7 @@ func (h *Handlers) verifyEmail(w http.ResponseWriter, r *http.Request) {
 			httpx.WriteError(w, http.StatusBadRequest, httpx.CodeValidation, "invalid or expired token", nil)
 			return
 		}
-		httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "verify failed", nil)
+		httpx.WriteInternal(w, r, zap.NewNop(), "verify failed", err)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
@@ -331,7 +331,7 @@ func (h *Handlers) passwordResetConfirm(w http.ResponseWriter, r *http.Request) 
 		case errors.Is(err, ErrInvalidCreds):
 			httpx.WriteError(w, http.StatusBadRequest, httpx.CodeValidation, "password too short", nil)
 		default:
-			httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "reset failed", nil)
+			httpx.WriteInternal(w, r, zap.NewNop(), "reset failed", err)
 		}
 		return
 	}

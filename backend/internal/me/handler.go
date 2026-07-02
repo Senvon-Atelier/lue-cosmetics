@@ -153,13 +153,13 @@ func (h *Handlers) listOrders(w http.ResponseWriter, r *http.Request) {
 	// Get orders and total count
 	ordersList, err := h.OrdersRepo.ListOrdersByUserID(r.Context(), view.UserID, status, limit, offset)
 	if err != nil {
-		httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "failed to list orders", nil)
+		httpx.WriteInternal(w, r, h.Log, "failed to list orders", err)
 		return
 	}
 
 	total, err := h.OrdersRepo.CountOrdersByUserID(r.Context(), view.UserID, status)
 	if err != nil {
-		httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "failed to count orders", nil)
+		httpx.WriteInternal(w, r, h.Log, "failed to count orders", err)
 		return
 	}
 
@@ -226,7 +226,7 @@ func (h *Handlers) getOrder(w http.ResponseWriter, r *http.Request) {
 		if err == orders.ErrNotFound {
 			httpx.WriteError(w, http.StatusNotFound, httpx.CodeNotFound, "order not found", nil)
 		} else {
-			httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "failed to get order", nil)
+			httpx.WriteInternal(w, r, h.Log, "failed to get order", err)
 		}
 		return
 	}
@@ -240,7 +240,7 @@ func (h *Handlers) getOrder(w http.ResponseWriter, r *http.Request) {
 	// Get order items
 	items, err := h.OrdersRepo.ListOrderItems(r.Context(), orderID)
 	if err != nil {
-		httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "failed to get order items", nil)
+		httpx.WriteInternal(w, r, h.Log, "failed to get order items", err)
 		return
 	}
 
