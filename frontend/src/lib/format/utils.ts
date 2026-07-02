@@ -81,3 +81,13 @@ export function getImageUrl(imagePath: string | undefined | null): string {
   }
   return imagePath; // In prod, assume imagePath is already a full URL or relative to CDN
 }
+
+/** Mockup-style GHS price: "GHS 480", "GHS 480.50". Input is minor units. */
+export function formatGhs(minor: number): string {
+  const cedis = minor / 100;
+  const hasPesewas = minor % 100 !== 0;
+  return `GHS ${cedis.toLocaleString('en-US', {
+    minimumFractionDigits: hasPesewas ? 2 : 0,
+    maximumFractionDigits: hasPesewas ? 2 : 0,
+  })}`;
+}

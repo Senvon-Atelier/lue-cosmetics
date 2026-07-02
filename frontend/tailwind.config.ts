@@ -1,3 +1,7 @@
+// DORMANT: Tailwind is not wired into the build (no PostCSS/Vite plugin) and
+// this config is currently unused. Kept for the future CSS→Tailwind migration.
+// See docs/superpowers/specs/2026-07-02-funnel-ui-alignment-design.md §3.
+
 import type { Config } from 'tailwindcss';
 
 // Map legacy CSS custom properties to Tailwind theme
