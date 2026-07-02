@@ -15,6 +15,7 @@ interface CartState {
   subtotalGhsMinor: number;
   shippingCostGhsMinor: number;
   totalGhsMinor: number;
+  freeShippingRemainderGhsMinor: number;
   guestToken: string | null;
   isLoading: boolean;
 }
@@ -50,6 +51,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     subtotalGhsMinor: 0,
     shippingCostGhsMinor: 0,
     totalGhsMinor: 0,
+    freeShippingRemainderGhsMinor: 0,
     guestToken: null,
     isLoading: false,
   });
@@ -86,6 +88,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         subtotalGhsMinor: cartData?.subtotal_ghs_minor || 0,
         shippingCostGhsMinor: cartData?.shipping_cost_ghs_minor || 0,
         totalGhsMinor: cartData?.total_ghs_minor || 0,
+        freeShippingRemainderGhsMinor: cartData?.free_shipping_remainder_ghs_minor ?? 0,
         guestToken: cartData?.guest_token || null,
         isLoading: false,
       });

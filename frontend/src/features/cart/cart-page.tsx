@@ -3,16 +3,13 @@ import { Icon } from '../shared/ui/icons';
 import { useCart } from './cart-provider';
 import { formatGhs, getImageUrl } from '../../lib/format/utils';
 
-// Free delivery threshold: GHS 500.00 in minor units
-const FREE_SHIPPING_THRESHOLD = 50_000;
-
 export function CartPage() {
-  const { items, subtotalGhsMinor, updateItem, removeItem } = useCart();
+  const { items, subtotalGhsMinor, freeShippingRemainderGhsMinor, updateItem, removeItem } = useCart();
   const navigate = useNavigate();
 
   // Rename to match skeleton bindings
   const subtotalMinor = subtotalGhsMinor;
-  const remainderMinor = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotalMinor);
+  const remainderMinor = freeShippingRemainderGhsMinor;
 
   if (items.length === 0) {
     return (
