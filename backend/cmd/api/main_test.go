@@ -41,7 +41,7 @@ func TestServerBootsAndHealthzReturnsOK(t *testing.T) {
 
 	// Build absolute path to the shipping config so the binary can find it
 	// regardless of its working directory.
-	shipConfigPath, err := filepath.Abs(filepath.Join(root, "seed", "config", "shipping_config.json"))
+	shipConfigPath, err := filepath.Abs(filepath.Join(root, "config", "shipping_config.json"))
 	if err != nil {
 		t.Fatalf("shipping config abs: %v", err)
 	}
