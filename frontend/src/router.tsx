@@ -101,6 +101,13 @@ const aboutRoute = createRoute({
   component: () => pageShell(<AboutPage />),
 });
 
+// ── Auth: no storefront chrome ───────────────────────────────────────────────
+const authLayoutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  id: '_auth',
+  component: () => <Outlet />,
+});
+
 const loginRoute = createRoute({ getParentRoute: () => authLayoutRoute, path: '/login', component: LoginPage });
 const signupRoute = createRoute({ getParentRoute: () => authLayoutRoute, path: '/signup', component: SignupPage });
 const forgotPasswordRoute = createRoute({ getParentRoute: () => authLayoutRoute, path: '/forgot-password', component: ForgotPasswordPage });
@@ -141,13 +148,6 @@ const adminAnalyticsRoute = createRoute({ getParentRoute: () => adminRoute, path
 const adminMarketingRoute = createRoute({ getParentRoute: () => adminRoute, path: '/marketing', component: AdminMarketing });
 const adminContentRoute = createRoute({ getParentRoute: () => adminRoute, path: '/content', component: AdminContent });
 const adminSettingsRoute = createRoute({ getParentRoute: () => adminRoute, path: '/settings', component: AdminSettings });
-
-// ── Auth: no storefront chrome ───────────────────────────────────────────────
-const authLayoutRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  id: '_auth',
-  component: () => <Outlet />,
-});
 
 // ── Checkout: minimal chrome ─────────────────────────────────────────────────
 const checkoutLayoutRoute = createRoute({
