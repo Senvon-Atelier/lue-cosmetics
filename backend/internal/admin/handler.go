@@ -272,8 +272,11 @@ type OrderSummary struct {
 // @Tags admin
 // @Security BearerAuth
 // @Produce json
+// @Param id path string true "Order ID"
 // @Success 200 {object} OrderDetailResponse
-
+// @Failure 400 {object} httpx.ErrorEnvelope
+// @Failure 401 {object} httpx.ErrorEnvelope
+// @Failure 404 {object} httpx.ErrorEnvelope
 // @Router /admin/orders/{id} [get]
 func (h *Handlers) getOrderDetail(w http.ResponseWriter, r *http.Request) {
 	if !auth.MustBeAdmin(w, r) {
@@ -388,8 +391,12 @@ type OrderItemInfo struct {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
+// @Param id path string true "Order ID"
+// @Param body body UpdateOrderStatusRequest true "New status"
 // @Success 204
-
+// @Failure 400 {object} httpx.ErrorEnvelope
+// @Failure 401 {object} httpx.ErrorEnvelope
+// @Failure 404 {object} httpx.ErrorEnvelope
 // @Router /admin/orders/{id}/status [patch]
 func (h *Handlers) updateOrderStatus(w http.ResponseWriter, r *http.Request) {
 	if !auth.MustBeAdmin(w, r) {
@@ -521,8 +528,11 @@ type CustomerSummary struct {
 // @Tags admin
 // @Security BearerAuth
 // @Produce json
+// @Param id path string true "Customer ID"
 // @Success 200 {object} CustomerDetailResponse
-
+// @Failure 400 {object} httpx.ErrorEnvelope
+// @Failure 401 {object} httpx.ErrorEnvelope
+// @Failure 404 {object} httpx.ErrorEnvelope
 // @Router /admin/customers/{id} [get]
 func (h *Handlers) getCustomerDetail(w http.ResponseWriter, r *http.Request) {
 	if !auth.MustBeAdmin(w, r) {
@@ -708,8 +718,11 @@ type ProductSummary struct {
 // @Tags admin
 // @Security BearerAuth
 // @Produce json
+// @Param id path string true "Product ID"
 // @Success 200 {object} ProductSummary
-
+// @Failure 400 {object} httpx.ErrorEnvelope
+// @Failure 401 {object} httpx.ErrorEnvelope
+// @Failure 404 {object} httpx.ErrorEnvelope
 // @Router /admin/products/{id} [get]
 func (h *Handlers) getProductDetail(w http.ResponseWriter, r *http.Request) {
 	if !auth.MustBeAdmin(w, r) {

@@ -71,6 +71,21 @@ export interface InternalAddressesPatchAddressRequest {
   region?: string;
 }
 
+export interface InternalAdminCustomerDetailResponse {
+  customer?: InternalAdminCustomerInfo;
+  orders?: InternalAdminOrderSummary[];
+}
+
+export interface InternalAdminCustomerInfo {
+  created_at?: string;
+  email?: string;
+  email_verified?: boolean;
+  id?: string;
+  image?: string;
+  name?: string;
+  updated_at?: string;
+}
+
 export interface InternalAdminCustomerStats {
   active_customers_30d?: number;
   customers_with_orders?: number;
@@ -110,6 +125,34 @@ export interface InternalAdminDashboardStats {
   total_orders?: number;
   total_products?: number;
   total_revenue_ghs_minor?: number;
+}
+
+export interface InternalAdminOrderDetailResponse {
+  items?: InternalAdminOrderItemInfo[];
+  order?: InternalAdminOrderInfo;
+}
+
+export interface InternalAdminOrderInfo {
+  created_at?: string;
+  id?: string;
+  paystack_reference?: string;
+  shipping_address?: InternalAdminShippingAddress;
+  shipping_ghs_minor?: number;
+  status?: string;
+  subtotal_ghs_minor?: number;
+  total_ghs_minor?: number;
+  updated_at?: string;
+  user_id?: string;
+}
+
+export interface InternalAdminOrderItemInfo {
+  id?: string;
+  product_brand_snapshot?: string;
+  product_id?: string;
+  product_image_snapshot?: string;
+  product_name_snapshot?: string;
+  qty?: number;
+  unit_price_ghs_minor?: number;
 }
 
 export interface InternalAdminOrderStats {
@@ -214,6 +257,15 @@ export interface InternalAdminRevenueByDate {
   revenue_ghs_minor?: number;
 }
 
+export interface InternalAdminShippingAddress {
+  city?: string;
+  label?: string;
+  line1?: string;
+  line2?: string;
+  phone?: string;
+  region?: string;
+}
+
 export interface InternalAdminStatsResponse {
   customer_stats?: InternalAdminCustomerStats;
   product_stats?: InternalAdminProductStats;
@@ -233,6 +285,10 @@ export interface InternalAdminTopProduct {
   slug?: string;
   tone?: string;
   total_sold?: number;
+}
+
+export interface InternalAdminUpdateOrderStatusRequest {
+  status?: string;
 }
 
 export interface InternalAuthLoginBody {
@@ -999,10 +1055,10 @@ export function useGetAdminCustomers<
 }
 
 /**
- * @summary Get customer by ID
+ * @summary Get customer details
  */
 export const getAdminCustomersId = (id: string, signal?: AbortSignal) => {
-  return customInstance<InternalAdminCustomerSummary>({
+  return customInstance<InternalAdminCustomerDetailResponse>({
     url: `/admin/customers/${id}`,
     method: "GET",
     signal,
@@ -1121,7 +1177,7 @@ export function useGetAdminCustomersId<
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
 /**
- * @summary Get customer by ID
+ * @summary Get customer details
  */
 
 export function useGetAdminCustomersId<
@@ -1426,10 +1482,10 @@ export function useGetAdminOrders<
 }
 
 /**
- * @summary Get order by ID
+ * @summary Get order details
  */
 export const getAdminOrdersId = (id: string, signal?: AbortSignal) => {
-  return customInstance<InternalAdminOrderSummary>({
+  return customInstance<InternalAdminOrderDetailResponse>({
     url: `/admin/orders/${id}`,
     method: "GET",
     signal,
@@ -1548,7 +1604,7 @@ export function useGetAdminOrdersId<
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
 /**
- * @summary Get order by ID
+ * @summary Get order details
  */
 
 export function useGetAdminOrdersId<
@@ -1582,10 +1638,15 @@ export function useGetAdminOrdersId<
 /**
  * @summary Update order status
  */
-export const patchAdminOrdersIdStatus = (id: string) => {
-  return customInstance<InternalAdminOrderSummary>({
+export const patchAdminOrdersIdStatus = (
+  id: string,
+  internalAdminUpdateOrderStatusRequest: InternalAdminUpdateOrderStatusRequest,
+) => {
+  return customInstance<void>({
     url: `/admin/orders/${id}/status`,
     method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    data: internalAdminUpdateOrderStatusRequest,
   });
 };
 
@@ -1596,13 +1657,13 @@ export const getPatchAdminOrdersIdStatusMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof patchAdminOrdersIdStatus>>,
     TError,
-    { id: string },
+    { id: string; data: InternalAdminUpdateOrderStatusRequest },
     TContext
   >;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof patchAdminOrdersIdStatus>>,
   TError,
-  { id: string },
+  { id: string; data: InternalAdminUpdateOrderStatusRequest },
   TContext
 > => {
   const mutationKey = ["patchAdminOrdersIdStatus"];
@@ -1616,11 +1677,11 @@ export const getPatchAdminOrdersIdStatusMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof patchAdminOrdersIdStatus>>,
-    { id: string }
+    { id: string; data: InternalAdminUpdateOrderStatusRequest }
   > = (props) => {
-    const { id } = props ?? {};
+    const { id, data } = props ?? {};
 
-    return patchAdminOrdersIdStatus(id);
+    return patchAdminOrdersIdStatus(id, data);
   };
 
   return { mutationFn, ...mutationOptions };
@@ -1629,7 +1690,8 @@ export const getPatchAdminOrdersIdStatusMutationOptions = <
 export type PatchAdminOrdersIdStatusMutationResult = NonNullable<
   Awaited<ReturnType<typeof patchAdminOrdersIdStatus>>
 >;
-
+export type PatchAdminOrdersIdStatusMutationBody =
+  InternalAdminUpdateOrderStatusRequest;
 export type PatchAdminOrdersIdStatusMutationError =
   GithubComOtiAdjeiRuecosmeticsInternalHttpxErrorEnvelope;
 
@@ -1644,7 +1706,7 @@ export const usePatchAdminOrdersIdStatus = <
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof patchAdminOrdersIdStatus>>,
       TError,
-      { id: string },
+      { id: string; data: InternalAdminUpdateOrderStatusRequest },
       TContext
     >;
   },
@@ -1652,7 +1714,7 @@ export const usePatchAdminOrdersIdStatus = <
 ): UseMutationResult<
   Awaited<ReturnType<typeof patchAdminOrdersIdStatus>>,
   TError,
-  { id: string },
+  { id: string; data: InternalAdminUpdateOrderStatusRequest },
   TContext
 > => {
   const mutationOptions = getPatchAdminOrdersIdStatusMutationOptions(options);
@@ -1816,7 +1878,7 @@ export function useGetAdminProducts<
 }
 
 /**
- * @summary Get product by ID
+ * @summary Get product details
  */
 export const getAdminProductsId = (id: string, signal?: AbortSignal) => {
   return customInstance<InternalAdminProductSummary>({
@@ -1938,7 +2000,7 @@ export function useGetAdminProductsId<
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData> };
 /**
- * @summary Get product by ID
+ * @summary Get product details
  */
 
 export function useGetAdminProductsId<
