@@ -70,7 +70,7 @@ func (h *Handlers) MountPublic(r chi.Router) {
 // @Security BearerAuth
 // @Produce json
 // @Success 200 {object} DashboardResponse
-// @Router /api/v1/admin/dashboard [get]
+// @Router /admin/dashboard [get]
 func (h *Handlers) getDashboard(w http.ResponseWriter, r *http.Request) {
 	if !auth.MustBeAdmin(w, r) {
 		return
@@ -157,7 +157,12 @@ type RecentOrder struct {
 // @Security BearerAuth
 // @Produce json
 // @Success 200 {object} OrdersResponse
-// @Router /api/v1/admin/orders [get]
+// @Param page      query int    false "Page number (1-based)"
+// @Param page_size query int    false "Items per page"
+// @Param status    query string false "Filter by order status"
+// @Param date_from query string false "RFC3339 lower bound"
+// @Param date_to   query string false "RFC3339 upper bound"
+// @Router /admin/orders [get]
 func (h *Handlers) listOrders(w http.ResponseWriter, r *http.Request) {
 	if !auth.MustBeAdmin(w, r) {
 		return
@@ -269,7 +274,7 @@ type OrderSummary struct {
 // @Produce json
 // @Success 200 {object} OrderDetailResponse
 
-// @Router /api/v1/admin/orders/{id} [get]
+// @Router /admin/orders/{id} [get]
 func (h *Handlers) getOrderDetail(w http.ResponseWriter, r *http.Request) {
 	if !auth.MustBeAdmin(w, r) {
 		return
@@ -385,7 +390,7 @@ type OrderItemInfo struct {
 // @Produce json
 // @Success 204
 
-// @Router /api/v1/admin/orders/{id}/status [patch]
+// @Router /admin/orders/{id}/status [patch]
 func (h *Handlers) updateOrderStatus(w http.ResponseWriter, r *http.Request) {
 	if !auth.MustBeAdmin(w, r) {
 		return
@@ -440,7 +445,9 @@ type UpdateOrderStatusRequest struct {
 // @Security BearerAuth
 // @Produce json
 // @Success 200 {object} CustomersResponse
-// @Router /api/v1/admin/customers [get]
+// @Param page      query int false "Page number (1-based)"
+// @Param page_size query int false "Items per page"
+// @Router /admin/customers [get]
 func (h *Handlers) listCustomers(w http.ResponseWriter, r *http.Request) {
 	if !auth.MustBeAdmin(w, r) {
 		return
@@ -516,7 +523,7 @@ type CustomerSummary struct {
 // @Produce json
 // @Success 200 {object} CustomerDetailResponse
 
-// @Router /api/v1/admin/customers/{id} [get]
+// @Router /admin/customers/{id} [get]
 func (h *Handlers) getCustomerDetail(w http.ResponseWriter, r *http.Request) {
 	if !auth.MustBeAdmin(w, r) {
 		return
@@ -607,7 +614,9 @@ type CustomerInfo struct {
 // @Security BearerAuth
 // @Produce json
 // @Success 200 {object} ProductsResponse
-// @Router /api/v1/admin/products [get]
+// @Param page      query int false "Page number (1-based)"
+// @Param page_size query int false "Items per page"
+// @Router /admin/products [get]
 func (h *Handlers) listProducts(w http.ResponseWriter, r *http.Request) {
 	if !auth.MustBeAdmin(w, r) {
 		return
@@ -701,7 +710,7 @@ type ProductSummary struct {
 // @Produce json
 // @Success 200 {object} ProductSummary
 
-// @Router /api/v1/admin/products/{id} [get]
+// @Router /admin/products/{id} [get]
 func (h *Handlers) getProductDetail(w http.ResponseWriter, r *http.Request) {
 	if !auth.MustBeAdmin(w, r) {
 		return
@@ -765,7 +774,10 @@ func (h *Handlers) getProductDetail(w http.ResponseWriter, r *http.Request) {
 // @Security BearerAuth
 // @Produce json
 // @Success 200 {object} RevenueAnalyticsResponse
-// @Router /api/v1/admin/analytics/revenue [get]
+// @Param granularity query string false "day|week|month"
+// @Param date_from   query string false "RFC3339 lower bound"
+// @Param date_to     query string false "RFC3339 upper bound"
+// @Router /admin/analytics/revenue [get]
 func (h *Handlers) getRevenueAnalytics(w http.ResponseWriter, r *http.Request) {
 	if !auth.MustBeAdmin(w, r) {
 		return
@@ -890,7 +902,7 @@ type OrderStats struct {
 // @Security BearerAuth
 // @Produce json
 // @Success 200 {object} StatsResponse
-// @Router /api/v1/admin/analytics/stats [get]
+// @Router /admin/analytics/stats [get]
 func (h *Handlers) getStats(w http.ResponseWriter, r *http.Request) {
 	if !auth.MustBeAdmin(w, r) {
 		return

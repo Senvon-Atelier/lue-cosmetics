@@ -117,7 +117,7 @@ type listOrdersResponse struct {
 // @Success  200 {object} listOrdersResponse
 // @Failure  401 {object} httpx.ErrorEnvelope
 // @Failure  500 {object} httpx.ErrorEnvelope
-// @Router   /api/v1/me/orders [get]
+// @Router   /me/orders [get]
 func (h *Handlers) listOrders(w http.ResponseWriter, r *http.Request) {
 	view, ok := auth.GetSessionView(r.Context())
 	if !ok {
@@ -198,7 +198,7 @@ func (h *Handlers) listOrders(w http.ResponseWriter, r *http.Request) {
 // @Failure  401 {object} httpx.ErrorEnvelope
 // @Failure  404 {object} httpx.ErrorEnvelope
 // @Failure  500 {object} httpx.ErrorEnvelope
-// @Router   /api/v1/me/orders/{id} [get]
+// @Router   /me/orders/{id} [get]
 func (h *Handlers) getOrder(w http.ResponseWriter, r *http.Request) {
 	view, ok := auth.GetSessionView(r.Context())
 	if !ok {

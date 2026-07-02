@@ -700,8 +700,21 @@ info:
   title: Rue Cosmetics API
   version: 0.1.0
 paths:
-  /api/v1/admin/analytics/revenue:
+  /admin/analytics/revenue:
     get:
+      parameters:
+      - description: day|week|month
+        in: query
+        name: granularity
+        type: string
+      - description: RFC3339 lower bound
+        in: query
+        name: date_from
+        type: string
+      - description: RFC3339 upper bound
+        in: query
+        name: date_to
+        type: string
       produces:
       - application/json
       responses:
@@ -714,7 +727,7 @@ paths:
       summary: Get revenue analytics
       tags:
       - admin
-  /api/v1/admin/analytics/stats:
+  /admin/analytics/stats:
     get:
       produces:
       - application/json
@@ -728,8 +741,17 @@ paths:
       summary: Get admin statistics
       tags:
       - admin
-  /api/v1/admin/customers:
+  /admin/customers:
     get:
+      parameters:
+      - description: Page number (1-based)
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: page_size
+        type: integer
       produces:
       - application/json
       responses:
@@ -742,10 +764,10 @@ paths:
       summary: List all customers
       tags:
       - admin
-  /api/v1/admin/customers/{id}:
+  /admin/customers/{id}:
     get:
       responses: {}
-  /api/v1/admin/dashboard:
+  /admin/dashboard:
     get:
       produces:
       - application/json
@@ -759,8 +781,29 @@ paths:
       summary: Get admin dashboard
       tags:
       - admin
-  /api/v1/admin/orders:
+  /admin/orders:
     get:
+      parameters:
+      - description: Page number (1-based)
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: page_size
+        type: integer
+      - description: Filter by order status
+        in: query
+        name: status
+        type: string
+      - description: RFC3339 lower bound
+        in: query
+        name: date_from
+        type: string
+      - description: RFC3339 upper bound
+        in: query
+        name: date_to
+        type: string
       produces:
       - application/json
       responses:
@@ -773,14 +816,23 @@ paths:
       summary: List all orders
       tags:
       - admin
-  /api/v1/admin/orders/{id}:
+  /admin/orders/{id}:
     get:
       responses: {}
-  /api/v1/admin/orders/{id}/status:
+  /admin/orders/{id}/status:
     patch:
       responses: {}
-  /api/v1/admin/products:
+  /admin/products:
     get:
+      parameters:
+      - description: Page number (1-based)
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: page_size
+        type: integer
       produces:
       - application/json
       responses:
@@ -793,74 +845,9 @@ paths:
       summary: List all products
       tags:
       - admin
-  /api/v1/admin/products/{id}:
+  /admin/products/{id}:
     get:
       responses: {}
-  /api/v1/me/orders:
-    get:
-      parameters:
-      - description: Filter by status
-        in: query
-        name: status
-        type: string
-      - default: 20
-        description: Pagination limit
-        in: query
-        name: limit
-        type: integer
-      - default: 0
-        description: Pagination offset
-        in: query
-        name: offset
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/internal_me.listOrdersResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
-      summary: List user's orders
-      tags:
-      - me
-  /api/v1/me/orders/{id}:
-    get:
-      parameters:
-      - description: Order ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/internal_me.orderDetailResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
-      summary: Get a specific order
-      tags:
-      - me
   /auth/google/callback:
     get:
       responses:
@@ -1481,6 +1468,71 @@ paths:
       summary: Set an address as default
       tags:
       - addresses
+  /me/orders:
+    get:
+      parameters:
+      - description: Filter by status
+        in: query
+        name: status
+        type: string
+      - default: 20
+        description: Pagination limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Pagination offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_me.listOrdersResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: List user's orders
+      tags:
+      - me
+  /me/orders/{id}:
+    get:
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_me.orderDetailResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_oti-adjei_ruecosmetics_internal_httpx.ErrorEnvelope'
+      summary: Get a specific order
+      tags:
+      - me
   /products:
     get:
       parameters:
