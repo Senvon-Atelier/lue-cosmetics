@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatGhs } from './utils';
+import { formatGhs, formatOrderDate } from './utils';
 
 describe('formatGhs', () => {
   it('renders whole cedis without decimals (mockup style)', () => {
@@ -11,5 +11,15 @@ describe('formatGhs', () => {
   });
   it('groups thousands', () => {
     expect(formatGhs(123456700)).toBe('GHS 1,234,567');
+  });
+});
+
+describe('formatOrderDate', () => {
+  it('renders mockup-style dates', () => {
+    expect(formatOrderDate('2026-04-04T11:24:00Z')).toBe('Apr 04, 2026');
+  });
+  it('returns empty string for missing/invalid input', () => {
+    expect(formatOrderDate(undefined)).toBe('');
+    expect(formatOrderDate('not-a-date')).toBe('');
   });
 });
