@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { useAuth } from '../../lib/auth/auth-provider';
 import {
   getCart,
@@ -64,7 +64,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   // Toast state
   const [lastAdded, setLastAdded] = useState<{ name: string } | null>(null);
-  const dismissToast = () => setLastAdded(null);
+  const toastTimerRef = useRef<number | null>(null);
+  const dismissToast = () => {
+    if (toastTimerRef.current !== null) clearTimeout(toastTimerRef.current);
+    setLastAdded(null);
+  };
 
   // Refresh cart from backend
   const refreshCart = async () => {
@@ -117,8 +121,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const addItem = async (productId: string, qty: number, name?: string) => {
     await postCartItems({ product_id: productId, qty });
     await refreshCart();
+    if (toastTimerRef.current !== null) clearTimeout(toastTimerRef.current);
     setLastAdded(name ? { name } : { name: 'Item' });
-    window.setTimeout(() => setLastAdded(null), 2400);
+    toastTimerRef.current = window.setTimeout(() => setLastAdded(null), 2400);
   };
 
   // Update item quantity
