@@ -13,9 +13,9 @@ export function RootLayout() {
     <div>
       <AnnouncementBar />
       <Header />
-      <main>
+      <div>
         <Outlet />
-      </main>
+      </div>
       <Footer />
       <CartDrawer open={isDrawerOpen} onClose={closeDrawer} />
       <AddToast lastAdded={lastAdded} onView={openDrawer} onDismiss={dismissToast} />

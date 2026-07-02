@@ -99,8 +99,6 @@ export function CheckoutPage() {
       const response = await postCheckoutInit(checkoutBody);
 
       if (response?.authorization_url) {
-        // Store total in session storage for the return page
-        sessionStorage.setItem('order_total', String(subtotalGhsMinor || 0));
         // Redirect to Paystack
         window.location.href = response.authorization_url;
       } else {

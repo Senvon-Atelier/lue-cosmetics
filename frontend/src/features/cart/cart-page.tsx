@@ -121,6 +121,7 @@ export function CartPage() {
           >
             Checkout · {formatGhs(subtotalMinor)}
           </button>
+          <button className="drawer-link" onClick={() => navigate({ to: '/shop' })}>Continue shopping</button>
         </aside>
       </div>
     </main>

@@ -63,7 +63,7 @@ const storefrontLayoutRoute = createRoute({
 });
 
 const pageShell = (children: ReactNode) => (
-  <div className="min-h-screen bg-paper text-ink font-body">{children}</div>
+  <div>{children}</div>
 );
 
 const homeRoute = createRoute({

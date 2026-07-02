@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router';
 import { useCart } from '../cart/cart-provider';
 import { Icon } from '../shared/ui/icons';
 import { ProductPlaceholder } from '../shared/ui/placeholder';
-import { formatGhs } from '../../lib/format/utils';
+import { formatGhs, getImageUrl } from '../../lib/format/utils';
 import {
   useGetProductsSlug,
   useGetBrands,
@@ -100,7 +100,7 @@ export function ProductDetail({ slug }: ProductDetailProps) {
         <div className="product-main">
           {imagePath ? (
             <img
-              src={imagePath}
+              src={getImageUrl(imagePath)}
               alt={name}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
@@ -153,7 +153,14 @@ export function ProductDetail({ slug }: ProductDetailProps) {
             <button
               className="btn btn-primary"
               style={{ flex: 1, justifyContent: 'center' }}
-              onClick={() => addItem(product.id ?? '', qty, product.name)}
+              onClick={async () => {
+                if (!product.id) return;
+                try {
+                  await addItem(product.id, qty, product.name);
+                } catch (error) {
+                  console.error('Failed to add to cart:', error);
+                }
+              }}
             >
               Add to bag · {formatGhs(priceMinor * qty)}
             </button>
