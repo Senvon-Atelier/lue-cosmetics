@@ -99,3 +99,8 @@ Frontend-only for this tranche. Queued for a later backend round, in priority or
 2. **Wishlist domain** — the originally-specced handler→repository single-table CRUD under `/me/wishlist`; unlocks the PDP heart and the account wishlist page.
 3. **Product gallery images** — `product_images` table (`product_id`, `path`, `sort_order`) + detail-query join; PDP thumb rail lights up automatically (§4.1).
 4. **Variants/shades** — full variant modeling (cart/order ripple); only if the business needs it. The swatch UI stays out until then.
+
+Added post-review (2026-07-02, final whole-branch review):
+
+5. **Cart item response enrichment** — add brand/size snapshots to the cart item view so drawer/cart rows can show the mockup's brand + size lines (`.cart-item-brand`/`.cart-item-meta` CSS already ported, currently dead).
+6. **URL-driven shop category filters** — encode the shop page's category/brand filters in the URL so PDP breadcrumbs and category links can deep-link (`/shop?category=…`) instead of landing on unfiltered `/shop`.
