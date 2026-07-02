@@ -6,16 +6,18 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/oti-adjei/ruecosmetics/internal/httpx"
+	"go.uber.org/zap"
 )
 
 // Handlers holds the HTTP handlers for the shipping domain.
 type Handlers struct {
 	svc *Service
+	log *zap.Logger
 }
 
 // NewHandlers creates a new Handlers wired to the given Service.
-func NewHandlers(svc *Service) *Handlers {
-	return &Handlers{svc: svc}
+func NewHandlers(svc *Service, log *zap.Logger) *Handlers {
+	return &Handlers{svc: svc, log: log}
 }
 
 // Mount registers the shipping routes on the given router.

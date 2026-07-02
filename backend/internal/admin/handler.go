@@ -11,19 +11,22 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/oti-adjei/ruecosmetics/internal/auth"
 	"github.com/oti-adjei/ruecosmetics/internal/httpx"
+	"go.uber.org/zap"
 )
 
 // Handlers provides HTTP handlers for admin operations.
 type Handlers struct {
 	Svc          *Service
 	AuthHandlers *auth.Handlers
+	log          *zap.Logger
 }
 
 // NewHandlers creates a new admin Handlers instance.
-func NewHandlers(svc *Service, authHandlers *auth.Handlers) *Handlers {
+func NewHandlers(svc *Service, authHandlers *auth.Handlers, log *zap.Logger) *Handlers {
 	return &Handlers{
 		Svc:          svc,
 		AuthHandlers: authHandlers,
+		log:          log,
 	}
 }
 
@@ -78,7 +81,7 @@ func (h *Handlers) getDashboard(w http.ResponseWriter, r *http.Request) {
 
 	dashboard, err := h.Svc.GetDashboard(r.Context())
 	if err != nil {
-		httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "failed to get dashboard", nil)
+		httpx.WriteInternal(w, r, h.log, "failed to get dashboard", err)
 		return
 	}
 
@@ -193,7 +196,7 @@ func (h *Handlers) listOrders(w http.ResponseWriter, r *http.Request) {
 
 	orders, err := h.Svc.ListOrders(r.Context(), params)
 	if err != nil {
-		httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "failed to list orders", nil)
+		httpx.WriteInternal(w, r, h.log, "failed to list orders", err)
 		return
 	}
 
@@ -295,7 +298,7 @@ func (h *Handlers) getOrderDetail(w http.ResponseWriter, r *http.Request) {
 		if err == ErrNotFound {
 			httpx.WriteError(w, http.StatusNotFound, httpx.CodeNotFound, "order not found", nil)
 		} else {
-			httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "failed to get order detail", nil)
+			httpx.WriteInternal(w, r, h.log, "failed to get order detail", err)
 		}
 		return
 	}
@@ -467,7 +470,7 @@ func (h *Handlers) listCustomers(w http.ResponseWriter, r *http.Request) {
 
 	customers, err := h.Svc.ListCustomers(r.Context(), params)
 	if err != nil {
-		httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "failed to list customers", nil)
+		httpx.WriteInternal(w, r, h.log, "failed to list customers", err)
 		return
 	}
 
@@ -551,7 +554,7 @@ func (h *Handlers) getCustomerDetail(w http.ResponseWriter, r *http.Request) {
 		if err == ErrNotFound {
 			httpx.WriteError(w, http.StatusNotFound, httpx.CodeNotFound, "customer not found", nil)
 		} else {
-			httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "failed to get customer detail", nil)
+			httpx.WriteInternal(w, r, h.log, "failed to get customer detail", err)
 		}
 		return
 	}
@@ -639,7 +642,7 @@ func (h *Handlers) listProducts(w http.ResponseWriter, r *http.Request) {
 
 	products, err := h.Svc.ListProducts(r.Context(), params)
 	if err != nil {
-		httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "failed to list products", nil)
+		httpx.WriteInternal(w, r, h.log, "failed to list products", err)
 		return
 	}
 
@@ -741,7 +744,7 @@ func (h *Handlers) getProductDetail(w http.ResponseWriter, r *http.Request) {
 		if err == ErrNotFound {
 			httpx.WriteError(w, http.StatusNotFound, httpx.CodeNotFound, "product not found", nil)
 		} else {
-			httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "failed to get product detail", nil)
+			httpx.WriteInternal(w, r, h.log, "failed to get product detail", err)
 		}
 		return
 	}
@@ -830,7 +833,7 @@ func (h *Handlers) getRevenueAnalytics(w http.ResponseWriter, r *http.Request) {
 
 	analytics, err := h.Svc.GetRevenueAnalytics(r.Context(), params)
 	if err != nil {
-		httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "failed to get revenue analytics", nil)
+		httpx.WriteInternal(w, r, h.log, "failed to get revenue analytics", err)
 		return
 	}
 
@@ -923,19 +926,19 @@ func (h *Handlers) getStats(w http.ResponseWriter, r *http.Request) {
 
 	productStats, err := h.Svc.GetProductStats(r.Context())
 	if err != nil {
-		httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "failed to get product stats", nil)
+		httpx.WriteInternal(w, r, h.log, "failed to get product stats", err)
 		return
 	}
 
 	customerStats, err := h.Svc.GetCustomerStats(r.Context())
 	if err != nil {
-		httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "failed to get customer stats", nil)
+		httpx.WriteInternal(w, r, h.log, "failed to get customer stats", err)
 		return
 	}
 
 	topProducts, err := h.Svc.GetTopProducts(r.Context(), 10)
 	if err != nil {
-		httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "failed to get top products", nil)
+		httpx.WriteInternal(w, r, h.log, "failed to get top products", err)
 		return
 	}
 

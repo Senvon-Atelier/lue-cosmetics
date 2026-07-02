@@ -60,8 +60,8 @@ func run() error {
 	r.Get("/healthz", health.Handler(a))
 
 	// All public + future protected APIs mount under /api/v1.
-	catalogHandlers := catalog.NewHandlers(catalog.NewRepository(a.Pool))
-	shippingHandlers := shipping.NewHandlers(a.Shipping)
+	catalogHandlers := catalog.NewHandlers(catalog.NewRepository(a.Pool), a.Logger)
+	shippingHandlers := shipping.NewHandlers(a.Shipping, a.Logger)
 	r.Route("/api/v1", func(api chi.Router) {
 		catalogHandlers.Mount(api)
 		shippingHandlers.Mount(api)
@@ -81,7 +81,7 @@ func run() error {
 		ordersHandlers.MountPublic(api) // public: POST /webhooks/paystack
 
 		// Admin routes (require admin role)
-		adminHandlers := admin.NewHandlers(a.Admin, authHandlers)
+		adminHandlers := admin.NewHandlers(a.Admin, authHandlers, a.Logger)
 		adminHandlers.MountPublic(api) // GET /api/v1/admin/* (requires admin role)
 
 		// Auth-gated routes (one Group with RequireSession middleware)

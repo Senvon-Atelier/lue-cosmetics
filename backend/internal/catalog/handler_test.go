@@ -9,12 +9,13 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/oti-adjei/ruecosmetics/internal/catalog"
+	"go.uber.org/zap"
 )
 
 func newHandlers(t *testing.T) (*catalog.Handlers, func()) {
 	t.Helper()
 	repo, _, cleanup := newRepo(t)
-	return catalog.NewHandlers(repo), cleanup
+	return catalog.NewHandlers(repo, zap.NewNop()), cleanup
 }
 
 func TestGetCategoriesReturnsList(t *testing.T) {

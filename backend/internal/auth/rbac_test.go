@@ -17,6 +17,7 @@ import (
 	"github.com/oti-adjei/ruecosmetics/internal/auth"
 	"github.com/oti-adjei/ruecosmetics/internal/me"
 	"github.com/oti-adjei/ruecosmetics/internal/testsupport"
+	"go.uber.org/zap"
 )
 
 // ── router builder ───────────────────────────────────────────────────────────
@@ -34,7 +35,7 @@ func buildRBACRouter(h *auth.Handlers) http.Handler {
 		r.Use(h.RequireSession)
 
 		// GET /me (orders repo can be nil for basic /me endpoint in tests)
-		me.NewHandlers(nil).Mount(r)
+		me.NewHandlers(nil, nil, zap.NewNop()).Mount(r)
 		// POST /auth/verify-email/resend
 		h.MountAuthGated(r)
 

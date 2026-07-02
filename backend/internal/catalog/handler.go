@@ -10,6 +10,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	sqlcq "github.com/oti-adjei/ruecosmetics/internal/db/sqlc"
 	"github.com/oti-adjei/ruecosmetics/internal/httpx"
+	"go.uber.org/zap"
 )
 
 const (
@@ -20,11 +21,12 @@ const (
 // Handlers holds catalog HTTP handlers.
 type Handlers struct {
 	repo *Repository
+	log  *zap.Logger
 }
 
 // NewHandlers creates a new Handlers wired to the given Repository.
-func NewHandlers(repo *Repository) *Handlers {
-	return &Handlers{repo: repo}
+func NewHandlers(repo *Repository, log *zap.Logger) *Handlers {
+	return &Handlers{repo: repo, log: log}
 }
 
 // Mount registers all catalog routes on the given router.
@@ -61,7 +63,7 @@ type brandView struct {
 func (h *Handlers) listCategories(w http.ResponseWriter, r *http.Request) {
 	cats, err := h.repo.ListCategories(r.Context())
 	if err != nil {
-		httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "failed to list categories", nil)
+		httpx.WriteInternal(w, r, h.log, "failed to list categories", err)
 		return
 	}
 	views := make([]categoryView, 0, len(cats))
@@ -87,7 +89,7 @@ func (h *Handlers) listCategories(w http.ResponseWriter, r *http.Request) {
 func (h *Handlers) listBrands(w http.ResponseWriter, r *http.Request) {
 	bs, err := h.repo.ListBrands(r.Context())
 	if err != nil {
-		httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "failed to list brands", nil)
+		httpx.WriteInternal(w, r, h.log, "failed to list brands", err)
 		return
 	}
 	views := make([]brandView, 0, len(bs))
@@ -164,7 +166,7 @@ func (h *Handlers) listProducts(w http.ResponseWriter, r *http.Request) {
 		Offset:       int32(offset),
 	})
 	if err != nil {
-		httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "failed to list products", nil)
+		httpx.WriteInternal(w, r, h.log, "failed to list products", err)
 		return
 	}
 	views := make([]ProductView, 0, len(pageOut.Items))
@@ -194,7 +196,7 @@ func (h *Handlers) getProductBySlug(w http.ResponseWriter, r *http.Request) {
 			httpx.WriteError(w, http.StatusNotFound, httpx.CodeNotFound, "product not found", nil)
 			return
 		}
-		httpx.WriteError(w, http.StatusInternalServerError, httpx.CodeInternal, "failed to get product", nil)
+		httpx.WriteInternal(w, r, h.log, "failed to get product", err)
 		return
 	}
 	httpx.WriteJSON(w, http.StatusOK, productViewFromSqlc(p))

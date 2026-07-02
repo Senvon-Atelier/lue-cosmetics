@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/oti-adjei/ruecosmetics/internal/shipping"
+	"go.uber.org/zap"
 )
 
 func newHandlers(t *testing.T) *shipping.Handlers {
@@ -16,7 +17,7 @@ func newHandlers(t *testing.T) *shipping.Handlers {
 	if err != nil {
 		t.Fatalf("svc: %v", err)
 	}
-	return shipping.NewHandlers(svc)
+	return shipping.NewHandlers(svc, zap.NewNop())
 }
 
 func TestQuoteHandlerReturnsAppliedShipping(t *testing.T) {
