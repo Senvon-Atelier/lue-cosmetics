@@ -63,7 +63,7 @@ export function CategoryRail() {
             className="section-link"
           >
             <span>View all</span>
-            <Icon name="arrowRight" size={16} />
+            <Icon name="arrow" size={16} />
           </button>
         </div>
 
@@ -78,11 +78,6 @@ export function CategoryRail() {
                 <span className="font-display text-5xl text-lavender-300">
                   {(category.label || 'C').substring(0, 1)}
                 </span>
-                {category.product_count && (
-                  <span className="chip absolute bottom-3 left-1/2 -translate-x-1/2">
-                    {category.product_count}
-                  </span>
-                )}
               </div>
               <div className="font-label font-medium text-sm text-ink-soft group-hover:text-ink transition-colors duration-[var(--dur)]">
                 {category.label || 'Category'}

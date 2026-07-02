@@ -25,7 +25,7 @@ export function Header({ onCartOpen }: HeaderProps) {
             <Link to="/about" className="header-nav-link">
               About
             </Link>
-            <Link to="/journal" className="header-nav-link">
+            <Link to="/" hash="journal" className="header-nav-link">
               Journal
             </Link>
           </nav>

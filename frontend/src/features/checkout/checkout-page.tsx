@@ -3,6 +3,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { useAuth } from '../../lib/auth/auth-provider';
 import { useCart } from '../cart/cart-provider';
 import { Button } from '../shared/ui/button';
+import { Icon } from '../shared/ui/icons';
 import { formatPrice } from '../../lib/format/utils';
 import { postCheckoutInit } from '../../lib/api/generated/rueCosmeticsAPI';
 import type { InternalOrdersInitCheckoutBody } from '../../lib/api/generated/rueCosmeticsAPI';
@@ -305,7 +306,7 @@ export function CheckoutPage() {
                 isLoading={isProcessing}
                 className="w-full"
                 size="lg"
-                icon="arrowRight"
+                icon="arrow"
                 iconPosition="right"
               >
                 Proceed to Payment

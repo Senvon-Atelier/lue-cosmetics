@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { FilterBar } from './filter-bar';
 import { SortBar } from './sort-bar';
 import { ProductGrid } from './product-grid';
-import { Icon } from '../shared/ui/icons';
 import { getProducts, getCategories, getBrands } from '../../lib/api/generated/rueCosmeticsAPI';
 import type { InternalCatalogProductView } from '../../lib/api/generated/rueCosmeticsAPI';
 

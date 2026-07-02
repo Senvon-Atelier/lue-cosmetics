@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Icon } from '../shared/ui/icons';
 
 interface FilterBarProps {
@@ -22,8 +21,6 @@ export function FilterBar({
   onBrandChange,
   onSearchChange,
 }: FilterBarProps) {
-  const [showFilters, setShowFilters] = useState(false);
-
   return (
     <div className="space-y-6">
       {/* Search */}

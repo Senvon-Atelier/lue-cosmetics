@@ -56,7 +56,7 @@ export function CartPage() {
             <h2 className="font-display text-2xl mb-2">Your cart is empty</h2>
             <p className="text-ink-muted mb-6">Let's change that.</p>
             <Link to="/shop">
-              <Button variant="primary" icon="arrowRight" iconPosition="right">
+              <Button variant="primary" icon="arrow" iconPosition="right">
                 Shop the edit
               </Button>
             </Link>
@@ -147,7 +147,7 @@ export function CartPage() {
                 </div>
 
                 <Link to="/checkout">
-                  <Button className="w-full" icon="arrowRight" iconPosition="right">
+                  <Button className="w-full" icon="arrow" iconPosition="right">
                     Proceed to Checkout
                   </Button>
                 </Link>

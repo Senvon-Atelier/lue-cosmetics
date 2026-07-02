@@ -106,7 +106,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                 <h3 className="font-display text-2xl mb-2">Your bag is empty</h3>
                 <p className="text-ink-muted mb-6">Let's change that.</p>
                 <Link to="/shop">
-                  <Button onClick={onClose} variant="primary" icon="arrowRight" iconPosition="right">
+                  <Button onClick={onClose} variant="primary" icon="arrow" iconPosition="right">
                     Shop the edit
                   </Button>
                 </Link>
@@ -186,7 +186,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                 <span>{shipping}</span>
               </div>
               <Link to="/checkout" onClick={onClose}>
-                <Button className="w-full" icon="arrowRight" iconPosition="right">
+                <Button className="w-full" icon="arrow" iconPosition="right">
                   Checkout · {total}
                 </Button>
               </Link>

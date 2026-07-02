@@ -47,7 +47,7 @@ export function Footer() {
               <h5>Company</h5>
               <ul>
                 <li><Link to="/about">About Rue</Link></li>
-                <li><Link to="/journal">The Journal</Link></li>
+                <li><Link to="/" hash="journal">The Journal</Link></li>
                 <li><a href="#">Store locator</a></li>
                 <li><a href="#">Careers</a></li>
                 <li><a href="#">Press</a></li>

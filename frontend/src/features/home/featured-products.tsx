@@ -44,7 +44,7 @@ export function FeaturedProducts() {
             className="section-link"
           >
             <span>View all</span>
-            <Icon name="arrowRight" size={16} />
+            <Icon name="arrow" size={16} />
           </button>
         </div>
 
@@ -71,7 +71,7 @@ export function FeaturedProducts() {
             </div>
 
             <div className="text-center mt-12">
-              <Button onClick={() => navigate({ to: '/shop' })} variant="outline" icon="arrowRight" iconPosition="right">
+              <Button onClick={() => navigate({ to: '/shop' })} variant="outline" icon="arrow" iconPosition="right">
                 Shop All Products
               </Button>
             </div>

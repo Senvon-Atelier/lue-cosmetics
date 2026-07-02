@@ -188,7 +188,7 @@ export function ProductDetail({ slug }: ProductDetailProps) {
             </div>
 
             {/* Add to Cart Button */}
-            <Button onClick={handleAddToCart} className="w-full" size="lg" icon="arrowRight" iconPosition="right">
+            <Button onClick={handleAddToCart} className="w-full" size="lg" icon="arrow" iconPosition="right">
               Add to Cart
             </Button>
 
