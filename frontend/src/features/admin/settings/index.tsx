@@ -94,7 +94,7 @@ export function AdminSettings() {
                 >
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-lavender-300 flex items-center justify-center font-display italic">
-                      {name[0]}
+                      {(name ?? '')[0]}
                     </div>
                     <div>{name}</div>
                   </div>
@@ -109,7 +109,7 @@ export function AdminSettings() {
           {/* Integrations */}
           <Panel title="Integrations">
             <div className="space-y-0">
-              {['Klaviyo · Email', 'Meta Pixel · Ads', 'Google Analytics 4', 'DHL · Shipping', 'Trustpilot · Reviews'].map((integration, i) => (
+              {['Klaviyo · Email', 'Meta Pixel · Ads', 'Google Analytics 4', 'DHL · Shipping', 'Trustpilot · Reviews'].map((integration) => (
                 <div
                   key={integration}
                   className="flex justify-between items-center py-2 border-b border-line-soft last:border-0"

@@ -98,7 +98,7 @@ export function AdminContent() {
         {/* Pages */}
         <Panel title="Pages">
           <div className="space-y-0">
-            {['About', 'Shop', 'Journal', 'Contact', 'Loyalty', 'Affiliate'].map((page, i) => (
+            {['About', 'Shop', 'Journal', 'Contact', 'Loyalty', 'Affiliate'].map((page) => (
               <div
                 key={page}
                 className="flex justify-between items-center py-2 border-b border-line-soft last:border-0"

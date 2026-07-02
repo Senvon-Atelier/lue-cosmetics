@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
-import { getApiV1AdminCustomers } from '../../../lib/api/generated/rueCosmeticsAPI';
+import { useGetAdminCustomers } from '../../../lib/api/generated/rueCosmeticsAPI';
 import { Panel } from '../../shared/ui/admin';
 
 export function AdminCustomers() {
@@ -10,15 +9,9 @@ export function AdminCustomers() {
   const [searchQuery, setSearchQuery] = useState('');
   const [tierFilter, setTierFilter] = useState('');
 
-  const { data: customersData, isLoading, error } = useQuery({
-    queryKey: ['admin', 'customers', page, searchQuery, tierFilter],
-    queryFn: () =>
-      getApiV1AdminCustomers({
-        params: {
-          page: page + 1,
-          page_size: 20,
-        },
-      })
+  const { data: customersData, isLoading, error } = useGetAdminCustomers({
+    page: page + 1,
+    page_size: 20,
   });
 
   const formatCurrency = (amount: number) => {
@@ -35,8 +28,8 @@ export function AdminCustomers() {
     });
   };
 
-  const totalPages = customersData?.data.total_pages || 1;
-  const customers = customersData?.data.customers || [];
+  const totalPages = customersData?.total_pages ?? 1;
+  const customers = customersData?.customers ?? [];
 
   // Filter customers based on search (client-side for now)
   const filteredCustomers = customers.filter((c) => {

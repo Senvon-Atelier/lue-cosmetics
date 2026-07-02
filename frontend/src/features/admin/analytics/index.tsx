@@ -1,34 +1,26 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { getApiV1AdminAnalyticsStats, getApiV1AdminAnalyticsRevenue } from '../../../lib/api/generated/rueCosmeticsAPI';
+import {
+  useGetAdminAnalyticsStats,
+  useGetAdminAnalyticsRevenue,
+} from '../../../lib/api/generated/rueCosmeticsAPI';
 import { KPICard, Panel } from '../../shared/ui/admin';
 
 export function AdminAnalytics() {
-  const [granularity, setGranularity] = useState('month');
+  const granularity = 'month'; // switcher UI not built yet; keep a constant, not dead state
 
-  const { data: statsData, isLoading: statsLoading } = useQuery({
-    queryKey: ['admin', 'analytics', 'stats'],
-    queryFn: () => getApiV1AdminAnalyticsStats(),
-  });
-
-  const { data: revenueData, isLoading: revenueLoading } = useQuery({
-    queryKey: ['admin', 'analytics', 'revenue', granularity],
-    queryFn: () =>
-      getApiV1AdminAnalyticsRevenue({
-        granularity: granularity as 'day' | 'week' | 'month',
-        date_from: '2024-01-01T00:00:00Z',
-        date_to: '2024-12-31T23:59:59Z',
-      }),
+  const { data: stats, isLoading: statsLoading } = useGetAdminAnalyticsStats();
+  const { data: revenueData, isLoading: revenueLoading } = useGetAdminAnalyticsRevenue({
+    granularity,
+    date_from: '2024-01-01T00:00:00Z',
+    date_to: '2024-12-31T23:59:59Z',
   });
 
   const formatCurrency = (amount: number) => {
     return `GH₵${(amount / 100).toLocaleString()}`;
   };
 
-  const stats = statsData?.data;
-  const topProducts = stats?.top_products || [];
-  const revenueByDate = revenueData?.data.by_date || [];
-  const revenueByCategory = revenueData?.data.by_category || [];
+  const topProducts = stats?.top_products ?? [];
+  const revenueByDate = revenueData?.by_date ?? [];
+  const revenueByCategory = revenueData?.by_category ?? [];
 
   if (statsLoading || revenueLoading) {
     return (
@@ -82,8 +74,8 @@ export function AdminAnalytics() {
               <div
                 key={i}
                 className="flex-1 bg-gradient-to-t from-lavender-600 to-lavender-400 rounded-t hover:bg-ink transition-colors min-h-[10px]"
-                style={{ height: `${Math.min(100, (item.revenue_ghs_minor / 1000000) * 100)}%` }}
-                title={`${item.date}: GH₵${(item.revenue_ghs_minor / 100).toLocaleString()}`}
+                style={{ height: `${Math.min(100, ((item.revenue_ghs_minor ?? 0) / 1000000) * 100)}%` }}
+                title={`${item.date}: GH₵${((item.revenue_ghs_minor ?? 0) / 100).toLocaleString()}`}
               />
             ))
           ) : (
@@ -120,23 +112,23 @@ export function AdminAnalytics() {
             <tbody>
               {topProducts.length > 0 ? (
                 topProducts.map((product) => (
-                  <tr key={product.product_id} className="border-b border-line-soft">
-                    <td className="py-2 font-display">{product.name || 'Product'}</td>
-                    <td className="py-2 text-right font-variant-numeric tabular-nums">{product.units_sold || 0}</td>
+                  <tr key={product.id ?? ''} className="border-b border-line-soft">
+                    <td className="py-2 font-display">{product.name ?? 'Product'}</td>
+                    <td className="py-2 text-right font-variant-numeric tabular-nums">{product.total_sold ?? 0}</td>
                     <td className="py-2 text-right font-variant-numeric tabular-nums font-semibold">
-                      {formatCurrency(product.revenue_ghs_minor)}
+                      {formatCurrency(product.revenue_ghs_minor ?? 0)}
                     </td>
                   </tr>
                 ))
               ) : (
                 // Placeholder data if none available
-                [
+                ([
                   ['Rose Hydration Serum', 412, 101940],
                   ['Argan Gold Hair Oil', 389, 36955],
                   ['Cocoa Body Lotion', 318, 20670],
                   ['Niacinamide 10%', 284, 22152],
                   ['Nuit de Prelude', 86, 58480],
-                ].map(([name, units, revenue]) => (
+                ] as [string, number, number][]).map(([name, units, revenue]) => (
                   <tr key={name} className="border-b border-line-soft">
                     <td className="py-2 font-display">{name}</td>
                     <td className="py-2 text-right font-variant-numeric tabular-nums">{units}</td>
@@ -155,12 +147,12 @@ export function AdminAnalytics() {
           <div className="grid gap-2">
             {revenueByCategory.length > 0 ? (
               revenueByCategory.map((item) => (
-                <div key={item.category} className="flex items-center justify-between gap-3 text-sm">
+                <div key={item.category_name ?? ''} className="flex items-center justify-between gap-3 text-sm">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-sm bg-ink" />
-                    {item.category}
+                    {item.category_name}
                   </div>
-                  <strong>{formatCurrency(item.revenue_ghs_minor)}</strong>
+                  <strong>{formatCurrency(item.revenue_ghs_minor ?? 0)}</strong>
                 </div>
               ))
             ) : (

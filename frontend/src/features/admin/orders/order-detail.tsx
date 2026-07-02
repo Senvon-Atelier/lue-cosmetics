@@ -1,15 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
 import { useParams } from '@tanstack/react-router';
-import { getApiV1AdminOrdersId } from '../../../lib/api/generated/rueCosmeticsAPI';
+import { useGetAdminOrdersId } from '../../../lib/api/generated/rueCosmeticsAPI';
 import { StatusTag, Panel } from '../../shared/ui/admin';
 
 export function AdminOrderDetail() {
   const { id } = useParams({ from: '/admin/orders/$id' });
-
-  const { data: orderDetail, isLoading, error } = useQuery({
-    queryKey: ['admin', 'orders', id],
-    queryFn: () => getApiV1AdminOrdersId({ id: id || '' }),
-    enabled: !!id,
+  const { data: orderDetail, isLoading, error } = useGetAdminOrdersId(id, {
+    query: { enabled: !!id },
   });
 
   const formatCurrency = (amount: number) => {
@@ -42,8 +38,8 @@ export function AdminOrderDetail() {
     );
   }
 
-  const order = orderDetail?.data.order;
-  const items = orderDetail?.data.items || [];
+  const order = orderDetail?.order;
+  const items = orderDetail?.items ?? [];
 
   if (!order) {
     return <div>Order not found</div>;
@@ -55,7 +51,7 @@ export function AdminOrderDetail() {
       <div className="flex items-start justify-between mb-7 gap-4">
         <div>
           <div className="text-lavender-700 text-sm mb-1">Order Details</div>
-          <h1 className="font-display text-4xl font-normal">#{order.id.slice(0, 8).toUpperCase()}</h1>
+          <h1 className="font-display text-4xl font-normal">#{(order.id ?? '').slice(0, 8).toUpperCase()}</h1>
         </div>
         <div className="flex gap-2">
           <button className="px-3 py-2 border border-line rounded-lg text-sm font-semibold hover:bg-lavender-50 transition-colors">
@@ -87,12 +83,12 @@ export function AdminOrderDetail() {
                       <div className="font-display text-sm">{item.product_name_snapshot}</div>
                       <div className="text-xs text-ink-muted">{item.product_brand_snapshot}</div>
                     </td>
-                    <td className="py-3 text-right font-variant-numeric tabular-nums">{item.qty}</td>
+                    <td className="py-3 text-right font-variant-numeric tabular-nums">{item.qty ?? 0}</td>
                     <td className="py-3 text-right font-variant-numeric tabular-nums text-sm">
-                      {formatCurrency(item.unit_price_ghs_minor)}
+                      {formatCurrency(item.unit_price_ghs_minor ?? 0)}
                     </td>
                     <td className="py-3 text-right font-variant-numeric tabular-nums font-semibold">
-                      {formatCurrency(item.unit_price_ghs_minor * item.qty)}
+                      {formatCurrency((item.unit_price_ghs_minor ?? 0) * (item.qty ?? 0))}
                     </td>
                   </tr>
                 ))}
@@ -108,16 +104,16 @@ export function AdminOrderDetail() {
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-ink-muted">Status</span>
-                <StatusTag status={order.status} />
+                <StatusTag status={order.status ?? 'pending'} />
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-ink-muted">Created</span>
-                <span className="text-sm">{formatDate(order.created_at)}</span>
+                <span className="text-sm">{formatDate(order.created_at ?? '')}</span>
               </div>
               {order.updated_at !== order.created_at && (
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-ink-muted">Updated</span>
-                  <span className="text-sm">{formatDate(order.updated_at)}</span>
+                  <span className="text-sm">{formatDate(order.updated_at ?? '')}</span>
                 </div>
               )}
             </div>
@@ -128,15 +124,15 @@ export function AdminOrderDetail() {
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-ink-muted">Subtotal</span>
-                <span className="font-variant-numeric tabular-nums">{formatCurrency(order.subtotal_ghs_minor)}</span>
+                <span className="font-variant-numeric tabular-nums">{formatCurrency(order.subtotal_ghs_minor ?? 0)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-ink-muted">Shipping</span>
-                <span className="font-variant-numeric tabular-nums">{formatCurrency(order.shipping_ghs_minor)}</span>
+                <span className="font-variant-numeric tabular-nums">{formatCurrency(order.shipping_ghs_minor ?? 0)}</span>
               </div>
               <div className="flex justify-between text-base font-semibold border-t border-line pt-2 mt-2">
                 <span>Total</span>
-                <span className="font-display font-variant-numeric tabular-nums">{formatCurrency(order.total_ghs_minor)}</span>
+                <span className="font-display font-variant-numeric tabular-nums">{formatCurrency(order.total_ghs_minor ?? 0)}</span>
               </div>
             </div>
           </Panel>

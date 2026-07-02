@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { getApiV1AdminProducts } from '../../../lib/api/generated/rueCosmeticsAPI';
+import { useGetAdminProducts } from '../../../lib/api/generated/rueCosmeticsAPI';
 import { StatusTag, Panel } from '../../shared/ui/admin';
 
 export function AdminProducts() {
@@ -9,38 +8,26 @@ export function AdminProducts() {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
 
-  const { data: productsData, isLoading, error } = useQuery({
-    queryKey: ['admin', 'products', page, searchQuery, categoryFilter, statusFilter],
-    queryFn: () =>
-      getApiV1AdminProducts({
-        page: page + 1,
-        page_size: 20,
-      }),
+  const { data: productsData, isLoading, error } = useGetAdminProducts({
+    page: page + 1,
+    page_size: 20,
   });
 
   const formatCurrency = (amount: number) => {
     return `GH₵${(amount / 100).toLocaleString()}`;
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-  };
-
-  const getStockStatus = (product: any) => {
+  const getStockStatus = () => {
     // This is a placeholder - you'll need to add stock tracking to the product model
     return 'live';
   };
 
-  const totalPages = productsData?.data.total_pages || 1;
-  const products = productsData?.data.products || [];
+  const totalPages = productsData?.total_pages ?? 1;
+  const products = productsData?.products ?? [];
 
   // Filter products based on search (client-side for now)
   const filteredProducts = products.filter((p) => {
-    if (searchQuery && !p.name.toLowerCase().includes(searchQuery.toLowerCase()) && !p.slug.toLowerCase().includes(searchQuery.toLowerCase())) {
+    if (searchQuery && !(p.name ?? '').toLowerCase().includes(searchQuery.toLowerCase()) && !(p.slug ?? '').toLowerCase().includes(searchQuery.toLowerCase())) {
       return false;
     }
     return true;
@@ -84,9 +71,9 @@ export function AdminProducts() {
       <div className="grid grid-cols-4 gap-3 mb-6">
         {[
           ['Total SKUs', products.length],
-          ['Live', products.filter((p) => getStockStatus(p) === 'live').length],
-          ['Low stock', products.filter((p) => getStockStatus(p) === 'low').length],
-          ['Out of stock', products.filter((p) => getStockStatus(p) === 'oos').length],
+          ['Live', products.filter(() => getStockStatus() === 'live').length],
+          ['Low stock', products.filter(() => getStockStatus() === 'low').length],
+          ['Out of stock', products.filter(() => getStockStatus() === 'oos').length],
         ].map(([label, value]) => (
           <div key={label} className="bg-white border border-line rounded-xl p-5">
             <div className="text-[10px] uppercase tracking-wider text-ink-muted">{label}</div>
@@ -173,14 +160,14 @@ export function AdminProducts() {
                     </div>
                   </div>
                 </td>
-                <td className="px-3 py-3 border-b border-line-soft capitalize">{product.category_id.slice(0, 8)}</td>
-                <td className="px-3 py-3 border-b border-line-soft text-xs">{product.brand_id.slice(0, 8)}</td>
+                <td className="px-3 py-3 border-b border-line-soft capitalize">{(product.category_id ?? '—').slice(0, 8)}</td>
+                <td className="px-3 py-3 border-b border-line-soft text-xs">{(product.brand_id ?? '—').slice(0, 8)}</td>
                 <td className="px-3 py-3 border-b border-line-soft font-variant-numeric tabular-nums font-semibold">
-                  {formatCurrency(product.price_ghs_minor)}
+                  {formatCurrency(product.price_ghs_minor ?? 0)}
                 </td>
                 <td className="px-3 py-3 border-b border-line-soft font-variant-numeric tabular-nums">—</td>
                 <td className="px-3 py-3 border-b border-line-soft">
-                  <StatusTag status={getStockStatus(product)} />
+                  <StatusTag status={getStockStatus()} />
                 </td>
                 <td className="px-3 py-3 border-b border-line-soft">
                   <button className="text-lavender-700 font-semibold px-2 py-1 text-sm hover:underline">

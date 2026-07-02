@@ -1,12 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
-import { getApiV1AdminDashboard } from '../../../lib/api/generated/rueCosmeticsAPI';
+import { useGetAdminDashboard } from '../../../lib/api/generated/rueCosmeticsAPI';
 import { KPICard, StatusTag, Panel } from '../../shared/ui/admin';
 
 export function AdminDashboard() {
-  const { data: dashboard, isLoading, error } = useQuery({
-    queryKey: ['admin', 'dashboard'],
-    queryFn: () => getApiV1AdminDashboard(),
-  });
+  const { data: dashboard, isLoading, error } = useGetAdminDashboard();
 
   if (isLoading) {
     return (
@@ -24,19 +20,11 @@ export function AdminDashboard() {
     );
   }
 
-  const stats = dashboard?.data.stats;
-  const recentOrders = dashboard?.data.recent_orders || [];
+  const stats = dashboard?.stats;
+  const recentOrders = dashboard?.recent_orders ?? [];
 
   const formatCurrency = (amount: number) => {
     return `GH₵${(amount / 100).toLocaleString()}`;
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
   };
 
   return (
@@ -63,25 +51,25 @@ export function AdminDashboard() {
       <div className="grid grid-cols-4 gap-3 mb-6">
         <KPICard
           title="Revenue"
-          value={stats ? formatCurrency(stats.total_revenue_ghs_minor) : '—'}
+          value={stats ? formatCurrency(stats.total_revenue_ghs_minor ?? 0) : '—'}
           delta="+12.4%"
           deltaDirection="up"
         />
         <KPICard
           title="Orders"
-          value={stats?.total_orders || 0}
+          value={stats?.total_orders ?? 0}
           delta="+8.1%"
           deltaDirection="up"
         />
         <KPICard
           title="Avg. order"
-          value={stats ? formatCurrency(stats.total_revenue_ghs_minor / Math.max(stats.total_orders, 1)) : '—'}
+          value={stats ? formatCurrency((stats.total_revenue_ghs_minor ?? 0) / Math.max(stats.total_orders ?? 1, 1)) : '—'}
           delta="+3.2%"
           deltaDirection="up"
         />
         <KPICard
           title="Customers"
-          value={stats?.total_customers || 0}
+          value={stats?.total_customers ?? 0}
           delta="+4.8%"
           deltaDirection="up"
         />
@@ -177,18 +165,18 @@ export function AdminDashboard() {
             </thead>
             <tbody>
               {recentOrders.slice(0, 5).map((order) => (
-                <tr key={order.id} className="hover:bg-[#FAFAFA] transition-colors">
+                <tr key={order.id ?? ''} className="hover:bg-[#FAFAFA] transition-colors">
                   <td className="px-3 py-3 border-b border-line-soft font-variant-numeric tabular-nums font-semibold">
-                    {order.id.slice(0, 8).toUpperCase()}
+                    {(order.id ?? '').slice(0, 8).toUpperCase()}
                   </td>
                   <td className="px-3 py-3 border-b border-line-soft">
                     {order.customer_name || order.customer_email}
                   </td>
                   <td className="px-3 py-3 border-b border-line-soft font-variant-numeric tabular-nums font-semibold">
-                    {formatCurrency(order.total_ghs_minor)}
+                    {formatCurrency(order.total_ghs_minor ?? 0)}
                   </td>
                   <td className="px-3 py-3 border-b border-line-soft">
-                    <StatusTag status={order.status} />
+                    <StatusTag status={order.status ?? 'pending'} />
                   </td>
                 </tr>
               ))}

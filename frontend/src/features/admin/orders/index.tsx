@@ -1,8 +1,13 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
-import { getApiV1AdminOrders, patchApiV1AdminOrdersIdStatus } from '../../../lib/api/generated/rueCosmeticsAPI';
-import { StatusTag, Panel } from '../../shared/ui/admin';
+import {
+  useGetAdminOrders,
+  getGetAdminOrdersQueryKey,
+  usePatchAdminOrdersIdStatus,
+  getGetAdminDashboardQueryKey,
+} from '../../../lib/api/generated/rueCosmeticsAPI';
+import { Panel } from '../../shared/ui/admin';
 
 export function AdminOrders() {
   const navigate = useNavigate();
@@ -10,17 +15,18 @@ export function AdminOrders() {
   const [page, setPage] = useState(0);
   const [statusFilter, setStatusFilter] = useState('');
 
-  const { data: ordersData, isLoading, error } = useQuery({
-    queryKey: ['admin', 'orders', page, statusFilter],
-    queryFn: () => getApiV1AdminOrders({ page: page + 1, page_size: 20, status: statusFilter || undefined }),
+  const { data: ordersData, isLoading, error } = useGetAdminOrders({
+    page: page + 1,
+    page_size: 20,
+    ...(statusFilter ? { status: statusFilter } : {}),
   });
 
-  const updateStatusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: string }) =>
-      patchApiV1AdminOrdersIdStatus({ id, data: { status } }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'orders'] });
-      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] });
+  const updateStatusMutation = usePatchAdminOrdersIdStatus({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getGetAdminOrdersQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getGetAdminDashboardQueryKey() });
+      },
     },
   });
 
@@ -35,7 +41,7 @@ export function AdminOrders() {
     });
   };
 
-  const totalPages = ordersData?.data.total_pages || 1;
+  const totalPages = ordersData?.total_pages ?? 1;
 
   if (isLoading) {
     return (
@@ -53,7 +59,7 @@ export function AdminOrders() {
     );
   }
 
-  const orders = ordersData?.data.orders || [];
+  const orders = ordersData?.orders ?? [];
 
   return (
     <div>
@@ -141,22 +147,22 @@ export function AdminOrders() {
           </thead>
           <tbody>
             {orders.map((order) => (
-              <tr key={order.id} className="hover:bg-[#FAFAFA] transition-colors">
+              <tr key={order.id ?? ''} className="hover:bg-[#FAFAFA] transition-colors">
                 <td className="px-3 py-3 border-b border-line-soft">
                   <input type="checkbox" className="rounded" />
                 </td>
                 <td className="px-3 py-3 border-b border-line-soft font-variant-numeric tabular-nums font-semibold">
-                  {order.id.slice(0, 8).toUpperCase()}
+                  {(order.id ?? '').slice(0, 8).toUpperCase()}
                 </td>
                 <td className="px-3 py-3 border-b border-line-soft">{order.customer_name || order.customer_email}</td>
-                <td className="px-3 py-3 border-b border-line-soft">{formatDate(order.created_at)}</td>
+                <td className="px-3 py-3 border-b border-line-soft">{formatDate(order.created_at ?? '')}</td>
                 <td className="px-3 py-3 border-b border-line-soft font-variant-numeric tabular-nums font-semibold">
-                  {formatCurrency(order.total_ghs_minor)}
+                  {formatCurrency(order.total_ghs_minor ?? 0)}
                 </td>
                 <td className="px-3 py-3 border-b border-line-soft">
                   <select
-                    value={order.status}
-                    onChange={(e) => updateStatusMutation.mutate({ id: order.id, status: e.target.value })}
+                    value={order.status ?? ''}
+                    onChange={(e) => updateStatusMutation.mutate({ id: order.id ?? '', data: { status: e.target.value } })}
                     disabled={updateStatusMutation.isPending}
                     className="text-xs rounded-lg px-2 py-1 border-0 focus:ring-2 focus:ring-lavender-400 cursor-pointer"
                     style={{ backgroundColor: 'transparent' }}
