@@ -98,6 +98,7 @@ export function ShopPage({ initialCategory, initialBrand }: ShopPageProps) {
           <h1 className="font-display text-[clamp(32px,4vw,56px)] font-normal tracking-[-0.01em]">
             All Products
           </h1>
+          <p className="text-ink-muted">Browse our curated collection of skincare, haircare, and wellness products.</p>
         </div>
 
         {/* Category Chips */}

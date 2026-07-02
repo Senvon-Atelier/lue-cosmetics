@@ -33,7 +33,7 @@ const blogPosts = [
 
 export function JournalSection() {
   return (
-    <section className="section">
+    <section id="journal" className="section">
       <div className="wrap">
         <div className="section-head">
           <div>

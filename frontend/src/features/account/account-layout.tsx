@@ -1,17 +1,8 @@
-import { useEffect } from 'react';
-import { Outlet, Link, useNavigate } from '@tanstack/react-router';
+import { Outlet, Link } from '@tanstack/react-router';
 import { useAuth } from '../../lib/auth/auth-provider';
-import { Button } from '../shared/ui/button';
 
 export function AccountLayout() {
-  const { user, isAuthenticated, isLoading } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      navigate({ to: '/login', replace: true });
-    }
-  }, [isAuthenticated, isLoading, navigate]);
+  const { user, isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -19,10 +10,6 @@ export function AccountLayout() {
         <div className="text-ink-muted">Loading...</div>
       </div>
     );
-  }
-
-  if (!isAuthenticated) {
-    return null;
   }
 
   return (

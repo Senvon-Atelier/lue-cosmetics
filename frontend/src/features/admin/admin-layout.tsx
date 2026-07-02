@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { Outlet, Link, useNavigate } from '@tanstack/react-router';
 import { useAuth } from '../../lib/auth/auth-provider';
 
@@ -34,41 +33,13 @@ const navSections = [
 ];
 
 export function AdminLayout() {
-  const { user, isAuthenticated, isAdmin, isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-  if (!isLoading && !isAuthenticated) {
-    navigate({ to: '/login', replace: true });
-    return;
-  }
-
-  if (!isLoading && isAuthenticated && !isAdmin) {
-    navigate({ to: '/', replace: true });
-  }
-}, [isAuthenticated, isAdmin, isLoading, navigate]);
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-paper text-ink font-body flex items-center justify-center">
         <div className="text-ink-muted">Loading...</div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      Redirecting to login...
-    </div>
-  );
-}
-
-  if (!isAdmin) {
-    return (
-      <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '2rem' }}>
-        <h1 className="font-display text-4xl mb-4">Access Denied</h1>
-        <p className="text-ink-muted">You don't have permission to access the admin dashboard.</p>
       </div>
     );
   }
