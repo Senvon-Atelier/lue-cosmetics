@@ -6,6 +6,7 @@
 /* @import "tailwindcss"; */
 @import './pages.css';
 @import './auth.css';
+@import './account.css';
 
 @import url('https://fonts.googleapis.com/css2?family=Italiana&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Epilogue:wght@300;400;500;600&family=Manrope:wght@300;400;500;600;700&display=swap');
 
@@ -985,6 +986,40 @@ img {
   }
 }
 
+/* brand mark (ported from Rue/styles.css — was missing; used by header + account sidebar) */
+.brand {
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+.brand-mark {
+  width: 34px; height: 34px;
+  border-radius: 999px;
+  border: 1px solid var(--lavender-400);
+  display: grid;
+  place-items: center;
+  color: var(--lavender-600);
+}
+.brand-word {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 30px;
+  color: var(--ink);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+.brand-tag {
+  font-family: var(--font-label);
+  font-size: 9px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--lavender-700);
+  margin-top: 2px;
+}
+
 /* Header Styles */
 .header {
   position: sticky;
@@ -1083,6 +1118,8 @@ img {
     grid-template-columns: auto 1fr auto;
     gap: 16px;
   }
+
+  .brand { justify-self: start; }
 
   .header-nav {
     display: none;

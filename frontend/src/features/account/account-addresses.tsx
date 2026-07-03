@@ -1,12 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
-  getMeAddresses,
-  postMeAddresses,
-  patchMeAddressesId,
   deleteMeAddressesId,
+  getMeAddresses,
+  patchMeAddressesId,
+  postMeAddresses,
   postMeAddressesIdDefault,
 } from '../../lib/api/generated/rueCosmeticsAPI';
-import { Button } from '../shared/ui/button';
+import { GHANA_REGIONS } from '../../content/regions';
+import { Icon } from '../shared/ui/icons';
+import { AcctHead } from './acct-primitives';
 
 type Address = {
   id?: string;
@@ -19,6 +21,15 @@ type Address = {
   is_default?: boolean;
   created_at?: string;
   updated_at?: string;
+};
+
+type AddressFormData = {
+  label: string;
+  line1: string;
+  line2: string;
+  city: string;
+  region: string;
+  phone: string;
 };
 
 export function AccountAddresses() {
@@ -57,7 +68,6 @@ export function AccountAddresses() {
 
   const handleDelete = async (id: string) => {
     if (!id || !confirm('Are you sure you want to delete this address?')) return;
-
     try {
       await deleteMeAddressesId(id);
       await loadAddresses();
@@ -68,34 +78,27 @@ export function AccountAddresses() {
 
   if (isLoading) {
     return (
-      <div className="text-center py-12">
-        <div className="text-ink-muted">Loading addresses...</div>
-      </div>
+      <main className="acct-main">
+        <div className="acct-empty">
+          <p>Loading addresses…</p>
+        </div>
+      </main>
     );
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="font-display text-xl mb-2">Addresses</h2>
-          <p className="text-ink-muted">Manage your shipping addresses.</p>
-        </div>
-        <Button variant="primary" onClick={() => setShowForm(true)}>
-          Add New Address
-        </Button>
-      </div>
+    <main className="acct-main">
+      <AcctHead eyebrow="Delivery" title="Address book">
+        <button className="btn btn-primary" onClick={() => { setEditingAddress(null); setShowForm(true); }}>
+          <Icon name="plus" size={14} /> Add address
+        </button>
+      </AcctHead>
 
-      {/* Error Message */}
-      {error && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-lg mb-4">
-          {error}
-        </div>
-      )}
+      {error && <div className="alert alert-warn">{error}</div>}
 
-      {/* Address Form */}
       {showForm && (
         <AddressForm
+          key={editingAddress?.id ?? 'new'}
           address={editingAddress}
           onSubmit={async (data) => {
             try {
@@ -118,83 +121,65 @@ export function AccountAddresses() {
         />
       )}
 
-      {/* Addresses List */}
-      {addresses.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="text-4xl mb-4">📍</div>
-          <h3 className="font-display text-xl mb-2">No addresses yet</h3>
-          <p className="text-ink-muted mb-6">Add a shipping address to make checkout easier.</p>
-          <Button variant="primary" onClick={() => setShowForm(true)}>
-            Add Your First Address
-          </Button>
+      {addresses.length === 0 && !showForm ? (
+        <div className="acct-empty">
+          <p>No addresses yet — add one to make checkout easier.</p>
+          <button className="btn btn-primary" onClick={() => { setEditingAddress(null); setShowForm(true); }}>
+            Add your first address
+          </button>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 gap-4">
-          {addresses.map((address) => (
-            <div
-              key={address.id}
-              className="bg-white rounded-lg p-6"
-              style={{ border: '1px solid var(--line)' }}
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h3 className="font-label font-semibold mb-1">{address.label || 'Address'}</h3>
-                  <div className="text-ink-soft text-sm">
-                    {address.line1}
-                    {address.line2 && <div>{address.line2}</div>}
-                    <div>{address.city && address.region ? `${address.city}, ${address.region}` : address.city || address.region}</div>
-                    <div>{address.phone}</div>
-                  </div>
-                </div>
-                {address.is_default && (
-                  <span className="px-2 py-1 bg-lavender-100 text-lavender-700 text-xs font-label font-medium rounded">
-                    Default
-                  </span>
+        <div className="addr-grid">
+          {addresses.map((a) => (
+            <div key={a.id} className={`addr-card ${a.is_default ? 'default' : ''}`}>
+              {a.is_default && <span className="pill">Default</span>}
+              <h4>{a.label || 'Address'}</h4>
+              <p>
+                {a.line1}
+                {a.line2 && (
+                  <>
+                    <br />
+                    {a.line2}
+                  </>
                 )}
-              </div>
-
-              <div className="flex gap-2 mt-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => address.id && setEditingAddress(address)}
+                <br />
+                {[a.city, a.region].filter(Boolean).join(', ')}
+                <br />
+                {a.phone}
+              </p>
+              <div className="actions">
+                <button
+                  onClick={() => {
+                    setEditingAddress(a);
+                    setShowForm(true);
+                  }}
                 >
                   Edit
-                </Button>
-                {!address.is_default && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => address.id && handleSetDefault(address.id)}
-                  >
-                    Set Default
-                  </Button>
+                </button>
+                {!a.is_default && (
+                  <button onClick={() => a.id && handleSetDefault(a.id)}>
+                    Set default
+                  </button>
                 )}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => address.id && handleDelete(address.id)}
-                >
-                  Delete
-                </Button>
+                <button className="danger" onClick={() => a.id && handleDelete(a.id)}>
+                  Remove
+                </button>
               </div>
             </div>
           ))}
         </div>
       )}
-    </div>
+    </main>
   );
 }
 
-// Address Form Component
 function AddressForm({
   address,
   onSubmit,
   onCancel,
 }: {
   address: Address | null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onSubmit: (data: any) => Promise<void>;
+  onSubmit: (data: AddressFormData) => Promise<void>;
   onCancel: () => void;
 }) {
   const [label, setLabel] = useState(address?.label || '');
@@ -211,10 +196,9 @@ function AddressForm({
     setErrors({});
     setIsSubmitting(true);
 
-    // Validation
     const newErrors: Record<string, string> = {};
     if (!label.trim()) newErrors.label = 'Label is required';
-    if (!line1.trim()) newErrors.line1 = 'Address line 1 is required';
+    if (!line1.trim()) newErrors.line1 = 'Street address is required';
     if (!city.trim()) newErrors.city = 'City is required';
     if (!region.trim()) newErrors.region = 'Region is required';
     if (!phone.trim()) newErrors.phone = 'Phone is required';
@@ -226,132 +210,86 @@ function AddressForm({
     }
 
     try {
-      await onSubmit({
-        label,
-        line1,
-        line2,
-        city,
-        region,
-        phone,
-      });
+      await onSubmit({ label, line1, line2, city, region, phone });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="bg-white rounded-lg p-6 mb-6" style={{ border: '1px solid var(--line)' }}>
-      <h3 className="font-label font-semibold mb-4">
-        {address ? 'Edit Address' : 'Add New Address'}
+    <div className="form-card" style={{ marginBottom: 24, maxWidth: 'none' }}>
+      <h3 className="form-card-title">
+        {address ? 'Edit address' : 'New address'}
       </h3>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Label */}
-        <div>
-          <label className="block font-label font-medium text-ink mb-2">
-            Label *
-          </label>
-          <input
-            type="text"
-            value={label}
-            onChange={(e) => setLabel(e.target.value)}
-            className="w-full px-4 py-2 border border-line rounded-lg bg-paper text-ink focus:outline-none focus:border-lavender-400"
-            placeholder="Home, Work, etc."
-          />
-          {errors.label && <p className="text-rose-600 text-sm mt-1">{errors.label}</p>}
+      <form onSubmit={handleSubmit}>
+        <div className="form-row">
+          <div className="field">
+            <label>Label</label>
+            <input
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+              placeholder="e.g. Home"
+            />
+            {errors.label && <span className="field-error">{errors.label}</span>}
+          </div>
+          <div className="field">
+            <label>Phone</label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="+233 24 000 0000"
+            />
+            {errors.phone && <span className="field-error">{errors.phone}</span>}
+          </div>
         </div>
-
-        {/* Line 1 */}
-        <div>
-          <label className="block font-label font-medium text-ink mb-2">
-            Address Line 1 *
-          </label>
-          <input
-            type="text"
-            value={line1}
-            onChange={(e) => setLine1(e.target.value)}
-            className="w-full px-4 py-2 border border-line rounded-lg bg-paper text-ink focus:outline-none focus:border-lavender-400"
-            placeholder="Street address"
-          />
-          {errors.line1 && <p className="text-rose-600 text-sm mt-1">{errors.line1}</p>}
+        <div className="form-row full">
+          <div className="field">
+            <label>Street address</label>
+            <input
+              value={line1}
+              onChange={(e) => setLine1(e.target.value)}
+              placeholder="14 Amilcar Cabral Ave"
+            />
+            {errors.line1 && <span className="field-error">{errors.line1}</span>}
+          </div>
         </div>
-
-        {/* Line 2 */}
-        <div>
-          <label className="block font-label font-medium text-ink mb-2">
-            Address Line 2
-          </label>
-          <input
-            type="text"
-            value={line2}
-            onChange={(e) => setLine2(e.target.value)}
-            className="w-full px-4 py-2 border border-line rounded-lg bg-paper text-ink focus:outline-none focus:border-lavender-400"
-            placeholder="Apartment, suite, etc. (optional)"
-          />
+        <div className="form-row full">
+          <div className="field">
+            <label>Apartment, suite, etc. (optional)</label>
+            <input value={line2} onChange={(e) => setLine2(e.target.value)} />
+          </div>
         </div>
-
-        {/* City */}
-        <div>
-          <label className="block font-label font-medium text-ink mb-2">
-            City *
-          </label>
-          <input
-            type="text"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            className="w-full px-4 py-2 border border-line rounded-lg bg-paper text-ink focus:outline-none focus:border-lavender-400"
-            placeholder="Accra, Kumasi, etc."
-          />
-          {errors.city && <p className="text-rose-600 text-sm mt-1">{errors.city}</p>}
+        <div className="form-row">
+          <div className="field">
+            <label>City</label>
+            <input
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              placeholder="Accra"
+            />
+            {errors.city && <span className="field-error">{errors.city}</span>}
+          </div>
+          <div className="field">
+            <label>Region</label>
+            <select value={region} onChange={(e) => setRegion(e.target.value)}>
+              <option value="">Select a region…</option>
+              {GHANA_REGIONS.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
+            {errors.region && <span className="field-error">{errors.region}</span>}
+          </div>
         </div>
-
-        {/* Region */}
-        <div>
-          <label className="block font-label font-medium text-ink mb-2">
-            Region *
-          </label>
-          <input
-            type="text"
-            value={region}
-            onChange={(e) => setRegion(e.target.value)}
-            className="w-full px-4 py-2 border border-line rounded-lg bg-paper text-ink focus:outline-none focus:border-lavender-400"
-            placeholder="Greater Accra, Ashanti, etc."
-          />
-          {errors.region && <p className="text-rose-600 text-sm mt-1">{errors.region}</p>}
-        </div>
-
-        {/* Phone */}
-        <div>
-          <label className="block font-label font-medium text-ink mb-2">
-            Phone *
-          </label>
-          <input
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className="w-full px-4 py-2 border border-line rounded-lg bg-paper text-ink focus:outline-none focus:border-lavender-400"
-            placeholder="0201234567"
-          />
-          {errors.phone && <p className="text-rose-600 text-sm mt-1">{errors.phone}</p>}
-        </div>
-
-        {/* Actions */}
-        <div className="flex gap-4">
-          <Button
-            type="submit"
-            variant="primary"
-            isLoading={isSubmitting}
-          >
-            {address ? 'Update Address' : 'Add Address'}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-            disabled={isSubmitting}
-          >
+        <div className="acct-head-actions">
+          <button className="btn btn-primary" type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Saving…' : address ? 'Update address' : 'Save address'}
+          </button>
+          <button className="btn btn-ghost" type="button" onClick={onCancel} disabled={isSubmitting}>
             Cancel
-          </Button>
+          </button>
         </div>
       </form>
     </div>

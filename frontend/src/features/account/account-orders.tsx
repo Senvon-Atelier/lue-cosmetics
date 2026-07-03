@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+import { useEffect, useState } from 'react';
+import { Link } from '@tanstack/react-router';
 import { getMeOrders } from '../../lib/api/generated/rueCosmeticsAPI';
-import { Button } from '../shared/ui/button';
+import { formatGhs, formatOrderDate } from '../../lib/format/utils';
+import { AcctHead, StatusPill } from './acct-primitives';
 
 type Order = {
   id?: string;
@@ -15,8 +16,15 @@ type Order = {
   updated_at?: string;
 };
 
+const STATUS_TABS: Array<[value: string, label: string]> = [
+  ['', 'All'],
+  ['pending', 'Pending'],
+  ['paid', 'Paid'],
+  ['failed', 'Failed'],
+  ['cancelled', 'Cancelled'],
+];
+
 export function AccountOrders() {
-  const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
@@ -52,158 +60,98 @@ export function AccountOrders() {
 
   const totalPages = Math.ceil(total / limit);
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
-
-  const formatCurrency = (amount: number) => {
-    return `GH₵${(amount / 100).toFixed(2)}`;
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'paid':
-        return 'text-green-600';
-      case 'pending':
-        return 'text-yellow-600';
-      case 'failed':
-        return 'text-rose-600';
-      case 'cancelled':
-        return 'text-gray-600';
-      default:
-        return 'text-ink';
-    }
-  };
-
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="font-display text-xl mb-2">Order History</h2>
-          <p className="text-ink-muted">View and track your orders.</p>
-        </div>
+    <main className="acct-main">
+      <AcctHead eyebrow="History" title="Your orders" />
+
+      <div className="sub-tabs" style={{ width: 'fit-content' }}>
+        {STATUS_TABS.map(([value, label]) => (
+          <button
+            key={label}
+            className={statusFilter === value ? 'active' : ''}
+            onClick={() => {
+              setStatusFilter(value);
+              setPage(0);
+            }}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
-      {/* Status Filter */}
-      <div className="mb-6">
-        <select
-          value={statusFilter}
-          onChange={(e) => {
-            setStatusFilter(e.target.value);
-            setPage(0);
-          }}
-          className="px-4 py-2 border border-line rounded-lg bg-paper text-ink focus:outline-none focus:border-lavender-400"
-        >
-          <option value="">All Orders</option>
-          <option value="pending">Pending</option>
-          <option value="paid">Paid</option>
-          <option value="failed">Failed</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
-      </div>
+      {error && <div className="alert alert-warn">{error}</div>}
 
-      {/* Error Message */}
-      {error && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-lg mb-4">
-          {error}
-        </div>
-      )}
-
-      {/* Loading State */}
       {isLoading ? (
-        <div className="text-center py-12">
-          <div className="text-ink-muted">Loading orders...</div>
+        <div className="acct-empty">
+          <p>Loading orders…</p>
         </div>
       ) : orders.length === 0 ? (
-        /* Empty State */
-        <div className="text-center py-12">
-          <div className="text-4xl mb-4">📦</div>
-          <h3 className="font-display text-xl mb-2">No orders yet</h3>
-          <p className="text-ink-muted mb-6">When you place an order, it will appear here.</p>
-          <Button variant="primary" onClick={() => navigate({ to: '/shop' })}>
-            Start Shopping
-          </Button>
+        <div className="acct-empty">
+          <p>
+            {statusFilter
+              ? 'No orders with this status.'
+              : 'No orders yet — when you place one, it will appear here.'}
+          </p>
+          <Link className="btn btn-primary" to="/shop">
+            Start shopping
+          </Link>
         </div>
       ) : (
-        /* Orders List */
-        <div className="space-y-4">
-          {orders.map((order) => (
-            <div
-              key={order.id}
-              className="bg-white rounded-lg p-6"
-              style={{ border: '1px solid var(--line)' }}
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <div className="text-sm text-ink-muted mb-1">
-                    Order ID: {(order.id || '').slice(0, 8).toUpperCase()}
-                  </div>
-                  <div className="text-sm text-ink-muted">
-                    {formatDate(order.created_at || '')}
-                  </div>
-                </div>
-                <div className={`font-label font-medium capitalize ${getStatusColor(order.status || '')}`}>
-                  {order.status}
-                </div>
-              </div>
-
-              <div className="space-y-1 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-ink-muted">Subtotal:</span>
-                  <span className="font-medium">{formatCurrency(order.subtotal_ghs || 0)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-ink-muted">Shipping:</span>
-                  <span className="font-medium">{formatCurrency(order.shipping_ghs || 0)}</span>
-                </div>
-                <div className="flex justify-between text-base">
-                  <span className="font-medium">Total:</span>
-                  <span className="font-display font-semibold">{formatCurrency(order.total_ghs || 0)}</span>
-                </div>
-              </div>
-
-              <div className="mt-4 flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate({ to: `/account/orders/${order.id}` })}
-                >
-                  View Details
-                </Button>
-              </div>
+        <>
+          <div className="orders-table">
+            <div className="orders-row head">
+              <div>Order</div>
+              <div>Date</div>
+              <div>Total</div>
+              <div>Status</div>
+              <div></div>
             </div>
-          ))}
+            {orders.map((order) => (
+              <div key={order.id} className="orders-row">
+                <div className="o-id">
+                  #{(order.id || '').slice(0, 8).toUpperCase()}
+                </div>
+                <div>{formatOrderDate(order.created_at)}</div>
+                <div className="price">{formatGhs(order.total_ghs || 0)}</div>
+                <div>
+                  <StatusPill status={order.status} />
+                </div>
+                <div>
+                  <Link
+                    className="link-btn"
+                    to="/account/orders/$id"
+                    params={{ id: order.id || '' }}
+                  >
+                    View
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
 
-          {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex justify-center gap-2 mt-6">
-              <Button
-                variant="outline"
-                size="sm"
+            <div className="acct-pagination">
+              <button
+                className="btn btn-ghost"
                 disabled={page === 0}
                 onClick={() => setPage(page - 1)}
               >
                 Previous
-              </Button>
-              <span className="px-4 py-2 text-sm text-ink-muted">
+              </button>
+              <span>
                 Page {page + 1} of {totalPages}
               </span>
-              <Button
-                variant="outline"
-                size="sm"
+              <button
+                className="btn btn-ghost"
                 disabled={page >= totalPages - 1}
                 onClick={() => setPage(page + 1)}
               >
                 Next
-              </Button>
+              </button>
             </div>
           )}
-        </div>
+        </>
       )}
-    </div>
+    </main>
   );
 }

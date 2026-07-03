@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from '@tanstack/react-router';
+import { useEffect, useState } from 'react';
+import { Link, useParams } from '@tanstack/react-router';
 import { getMeOrdersId } from '../../lib/api/generated/rueCosmeticsAPI';
-import { Button } from '../shared/ui/button';
+import { formatGhs, formatOrderDate, getImageUrl } from '../../lib/format/utils';
+import { Icon } from '../shared/ui/icons';
+import { AcctHead, StatusPill } from './acct-primitives';
 
 type OrderItem = {
   id?: string;
@@ -29,8 +31,7 @@ type OrderDetailResponse = {
 };
 
 export function AccountOrderDetail() {
-  const { id } = useParams({ from: '/_storefront/account/orders/$id' });
-  const navigate = useNavigate();
+  const { id } = useParams({ from: '/account/orders/$id' });
   const [order, setOrder] = useState<OrderDetailResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +39,6 @@ export function AccountOrderDetail() {
   useEffect(() => {
     const loadOrder = async () => {
       if (!id) return;
-
       setIsLoading(true);
       setError(null);
       try {
@@ -50,191 +50,128 @@ export function AccountOrderDetail() {
         setIsLoading(false);
       }
     };
-
     loadOrder();
   }, [id]);
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
-  const formatCurrency = (amount: number) => {
-    return `GH₵${(amount / 100).toFixed(2)}`;
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'paid':
-        return 'text-green-600';
-      case 'pending':
-        return 'text-yellow-600';
-      case 'failed':
-        return 'text-rose-600';
-      case 'cancelled':
-        return 'text-gray-600';
-      default:
-        return 'text-ink';
-    }
-  };
-
-  const handleReorder = async () => {
-    if (!order || !order.items || !order.items.length) return;
-
-    // Add all items to cart
-    // This would require cart context integration
-    alert('Reorder functionality would add all items to cart');
-  };
-
   if (isLoading) {
     return (
-      <div className="text-center py-12">
-        <div className="text-ink-muted">Loading order details...</div>
-      </div>
+      <main className="acct-main">
+        <div className="acct-empty">
+          <p>Loading order details…</p>
+        </div>
+      </main>
     );
   }
 
   if (error || !order) {
     return (
-      <div className="text-center py-12">
-        <div className="text-4xl mb-4">⚠️</div>
-        <h3 className="font-display text-xl mb-2">Order Not Found</h3>
-        <p className="text-ink-muted mb-6">{error || 'Unable to load order details'}</p>
-        <Button variant="outline" onClick={() => navigate({ to: '/account/orders' })}>
-          Back to Orders
-        </Button>
-      </div>
+      <main className="acct-main">
+        <Link className="back-link" to="/account/orders">
+          <Icon name="arrowLeft" size={12} /> All orders
+        </Link>
+        <div className="alert alert-warn">
+          {error || 'Unable to load order details'}
+        </div>
+      </main>
     );
   }
 
+  const shortId = (order.id || '').slice(0, 8).toUpperCase();
+
   return (
-    <div>
-      {/* Back Button */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => navigate({ to: '/account/orders' })}
-        className="mb-4"
-      >
-        ← Back to Orders
-      </Button>
-
-      {/* Order Header */}
-      <div className="mb-8">
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <h2 className="font-display text-xl mb-2">Order Details</h2>
-            <div className="text-sm text-ink-muted">
-              Order ID: {order.id?.slice(0, 8).toUpperCase() || 'N/A'}
-            </div>
-          </div>
-          <div className={`font-label font-medium text-lg capitalize ${getStatusColor(order.status || '')}`}>
-            {order.status}
-          </div>
+    <main className="acct-main">
+      <Link className="back-link" to="/account/orders">
+        <Icon name="arrowLeft" size={12} /> All orders
+      </Link>
+      <AcctHead eyebrow={`Order #${shortId}`} title="Order details">
+        <div className="acct-head-actions">
+          <StatusPill status={order.status} />
         </div>
-        <div className="text-sm text-ink-muted">
-          Placed on {formatDate(order.created_at || '')}
-        </div>
+      </AcctHead>
+      <div className="acct-placed">
+        Placed {formatOrderDate(order.created_at)}
       </div>
 
-      {/* Shipping Address */}
-      <div className="bg-white rounded-lg p-6 mb-6" style={{ border: '1px solid var(--line)' }}>
-        <h3 className="font-label font-semibold mb-4">Shipping Address</h3>
-        <div className="text-ink-soft">
-          {order.shipping_address ? (
-            <div className="whitespace-pre-line">{order.shipping_address}</div>
-          ) : (
-            <div className="text-ink-muted">No shipping address available</div>
-          )}
-        </div>
-      </div>
-
-      {/* Order Items */}
-      <div className="bg-white rounded-lg p-6 mb-6" style={{ border: '1px solid var(--line)' }}>
-        <h3 className="font-label font-semibold mb-4">Items ({order.items?.length || 0})</h3>
-        <div className="space-y-4">
-          {(order.items || []).map((item) => (
-            <div
-              key={item.id}
-              className="flex items-start gap-4 pb-4"
-              style={{ borderBottom: '1px solid var(--line-soft)' }}
-            >
-              {/* Product Image */}
-              <div className="w-16 h-16 bg-lavender-50 rounded flex-shrink-0">
-                {item.product_image_snapshot ? (
-                  <img
-                    src={item.product_image_snapshot}
-                    alt={item.product_name_snapshot || ''}
-                    className="w-full h-full object-cover rounded"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-ink-muted text-xs">
-                    No image
+      <div className="order-detail-grid">
+        <div>
+          <div className="form-card" style={{ maxWidth: 'none' }}>
+            <h3 className="form-card-title">
+              Items ({order.items?.length || 0})
+            </h3>
+            {(order.items || []).map((it) => (
+              <div key={it.id} className="od-item">
+                <div className="od-item-ph ph ph--lavender">
+                  {it.product_image_snapshot ? (
+                    <img
+                      src={getImageUrl(it.product_image_snapshot)}
+                      alt={it.product_name_snapshot || ''}
+                    />
+                  ) : (
+                    <span className="ph-label">
+                      {it.product_name_snapshot}
+                    </span>
+                  )}
+                </div>
+                <div className="od-item-body">
+                  <div className="od-item-name">
+                    {it.product_name_snapshot}
                   </div>
-                )}
-              </div>
-
-              {/* Product Info */}
-              <div className="flex-1 min-w-0">
-                <h4 className="font-label font-medium mb-1">{item.product_name_snapshot}</h4>
-                <p className="text-sm text-ink-muted mb-1">{item.product_brand_snapshot}</p>
-                <div className="flex items-center gap-4 text-sm">
-                  <div className="text-ink-muted">Qty: {item.qty}</div>
-                  <div className="font-medium">{formatCurrency(item.unit_price_ghs || 0)}</div>
+                  {it.product_brand_snapshot && (
+                    <div className="od-item-meta">
+                      {it.product_brand_snapshot}
+                    </div>
+                  )}
+                  <div className="od-item-meta">Qty {it.qty}</div>
+                </div>
+                <div className="price">
+                  {formatGhs((it.unit_price_ghs || 0) * (it.qty || 0))}
                 </div>
               </div>
-
-              {/* Line Total */}
-              <div className="font-label font-medium">
-                {formatCurrency((item.unit_price_ghs || 0) * (item.qty || 0))}
-              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <div className="form-card" style={{ padding: 24 }}>
+            <h3 className="form-card-title" style={{ fontSize: 18 }}>
+              Summary
+            </h3>
+            <div className="kv-row">
+              <span>Subtotal</span>
+              <span>{formatGhs(order.subtotal_ghs || 0)}</span>
             </div>
-          ))}
+            <div className="kv-row">
+              <span>Shipping</span>
+              <span>{formatGhs(order.shipping_ghs || 0)}</span>
+            </div>
+            <div className="kv-divider"></div>
+            <div className="kv-row">
+              <strong>Total</strong>
+              <strong className="price">
+                {formatGhs(order.total_ghs || 0)}
+              </strong>
+            </div>
+            {order.shipping_address && (
+              <div className="kv-block">
+                <div className="kv-block-k">Delivering to</div>
+                <div style={{ whiteSpace: 'pre-line' }}>
+                  {order.shipping_address}
+                </div>
+              </div>
+            )}
+            {order.paystack_reference && (
+              <div className="kv-block">
+                <div className="kv-block-k">Payment</div>
+                <div>Paystack · {order.paystack_reference}</div>
+              </div>
+            )}
+          </div>
+          <div style={{ marginTop: 16 }}>
+            <Link className="btn btn-ghost" to="/shop">
+              Continue shopping
+            </Link>
+          </div>
         </div>
       </div>
-
-      {/* Order Summary */}
-      <div className="bg-white rounded-lg p-6 mb-6" style={{ border: '1px solid var(--line)' }}>
-        <h3 className="font-label font-semibold mb-4">Order Summary</h3>
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-ink-muted">Subtotal</span>
-            <span>{formatCurrency(order.subtotal_ghs || 0)}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-ink-muted">Shipping</span>
-            <span>{formatCurrency(order.shipping_ghs || 0)}</span>
-          </div>
-          <div className="flex justify-between text-base font-semibold pt-2" style={{ borderTop: '1px solid var(--line-soft)' }}>
-            <span>Total</span>
-            <span className="font-display">{formatCurrency(order.total_ghs || 0)}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Actions */}
-      <div className="flex gap-4">
-        <Button
-          variant="primary"
-          onClick={handleReorder}
-        >
-          Reorder
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => navigate({ to: '/shop' })}
-        >
-          Continue Shopping
-        </Button>
-      </div>
-    </div>
+    </main>
   );
 }

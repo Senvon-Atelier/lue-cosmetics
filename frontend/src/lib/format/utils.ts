@@ -91,3 +91,16 @@ export function formatGhs(minor: number): string {
     maximumFractionDigits: hasPesewas ? 2 : 0,
   })}`;
 }
+
+/** Mockup-style order date: "Apr 04, 2026". Empty string when absent/invalid. */
+export function formatOrderDate(iso: string | undefined): string {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('en-US', {
+    month: 'short',
+    day: '2-digit',
+    year: 'numeric',
+    timeZone: 'UTC',
+  });
+}
