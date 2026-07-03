@@ -7,6 +7,7 @@ import {
   usePatchAdminOrdersIdStatus,
   getGetAdminDashboardQueryKey,
 } from '../../../lib/api/generated/rueCosmeticsAPI';
+import { formatGhs, formatOrderDate } from '../../../lib/format/utils';
 import { Panel } from '../../shared/ui/admin';
 
 export function AdminOrders() {
@@ -30,30 +31,15 @@ export function AdminOrders() {
     },
   });
 
-  const formatCurrency = (amount: number) => {
-    return `GH₵${(amount / 100).toLocaleString()}`;
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
   const totalPages = ordersData?.total_pages ?? 1;
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-ink-muted">Loading orders...</div>
-      </div>
-    );
+    return <div className="admin-loading">Loading orders…</div>;
   }
 
   if (error) {
     return (
-      <div className="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-lg">
+      <div className="alert alert-warn">
         Failed to load orders: {error instanceof Error ? error.message : 'Unknown error'}
       </div>
     );
@@ -62,54 +48,22 @@ export function AdminOrders() {
   const orders = ordersData?.orders ?? [];
 
   return (
-    <div>
-      {/* Header */}
-      <div className="flex items-start justify-between mb-7 gap-4 flex-wrap">
+    <>
+      <div className="admin-head">
         <div>
-          <div className="text-lavender-700 text-sm mb-1">Fulfilment</div>
-          <h1 className="font-display text-4xl font-normal">Orders</h1>
-        </div>
-        <div className="flex gap-2">
-          <button className="px-3 py-2 border border-line rounded-lg text-sm font-semibold hover:bg-lavender-50 transition-colors">
-            Export
-          </button>
-          <button className="px-3 py-2 bg-ink text-white rounded-lg text-sm font-semibold hover:bg-lavender-700 transition-colors">
-            Print labels ({orders.length})
-          </button>
+          <div className="eyebrow">Fulfilment</div>
+          <h1>Orders</h1>
         </div>
       </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-4 gap-3 mb-6">
-        {[
-          ['New (24h)', orders.filter((o) => o.status === 'pending').length || 0],
-          ['To pack', orders.filter((o) => o.status === 'paid').length || 0],
-          ['To ship', orders.filter((o) => o.status === 'fulfilled').length || 0],
-          ['Shipped today', orders.filter((o) => o.status === 'shipped').length || 0],
-        ].map(([label, value]) => (
-          <div key={label} className="bg-white border border-line rounded-xl p-5">
-            <div className="text-[10px] uppercase tracking-wider text-ink-muted">{label}</div>
-            <div className="font-display text-[32px] font-normal tracking-tight mt-2">{value}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Orders Table */}
-      <Panel>
-        {/* Filter Bar */}
-        <div className="flex gap-2 px-6 py-3 border-b border-line bg-[#FAFAFA] flex-wrap items-center">
-          <input
-            type="search"
-            placeholder="Order id, customer, email…"
-            className="px-3 py-2 border border-line rounded-lg text-sm bg-white flex-1 min-w-[200px] focus:outline-none focus:border-lavender-400"
-          />
+      <Panel flush>
+        <div className="admin-filter-bar">
           <select
             value={statusFilter}
             onChange={(e) => {
               setStatusFilter(e.target.value);
               setPage(0);
             }}
-            className="px-3 py-2 border border-line rounded-lg text-sm bg-white focus:outline-none focus:border-lavender-400"
           >
             <option value="">All statuses</option>
             <option value="pending">Pending</option>
@@ -121,94 +75,84 @@ export function AdminOrders() {
           </select>
         </div>
 
-        <table className="w-full border-collapse text-[13px]">
-          <thead>
-            <tr className="text-left">
-              <th className="px-3 py-2 bg-[#FAFAFA] border-b border-line text-[10px] uppercase tracking-wider text-ink-muted font-bold">
-                <input type="checkbox" className="rounded" />
-              </th>
-              <th className="px-3 py-2 bg-[#FAFAFA] border-b border-line text-[10px] uppercase tracking-wider text-ink-muted font-bold">
-                Order
-              </th>
-              <th className="px-3 py-2 bg-[#FAFAFA] border-b border-line text-[10px] uppercase tracking-wider text-ink-muted font-bold">
-                Customer
-              </th>
-              <th className="px-3 py-2 bg-[#FAFAFA] border-b border-line text-[10px] uppercase tracking-wider text-ink-muted font-bold">
-                Date
-              </th>
-              <th className="px-3 py-2 bg-[#FAFAFA] border-b border-line text-[10px] uppercase tracking-wider text-ink-muted font-bold">
-                Total
-              </th>
-              <th className="px-3 py-2 bg-[#FAFAFA] border-b border-line text-[10px] uppercase tracking-wider text-ink-muted font-bold">
-                Status
-              </th>
-              <th className="px-3 py-2 bg-[#FAFAFA] border-b border-line text-[10px] uppercase tracking-wider text-ink-muted font-bold" />
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((order) => (
-              <tr key={order.id ?? ''} className="hover:bg-[#FAFAFA] transition-colors">
-                <td className="px-3 py-3 border-b border-line-soft">
-                  <input type="checkbox" className="rounded" />
-                </td>
-                <td className="px-3 py-3 border-b border-line-soft font-variant-numeric tabular-nums font-semibold">
-                  {(order.id ?? '').slice(0, 8).toUpperCase()}
-                </td>
-                <td className="px-3 py-3 border-b border-line-soft">{order.customer_name || order.customer_email}</td>
-                <td className="px-3 py-3 border-b border-line-soft">{formatDate(order.created_at ?? '')}</td>
-                <td className="px-3 py-3 border-b border-line-soft font-variant-numeric tabular-nums font-semibold">
-                  {formatCurrency(order.total_ghs_minor ?? 0)}
-                </td>
-                <td className="px-3 py-3 border-b border-line-soft">
-                  <select
-                    value={order.status ?? ''}
-                    onChange={(e) => updateStatusMutation.mutate({ id: order.id ?? '', data: { status: e.target.value } })}
-                    disabled={updateStatusMutation.isPending}
-                    className="text-xs rounded-lg px-2 py-1 border-0 focus:ring-2 focus:ring-lavender-400 cursor-pointer"
-                    style={{ backgroundColor: 'transparent' }}
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="paid">Paid</option>
-                    <option value="fulfilled">Fulfilled</option>
-                    <option value="shipped">Shipped</option>
-                    <option value="delivered">Delivered</option>
-                    <option value="cancelled">Cancelled</option>
-                  </select>
-                </td>
-                <td className="px-3 py-3 border-b border-line-soft">
-                  <button
-                    onClick={() => navigate({ to: `/admin/orders/${order.id}` })}
-                    className="text-lavender-700 font-semibold px-2 py-1 text-sm hover:underline"
-                  >
-                    Open
-                  </button>
-                </td>
+        {orders.length === 0 ? (
+          <div className="admin-panel-body">
+            <p className="admin-empty">No orders{statusFilter ? ' with this status' : ''} yet.</p>
+          </div>
+        ) : (
+          <table className="admin-tbl">
+            <thead>
+              <tr>
+                <th>Order</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th />
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {orders.map((order) => (
+                <tr key={order.id ?? ''}>
+                  <td className="num">{(order.id ?? '').slice(0, 8).toUpperCase()}</td>
+                  <td>{order.customer_name || order.customer_email}</td>
+                  <td>{formatOrderDate(order.created_at)}</td>
+                  <td className="num">{formatGhs(order.total_ghs_minor ?? 0)}</td>
+                  <td>
+                    <select
+                      value={order.status ?? ''}
+                      onChange={(e) =>
+                        updateStatusMutation.mutate({
+                          id: order.id ?? '',
+                          data: { status: e.target.value },
+                        })
+                      }
+                      disabled={updateStatusMutation.isPending}
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="paid">Paid</option>
+                      <option value="fulfilled">Fulfilled</option>
+                      <option value="shipped">Shipped</option>
+                      <option value="delivered">Delivered</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
+                  </td>
+                  <td>
+                    <button
+                      className="admin-btn admin-btn-link"
+                      onClick={() => navigate({ to: `/admin/orders/${order.id}` })}
+                    >
+                      Open
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
 
-        {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center gap-2 mt-4">
+          <div className="admin-pagination">
             <button
+              className="admin-btn admin-btn-sec"
               onClick={() => setPage(Math.max(0, page - 1))}
               disabled={page === 0}
-              className="px-3 py-2 border border-line rounded-lg text-sm font-semibold hover:bg-lavender-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Previous
             </button>
-            <span className="px-4 py-2 text-sm text-ink-muted">Page {page + 1} of {totalPages}</span>
+            <span>
+              Page {page + 1} of {totalPages}
+            </span>
             <button
+              className="admin-btn admin-btn-sec"
               onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
               disabled={page >= totalPages - 1}
-              className="px-3 py-2 border border-line rounded-lg text-sm font-semibold hover:bg-lavender-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next
             </button>
           </div>
         )}
       </Panel>
-    </div>
+    </>
   );
 }

@@ -1,4 +1,4 @@
-import { Outlet, Link, useNavigate } from '@tanstack/react-router';
+import { Outlet, Link } from '@tanstack/react-router';
 import { useAuth } from '../../lib/auth/auth-provider';
 
 const navSections = [
@@ -26,77 +26,56 @@ const navSections = [
   },
   {
     title: 'System',
-    items: [
-      { label: 'Settings', to: '/admin/settings' },
-    ],
+    items: [{ label: 'Settings', to: '/admin/settings' }],
   },
 ];
 
 export function AdminLayout() {
-  const { user, isLoading } = useAuth();
-  const navigate = useNavigate();
+  const { isLoading } = useAuth();
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-paper text-ink font-body flex items-center justify-center">
-        <div className="text-ink-muted">Loading...</div>
+      <div className="admin-layout">
+        <div className="admin-loading">Loading…</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-paper text-ink font-body">
-      {/* Header */}
-      <div className="border-b border-line">
-        <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '2rem' }}>
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="font-display text-2xl mb-1">Admin Dashboard</h1>
-              <p className="text-ink-muted text-sm">Welcome, {user?.name || user?.email}</p>
-            </div>
-            <button
-              onClick={() => navigate({ to: '/shop' })}
-              className="px-4 py-2 border border-line rounded-lg hover:bg-lavender-50 transition-colors font-label font-medium text-sm"
-            >
-              Back to Store
-            </button>
+    <div className="admin-layout">
+      <aside className="admin-side">
+        <div className="admin-side-brand">
+          <span className="brand-word">Rue</span>
+          <span className="badge">Admin</span>
+        </div>
+        {navSections.map((section) => (
+          <div key={section.title}>
+            <h5>{section.title}</h5>
+            {section.items.map((item) =>
+              item.to === '/admin' ? (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  activeOptions={{ exact: true }}
+                  activeProps={{ className: 'active' }}
+                >
+                  {item.label}
+                </Link>
+              ) : (
+                <Link key={item.to} to={item.to} activeProps={{ className: 'active' }}>
+                  {item.label}
+                </Link>
+              ),
+            )}
           </div>
+        ))}
+        <div className="admin-side-foot">
+          <Link to="/">← Storefront</Link>
         </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '2rem' }}>
-        <div className="grid md:grid-cols-4 gap-8">
-          {/* Sidebar Navigation */}
-          <nav className="md:col-span-1">
-            {navSections.map((section) => (
-              <div key={section.title} className="mb-6">
-                <h3 className="font-label font-medium text-ink-muted uppercase text-xs mb-2 tracking-wide">
-                  {section.title}
-                </h3>
-                <ul className="space-y-1">
-                  {section.items.map((item) => (
-                    <li key={item.to}>
-                      <Link
-                        to={item.to}
-                        className="block px-4 py-2 rounded-lg hover:bg-lavender-50 transition-colors font-label font-medium text-sm"
-                        activeProps={{ className: 'bg-lavender-100 text-lavender-700' }}
-                      >
-                        {item.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </nav>
-
-          {/* Content Area */}
-          <main className="md:col-span-3">
-            <Outlet />
-          </main>
-        </div>
-      </div>
+      </aside>
+      <main className="admin-main">
+        <Outlet />
+      </main>
     </div>
   );
 }
