@@ -28,7 +28,7 @@ export function AccountDashboard() {
       .then((res) => {
         if (cancelled) return;
         setRecent(res.orders || []);
-        setOrdersTotal(res.total ?? 0);
+        setOrdersTotal(res.total != null ? res.total : null);
       })
       .catch(() => {
         if (!cancelled) setOrdersTotal(null);
