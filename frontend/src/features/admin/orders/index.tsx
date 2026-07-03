@@ -56,7 +56,7 @@ export function AdminOrders() {
         </div>
       </div>
 
-      <Panel>
+      <Panel flush>
         <div className="admin-filter-bar">
           <select
             value={statusFilter}

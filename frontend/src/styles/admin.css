@@ -84,6 +84,7 @@
 .admin-side-foot { margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.12); }
 .admin-loading { padding: 40px; font-size: 13px; color: var(--ink-muted); }
 .admin-empty { font-size: 13px; color: var(--ink-muted); margin: 0; }
+.admin-address { font-size: 13px; line-height: 1.7; margin: 0; }
 .admin-pagination { display: flex; justify-content: center; align-items: center; gap: 10px; padding: 14px; font-size: 12px; color: var(--ink-muted); }
 .admin-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .admin-tbl select { padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; font-size: 12px; font-family: inherit; background: white; }

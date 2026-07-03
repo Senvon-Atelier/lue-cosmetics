@@ -44,7 +44,7 @@ export function AdminOrderDetail() {
       </div>
 
       <div className="admin-2col">
-        <Panel title="Items">
+        <Panel title="Items" flush>
           <table className="admin-tbl">
             <thead>
               <tr>
@@ -127,11 +127,13 @@ export function AdminOrderDetail() {
 
           {order.shipping_address && (
             <Panel title="Shipping address">
-              <div className="kv-row">
-                <span>{order.shipping_address.label || 'Address'}</span>
-                <span></span>
-              </div>
-              <p className="admin-empty" style={{ color: 'var(--ink)' }}>
+              <p className="admin-address">
+                {order.shipping_address.label && (
+                  <>
+                    <strong>{order.shipping_address.label}</strong>
+                    <br />
+                  </>
+                )}
                 {order.shipping_address.line1}
                 {order.shipping_address.line2 && (
                   <>

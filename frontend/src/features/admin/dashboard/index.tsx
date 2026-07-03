@@ -54,9 +54,9 @@ export function AdminDashboard() {
       </div>
 
       <div className="admin-2col">
-        <Panel title="Recent orders">
+        <Panel title="Recent orders" flush>
           {recentOrders.length === 0 ? (
-            <p className="admin-empty">No orders yet.</p>
+            <div className="admin-panel-body"><p className="admin-empty">No orders yet.</p></div>
           ) : (
             <table className="admin-tbl">
               <thead>
@@ -83,7 +83,7 @@ export function AdminDashboard() {
           )}
         </Panel>
 
-        <Panel title="Orders by status">
+        <Panel title="Orders by status" flush>
           {stats ? (
             <table className="admin-tbl">
               <tbody>
@@ -110,7 +110,7 @@ export function AdminDashboard() {
               </tbody>
             </table>
           ) : (
-            <p className="admin-empty">No stats available.</p>
+            <div className="admin-panel-body"><p className="admin-empty">No stats available.</p></div>
           )}
         </Panel>
       </div>

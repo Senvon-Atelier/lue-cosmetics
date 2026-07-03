@@ -2,10 +2,12 @@ interface PanelProps {
   title?: string;
   actions?: React.ReactNode;
   children: React.ReactNode;
+  /** Render children directly (mockup puts filter bars/tables flush inside .admin-panel) */
+  flush?: boolean;
 }
 
 // Ported from Rue/admin.css .admin-panel structure
-export function Panel({ title, actions, children }: PanelProps) {
+export function Panel({ title, actions, children, flush }: PanelProps) {
   return (
     <div className="admin-panel">
       {(title || actions) && (
@@ -14,7 +16,7 @@ export function Panel({ title, actions, children }: PanelProps) {
           {actions && <div className="admin-head-actions">{actions}</div>}
         </div>
       )}
-      <div className="admin-panel-body">{children}</div>
+      {flush ? children : <div className="admin-panel-body">{children}</div>}
     </div>
   );
 }
