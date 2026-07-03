@@ -52,26 +52,18 @@ export function AdminDashboard() {
         <KPICard
           title="Revenue"
           value={stats ? formatCurrency(stats.total_revenue_ghs_minor ?? 0) : '—'}
-          delta="+12.4%"
-          deltaDirection="up"
         />
         <KPICard
           title="Orders"
           value={stats?.total_orders ?? 0}
-          delta="+8.1%"
-          deltaDirection="up"
         />
         <KPICard
           title="Avg. order"
           value={stats ? formatCurrency((stats.total_revenue_ghs_minor ?? 0) / Math.max(stats.total_orders ?? 1, 1)) : '—'}
-          delta="+3.2%"
-          deltaDirection="up"
         />
         <KPICard
           title="Customers"
           value={stats?.total_customers ?? 0}
-          delta="+4.8%"
-          deltaDirection="up"
         />
       </div>
 

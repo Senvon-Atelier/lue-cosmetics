@@ -43,26 +43,18 @@ export function AdminAnalytics() {
         <KPICard
           title="Sessions (30d)"
           value="184,200"
-          delta="+14%"
-          deltaDirection="up"
         />
         <KPICard
           title="Conversion"
           value="3.8%"
-          delta="+0.4%"
-          deltaDirection="up"
         />
         <KPICard
           title="Add-to-cart"
           value="12.4%"
-          delta="-0.2%"
-          deltaDirection="down"
         />
         <KPICard
           title="Checkout rate"
           value="62.1%"
-          delta="+1.8%"
-          deltaDirection="up"
         />
       </div>
 
