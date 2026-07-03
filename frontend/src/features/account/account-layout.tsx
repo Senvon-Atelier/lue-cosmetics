@@ -70,11 +70,11 @@ export function AccountLayout() {
           <span className="acct-side-link-label">Settings</span>
         </Link>
         <div className="acct-side-foot">
-          <a onClick={handleSignOut}>
+          <button onClick={handleSignOut}>
             <span className="acct-side-link-label">
               <Icon name="arrowLeft" size={14} /> Sign out
             </span>
-          </a>
+          </button>
         </div>
       </aside>
       <Outlet />

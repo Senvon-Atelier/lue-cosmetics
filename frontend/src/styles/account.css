@@ -92,6 +92,8 @@
 .acct-side-link-label { display: inline-flex; align-items: center; gap: 10px; }
 .acct-side-foot { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
 .acct-side-foot a { color: var(--ink-muted); }
+.acct-side-foot button { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 10px 12px; border-radius: 8px; font-family: var(--font-label); font-size: 14px; color: var(--ink-muted); cursor: pointer; transition: all var(--dur) var(--ease); text-align: left; }
+.acct-side-foot button:hover { background: var(--lavender-100); color: var(--ink); }
 .acct-loading { padding: 48px; font-family: var(--font-label); font-size: 13px; color: var(--ink-muted); }
 .order-detail-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
 @media (max-width: 900px) { .order-detail-grid { grid-template-columns: 1fr; } }

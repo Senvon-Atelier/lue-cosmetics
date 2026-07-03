@@ -56,7 +56,6 @@ export function AccountOrders() {
   // Load orders on mount and when filter/page changes
   useEffect(() => {
     loadOrders();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, statusFilter]);
 
   const totalPages = Math.ceil(total / limit);
