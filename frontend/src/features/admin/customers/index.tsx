@@ -79,7 +79,7 @@ export function AdminCustomers() {
             <tbody>
               {filteredCustomers.map((customer) => (
                 <tr key={customer.id}>
-                  <td className="num">{customer.name || 'No name'}</td>
+                  <td>{customer.name || 'No name'}</td>
                   <td>{customer.email}</td>
                   <td className="num">{customer.order_count}</td>
                   <td className="num">{formatGhs(customer.lifetime_value_ghs_minor ?? 0)}</td>

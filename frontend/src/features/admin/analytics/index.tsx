@@ -8,8 +8,8 @@ import { KPICard, Panel } from '../../shared/ui/admin';
 export function AdminAnalytics() {
   const granularity = 'month'; // switcher UI not built yet; keep a constant, not dead state
 
-  const { data: stats, isLoading: statsLoading } = useGetAdminAnalyticsStats();
-  const { data: revenueData, isLoading: revenueLoading } = useGetAdminAnalyticsRevenue({
+  const { data: stats, isLoading: statsLoading, error: statsError } = useGetAdminAnalyticsStats();
+  const { data: revenueData, isLoading: revenueLoading, error: revenueError } = useGetAdminAnalyticsRevenue({
     granularity,
     date_from: '2024-01-01T00:00:00Z',
     date_to: '2024-12-31T23:59:59Z',
@@ -17,6 +17,15 @@ export function AdminAnalytics() {
 
   if (statsLoading || revenueLoading) {
     return <div className="admin-loading">Loading analytics…</div>;
+  }
+
+  const loadError = statsError || revenueError;
+  if (loadError) {
+    return (
+      <div className="alert alert-warn">
+        Failed to load analytics: {loadError instanceof Error ? loadError.message : 'Unknown error'}
+      </div>
+    );
   }
 
   const customerStats = stats?.customer_stats;
