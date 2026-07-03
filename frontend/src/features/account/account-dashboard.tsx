@@ -1,98 +1,174 @@
-import { useNavigate } from '@tanstack/react-router';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate } from '@tanstack/react-router';
+import { getMeAddresses, getMeOrders } from '../../lib/api/generated/rueCosmeticsAPI';
 import { useAuth } from '../../lib/auth/auth-provider';
-import { Button } from '../shared/ui/button';
+import { formatGhs, formatOrderDate } from '../../lib/format/utils';
+import { Icon } from '../shared/ui/icons';
+import { AcctHead, StatusPill } from './acct-primitives';
+
+type RecentOrder = {
+  id?: string;
+  status?: string;
+  total_ghs?: number;
+  created_at?: string;
+};
+
+type AddressSummary = { label?: string; is_default?: boolean };
 
 export function AccountDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [recent, setRecent] = useState<RecentOrder[]>([]);
+  const [ordersTotal, setOrdersTotal] = useState<number | null>(null);
+  const [addresses, setAddresses] = useState<AddressSummary[] | null>(null);
 
-  const quickStats = [
-    {
-      label: 'Orders',
-      value: '0',
-      action: () => navigate({ to: '/account/orders' }),
-      actionText: 'View Orders',
-    },
-    {
-      label: 'Wishlist',
-      value: '0',
-      action: () => navigate({ to: '/account/wishlist' }),
-      actionText: 'View Wishlist',
-    },
-  ];
+  useEffect(() => {
+    let cancelled = false;
+    getMeOrders({ limit: 3 })
+      .then((res) => {
+        if (cancelled) return;
+        setRecent(res.orders || []);
+        setOrdersTotal(res.total ?? 0);
+      })
+      .catch(() => {
+        if (!cancelled) setOrdersTotal(null);
+      });
+    getMeAddresses()
+      .then((res) => {
+        if (!cancelled) setAddresses(res.addresses || []);
+      })
+      .catch(() => {
+        if (!cancelled) setAddresses(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const firstName = user?.name?.trim().split(/\s+/)[0];
+  const defaultAddress = addresses?.find((a) => a.is_default);
 
   return (
-    <div>
-      <div className="mb-8">
-        <h2 className="font-display text-xl mb-2">Dashboard</h2>
-        <p className="text-ink-muted">Manage your orders, addresses, and preferences.</p>
-      </div>
+    <main className="acct-main">
+      <AcctHead
+        eyebrow="Welcome back"
+        title={firstName ? `Hello, ${firstName}.` : 'Hello.'}
+      />
 
-      {/* Account Details */}
-      <div className="bg-white rounded-lg p-6 mb-6" style={{ border: '1px solid var(--line)' }}>
-        <h3 className="font-label font-semibold mb-4">Account Details</h3>
-        <dl className="space-y-2 text-ink-soft">
-          <div className="flex justify-between">
-            <dt className="text-ink-muted">Name</dt>
-            <dd className="font-medium">{user?.name || 'Not set'}</dd>
+      <div className="acct-cards">
+        <div className="acct-card">
+          <div className="acct-card-k">Lifetime orders</div>
+          <div className="acct-card-v">{ordersTotal ?? '—'}</div>
+          <div className="acct-card-sub">All time</div>
+        </div>
+        <div className="acct-card">
+          <div className="acct-card-k">Saved addresses</div>
+          <div className="acct-card-v">{addresses ? addresses.length : '—'}</div>
+          <div className="acct-card-sub">
+            {defaultAddress?.label
+              ? `${defaultAddress.label} set as default`
+              : 'No default set'}
           </div>
-          <div className="flex justify-between">
-            <dt className="text-ink-muted">Email</dt>
-            <dd className="font-medium">{user?.email}</dd>
+        </div>
+        <div className="acct-card acct-card-accent">
+          <div className="acct-card-k">Member</div>
+          <div className="acct-card-v">{firstName || 'Member'}</div>
+          <div className="acct-card-sub">
+            {user?.email} · {user?.email_verified ? 'Verified' : 'Unverified'}
           </div>
-          <div className="flex justify-between">
-            <dt className="text-ink-muted">Email Verified</dt>
-            <dd className="font-medium">{user?.email_verified ? 'Yes' : 'No'}</dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="text-ink-muted">Account Type</dt>
-            <dd className="font-medium capitalize">{user?.role || 'customer'}</dd>
-          </div>
-        </dl>
-      </div>
-
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        {quickStats.map((stat) => (
-          <div
-            key={stat.label}
-            className="bg-white rounded-lg p-6 text-center"
-            style={{ border: '1px solid var(--line)' }}
-          >
-            <dt className="text-ink-muted text-sm mb-1">{stat.label}</dt>
-            <dd className="text-3xl font-display text-ink mb-3">{stat.value}</dd>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={stat.action}
-              className="w-full"
-            >
-              {stat.actionText}
-            </Button>
-          </div>
-        ))}
-      </div>
-
-      {/* Quick Actions */}
-      <div className="bg-lavender-50 rounded-lg p-6">
-        <h3 className="font-label font-semibold mb-4">Quick Actions</h3>
-        <div className="space-y-3">
-          <Button
-            variant="secondary"
-            onClick={() => navigate({ to: '/shop' })}
-            className="w-full"
-          >
-            Start Shopping
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => navigate({ to: '/account/addresses' })}
-            className="w-full"
-          >
-            Manage Addresses
-          </Button>
         </div>
       </div>
-    </div>
+
+      <div className="acct-section">
+        <div className="acct-section-head">
+          <h2>Recent orders</h2>
+          <Link className="auth-link" to="/account/orders">
+            View all →
+          </Link>
+        </div>
+        {recent.length === 0 ? (
+          <div className="acct-empty">
+            <p>No orders yet — when you place one, it will appear here.</p>
+            <Link className="btn btn-primary" to="/shop">
+              Start shopping
+            </Link>
+          </div>
+        ) : (
+          <div className="orders-table">
+            <div className="orders-row head">
+              <div>Order</div>
+              <div>Date</div>
+              <div>Total</div>
+              <div>Status</div>
+              <div></div>
+            </div>
+            {recent.map((o) => (
+              <div key={o.id} className="orders-row">
+                <div className="o-id">
+                  #{(o.id || '').slice(0, 8).toUpperCase()}
+                </div>
+                <div>{formatOrderDate(o.created_at)}</div>
+                <div className="price">{formatGhs(o.total_ghs || 0)}</div>
+                <div>
+                  <StatusPill status={o.status} />
+                </div>
+                <div>
+                  <Link
+                    className="link-btn"
+                    to="/account/orders/$id"
+                    params={{ id: o.id || '' }}
+                  >
+                    View
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="acct-section">
+        <div className="acct-section-head">
+          <h2>Quick links</h2>
+        </div>
+        <div className="dash-links">
+          {[
+            {
+              to: '/account/orders',
+              title: 'Orders',
+              sub:
+                ordersTotal !== null
+                  ? `${ordersTotal} order${ordersTotal === 1 ? '' : 's'} placed`
+                  : 'Your order history',
+            },
+            {
+              to: '/account/addresses',
+              title: 'Saved addresses',
+              sub:
+                addresses !== null
+                  ? `${addresses.length} saved address${addresses.length === 1 ? '' : 'es'}`
+                  : 'Manage delivery addresses',
+            },
+            {
+              to: '/account/wishlist',
+              title: 'Wishlist',
+              sub: 'Saved items — coming soon',
+            },
+          ].map((l) => (
+            <div
+              key={l.to}
+              className="dash-link-card"
+              onClick={() => navigate({ to: l.to })}
+            >
+              <div>
+                <div className="dash-link-card-title">{l.title}</div>
+                <div className="dash-link-card-sub">{l.sub}</div>
+              </div>
+              <Icon name="arrow" size={16} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </main>
   );
 }
