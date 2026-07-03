@@ -1125,6 +1125,10 @@ img {
   .header-nav {
     display: none;
   }
+
+  .mobile-menu-btn {
+    display: grid;
+  }
 }
 
 /* ----- Announcement Bar ----- */
@@ -1373,3 +1377,86 @@ img {
     text-align: center;
   }
 }
+
+/* ----- Search overlay (ported from Rue/styles.css + Rue/pages.css SEARCH block) ----- */
+.search-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(16px);
+  z-index: 120;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur) var(--ease);
+  display: flex;
+  flex-direction: column;
+}
+.search-overlay.open { opacity: 1; pointer-events: auto; }
+.search-head {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding-top: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+}
+.search-input-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--ink-muted);
+  padding: 12px 4px;
+}
+.search-input {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  outline: none;
+  font-family: var(--font-display);
+  font-size: clamp(24px, 4vw, 40px);
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  font-style: italic;
+  font-weight: 400;
+}
+.search-input::placeholder { color: var(--ink-muted); opacity: 0.6; }
+.search-clear { color: var(--ink-muted); width: 32px; height: 32px; border-radius: 999px; display: grid; place-items: center; }
+.search-clear:hover { background: var(--lavender-100); color: var(--ink); }
+.search-body { padding-top: 48px; flex: 1; overflow-y: auto; padding-bottom: 80px; }
+.search-section { margin-bottom: 48px; }
+.search-section .eyebrow { margin-bottom: 20px; display: block; }
+.search-chips { display: flex; gap: 10px; flex-wrap: wrap; }
+.search-picks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.search-pick { display: flex; gap: 16px; cursor: pointer; padding: 12px; border-radius: var(--radius); transition: background var(--dur) var(--ease); }
+.search-pick:hover { background: var(--lavender-50); }
+.search-empty { padding: 48px 0; font-family: var(--font-display); font-size: 22px; color: var(--ink-soft); }
+.search-empty a { border-bottom: 1px solid; cursor: pointer; }
+@media (max-width: 720px) { .search-picks { grid-template-columns: 1fr; } }
+
+/* ----- Mobile nav drawer (ported; .mnav-count omitted — no category counts exist) ----- */
+.drawer-left { right: auto; left: 0; transform: translateX(-100%); width: min(380px, 88vw); }
+.drawer-left.open { transform: translateX(0); }
+.mobile-nav a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--ink);
+  border-bottom: 1px solid var(--line-soft);
+  cursor: pointer;
+}
+.mobile-nav a.active { color: var(--lavender-700); }
+.mobile-nav .mnav-section { margin-bottom: 32px; }
+.mobile-nav .eyebrow { display: block; margin-bottom: 12px; }
+.mnav-contact a { border: 0; padding: 4px 0; font-size: 14px; font-family: var(--font-body); }
+.mnav-contact p { font-size: 14px; color: var(--ink-soft); display: flex; gap: 10px; align-items: flex-start; margin: 10px 0; }
+.mnav-contact svg { color: var(--lavender-700); margin-top: 4px; flex-shrink: 0; }
+
+/* adapted: chrome buttons need their own chrome (no global button reset) */
+button.search-pick { background: none; border: 0; text-align: left; font: inherit; color: inherit; }
+.search-clear { background: none; border: 0; }
+/* adapted: header menu button — hidden on desktop, shown when the nav collapses */
+.mobile-menu-btn { display: none; }
