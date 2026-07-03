@@ -21,6 +21,7 @@ export function AccountDashboard() {
   const [recent, setRecent] = useState<RecentOrder[]>([]);
   const [ordersTotal, setOrdersTotal] = useState<number | null>(null);
   const [addresses, setAddresses] = useState<AddressSummary[] | null>(null);
+  const [ordersState, setOrdersState] = useState<'loading' | 'ready' | 'error'>('loading');
 
   useEffect(() => {
     let cancelled = false;
@@ -29,9 +30,13 @@ export function AccountDashboard() {
         if (cancelled) return;
         setRecent(res.orders || []);
         setOrdersTotal(res.total != null ? res.total : null);
+        setOrdersState('ready');
       })
       .catch(() => {
-        if (!cancelled) setOrdersTotal(null);
+        if (!cancelled) {
+          setOrdersTotal(null);
+          setOrdersState('error');
+        }
       });
     getMeAddresses()
       .then((res) => {
@@ -86,7 +91,11 @@ export function AccountDashboard() {
             View all →
           </Link>
         </div>
-        {recent.length === 0 ? (
+        {ordersState === 'loading' ? (
+          <div className="acct-empty"><p>Loading orders…</p></div>
+        ) : ordersState === 'error' ? (
+          <div className="acct-empty"><p>Couldn't load your orders.</p></div>
+        ) : recent.length === 0 ? (
           <div className="acct-empty">
             <p>No orders yet — when you place one, it will appear here.</p>
             <Link className="btn btn-primary" to="/shop">

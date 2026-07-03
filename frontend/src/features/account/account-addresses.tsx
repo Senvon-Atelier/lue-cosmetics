@@ -89,7 +89,7 @@ export function AccountAddresses() {
   return (
     <main className="acct-main">
       <AcctHead eyebrow="Delivery" title="Address book">
-        <button className="btn btn-primary" onClick={() => setShowForm(true)}>
+        <button className="btn btn-primary" onClick={() => { setEditingAddress(null); setShowForm(true); }}>
           <Icon name="plus" size={14} /> Add address
         </button>
       </AcctHead>
@@ -124,7 +124,7 @@ export function AccountAddresses() {
       {addresses.length === 0 && !showForm ? (
         <div className="acct-empty">
           <p>No addresses yet — add one to make checkout easier.</p>
-          <button className="btn btn-primary" onClick={() => setShowForm(true)}>
+          <button className="btn btn-primary" onClick={() => { setEditingAddress(null); setShowForm(true); }}>
             Add your first address
           </button>
         </div>

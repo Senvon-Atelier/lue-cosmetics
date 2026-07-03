@@ -67,12 +67,12 @@
 .addr-card h4 { font-family: var(--font-serif); font-style: italic; font-size: 20px; margin: 0 0 4px; font-weight: 400; }
 .addr-card p { font-family: var(--font-body); font-size: 14px; color: var(--ink-soft); line-height: 1.6; margin: 0; }
 .addr-card .actions { display: flex; gap: 12px; margin-top: 16px; }
-.addr-card .actions button { font-family: var(--font-label); font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); border-bottom: 1px solid var(--ink); padding-bottom: 2px; cursor: pointer; }
+.addr-card .actions button { font-family: var(--font-label); font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); border: none; border-bottom: 1px solid var(--ink); padding-bottom: 2px; cursor: pointer; background: none; }
 .addr-card .actions button.danger { color: #9E3535; border-color: #9E3535; }
 
 /* Page tabs (sub-nav) */
 .sub-tabs { display: flex; gap: 2px; background: var(--lavender-50); padding: 4px; border-radius: 999px; margin-bottom: 24px; }
-.sub-tabs button { padding: 10px 18px; border-radius: 999px; font-family: var(--font-label); font-size: 12px; font-weight: 600; letter-spacing: 0.06em; color: var(--ink-soft); }
+.sub-tabs button { padding: 10px 18px; border-radius: 999px; font-family: var(--font-label); font-size: 12px; font-weight: 600; letter-spacing: 0.06em; color: var(--ink-soft); border: none; background: none; }
 .sub-tabs button.active { background: white; color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
 
 .dash-link-card { background: white; border: 1px solid var(--line); border-radius: 12px; padding: 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all var(--dur) var(--ease); }
@@ -91,8 +91,7 @@
 /* adapted/extrapolated — inline styles from the mockup lifted into real classes */
 .acct-side-link-label { display: inline-flex; align-items: center; gap: 10px; }
 .acct-side-foot { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
-.acct-side-foot a { color: var(--ink-muted); }
-.acct-side-foot button { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 10px 12px; border-radius: 8px; font-family: var(--font-label); font-size: 14px; color: var(--ink-muted); cursor: pointer; transition: all var(--dur) var(--ease); text-align: left; }
+.acct-side-foot button { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 10px 12px; border-radius: 8px; font-family: var(--font-label); font-size: 14px; color: var(--ink-muted); cursor: pointer; transition: all var(--dur) var(--ease); text-align: left; border: none; background: none; }
 .acct-side-foot button:hover { background: var(--lavender-100); color: var(--ink); }
 .acct-loading { padding: 48px; font-family: var(--font-label); font-size: 13px; color: var(--ink-muted); }
 .order-detail-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
