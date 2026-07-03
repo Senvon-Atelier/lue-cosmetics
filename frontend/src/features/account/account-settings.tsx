@@ -1,139 +1,54 @@
+import { Link } from '@tanstack/react-router';
 import { useAuth } from '../../lib/auth/auth-provider';
-import { Button } from '../shared/ui/button';
+import { AcctHead } from './acct-primitives';
 
 export function AccountSettings() {
   const { user } = useAuth();
-  const name = user?.name || '';
-  const email = user?.email || '';
 
   return (
-    <div>
-      <div className="mb-8">
-        <h2 className="font-display text-xl mb-2">Account Settings</h2>
-        <p className="text-ink-muted">Manage your profile and security.</p>
-      </div>
+    <main className="acct-main">
+      <AcctHead eyebrow="Settings" title="Profile" />
 
-      {/* Profile Settings */}
-      <div className="bg-white rounded-lg p-6 mb-6" style={{ border: '1px solid var(--line)' }}>
-        <h3 className="font-label font-semibold mb-4">Profile Information</h3>
-        <div className="mb-4 px-4 py-3 rounded-lg bg-lavender-50 border border-lavender-100 text-ink-soft text-sm">
-          Profile editing is not available yet.
+      <div className="form-card" style={{ marginBottom: 24 }}>
+        <div className="alert alert-info">
+          Profile editing isn't available yet.
         </div>
-
-        <div className="space-y-4">
-          {/* Name */}
-          <div>
-            <label className="block font-label font-medium text-ink mb-2">
-              Name
-            </label>
-            <input
-              type="text"
-              value={name}
-              readOnly
-              className="w-full px-4 py-2 border border-line rounded-lg bg-paper text-ink-soft cursor-not-allowed"
-              placeholder="Your full name"
-            />
+        <div className="form-row">
+          <div className="field">
+            <label>Name</label>
+            <input value={user?.name || ''} readOnly placeholder="Not set" />
           </div>
-
-          {/* Email */}
-          <div>
-            <label className="block font-label font-medium text-ink mb-2">
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              disabled
-              className="w-full px-4 py-2 border border-line rounded-lg bg-paper text-ink-soft cursor-not-allowed"
-              title="Email changes require verification"
-            />
-            <p className="text-xs text-ink-muted mt-1">
-              Email changes require verification flow
-            </p>
+          <div className="field">
+            <label>Email</label>
+            <input type="email" value={user?.email || ''} readOnly />
+            <span className="field-hint">
+              {user?.email_verified
+                ? 'Verified'
+                : 'Unverified — check your inbox for the verification email'}
+              {' · '}changes require verification
+            </span>
           </div>
-
-          <Button
-            type="button"
-            variant="primary"
-            disabled
-          >
-            Save Profile Unavailable
-          </Button>
         </div>
       </div>
 
-      {/* Password Change */}
-      <div className="bg-white rounded-lg p-6" style={{ border: '1px solid var(--line)' }}>
-        <h3 className="font-label font-semibold mb-4">Change Password</h3>
-        <div className="mb-4 px-4 py-3 rounded-lg bg-lavender-50 border border-lavender-100 text-ink-soft text-sm">
-          Password changes are not available from account settings yet. Use the password reset flow from the login page.
+      <div className="form-card" style={{ marginBottom: 24 }}>
+        <h3 className="form-card-title">Password</h3>
+        <div className="alert alert-info">
+          Password changes aren't available from settings yet — use the email
+          reset flow instead.
         </div>
-
-        <div className="space-y-4">
-          {/* Current Password */}
-          <div>
-            <label className="block font-label font-medium text-ink mb-2">
-              Current Password
-            </label>
-            <input
-              type="password"
-              disabled
-              className="w-full px-4 py-2 border border-line rounded-lg bg-paper text-ink-soft cursor-not-allowed"
-              placeholder="Enter current password"
-            />
-          </div>
-
-          {/* New Password */}
-          <div>
-            <label className="block font-label font-medium text-ink mb-2">
-              New Password
-            </label>
-            <input
-              type="password"
-              disabled
-              className="w-full px-4 py-2 border border-line rounded-lg bg-paper text-ink-soft cursor-not-allowed"
-              placeholder="Enter new password (min 8 characters)"
-            />
-          </div>
-
-          {/* Confirm New Password */}
-          <div>
-            <label className="block font-label font-medium text-ink mb-2">
-              Confirm New Password
-            </label>
-            <input
-              type="password"
-              disabled
-              className="w-full px-4 py-2 border border-line rounded-lg bg-paper text-ink-soft cursor-not-allowed"
-              placeholder="Confirm new password"
-            />
-          </div>
-
-          <Button
-            type="submit"
-            variant="primary"
-            disabled
-          >
-            Password Change Unavailable
-          </Button>
-        </div>
+        <Link className="btn btn-ghost" to="/forgot-password">
+          Reset via email
+        </Link>
       </div>
 
-      {/* Account Deletion */}
-      <div className="bg-rose-50 border border-rose-200 rounded-lg p-6">
-        <h3 className="font-label font-semibold mb-2 text-rose-800">Danger Zone</h3>
-        <p className="text-rose-700 text-sm mb-4">
-          Once you delete your account, there is no going back. Please be certain.
-        </p>
-        <Button
-          variant="outline"
-          size="sm"
-          className="border-rose-300 text-rose-700 hover:bg-rose-50"
-          disabled
-        >
-          Account Deletion Unavailable
-        </Button>
+      <div className="form-card">
+        <h3 className="form-card-title">Delete account</h3>
+        <div className="alert alert-warn">
+          Account deletion isn't available yet. Contact us if you need your
+          data removed.
+        </div>
       </div>
-    </div>
+    </main>
   );
 }
