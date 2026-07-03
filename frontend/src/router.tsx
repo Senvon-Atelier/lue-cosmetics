@@ -114,9 +114,9 @@ const forgotPasswordRoute = createRoute({ getParentRoute: () => authLayoutRoute,
 const resetPasswordRoute = createRoute({ getParentRoute: () => authLayoutRoute, path: '/reset-password', component: ResetPasswordPage });
 const verifyEmailRoute = createRoute({ getParentRoute: () => authLayoutRoute, path: '/verify-email', component: VerifyEmailPage });
 
-// ── Account: authenticated customers, storefront chrome ─────────────────────
+// ── Account: authenticated customers, standalone chrome (mockup acct-layout) ─
 const accountRoute = createRoute({
-  getParentRoute: () => storefrontLayoutRoute,
+  getParentRoute: () => rootRoute,
   path: '/account',
   beforeLoad: () => requireRole('authenticated'),
   component: AccountLayout,
@@ -170,13 +170,6 @@ const routeTree = rootRoute.addChildren([
     productDetailRoute,
     cartRoute,
     aboutRoute,
-    accountRoute.addChildren([
-      accountDashboardRoute,
-      accountOrdersRoute.addChildren([accountOrderDetailRoute]),
-      accountAddressesRoute,
-      accountWishlistRoute,
-      accountSettingsRoute,
-    ]),
   ]),
   authLayoutRoute.addChildren([
     loginRoute,
@@ -184,6 +177,13 @@ const routeTree = rootRoute.addChildren([
     forgotPasswordRoute,
     resetPasswordRoute,
     verifyEmailRoute,
+  ]),
+  accountRoute.addChildren([
+    accountDashboardRoute,
+    accountOrdersRoute.addChildren([accountOrderDetailRoute]),
+    accountAddressesRoute,
+    accountWishlistRoute,
+    accountSettingsRoute,
   ]),
   adminRoute.addChildren([
     adminDashboardRoute,

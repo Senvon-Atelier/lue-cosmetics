@@ -29,7 +29,7 @@ type OrderDetailResponse = {
 };
 
 export function AccountOrderDetail() {
-  const { id } = useParams({ from: '/_storefront/account/orders/$id' });
+  const { id } = useParams({ from: '/account/orders/$id' });
   const navigate = useNavigate();
   const [order, setOrder] = useState<OrderDetailResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);

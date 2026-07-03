@@ -8,6 +8,7 @@
 .acct-side { background: var(--surface); padding: 32px 24px; border-right: 1px solid var(--line); position: sticky; top: 0; height: 100vh; overflow-y: auto; }
 @media (max-width: 900px) { .acct-side { position: static; height: auto; } }
 .acct-side-brand { margin-bottom: 32px; }
+.acct-side-brand a { padding: 0; background: transparent; }
 .acct-side h5 { font-family: var(--font-label); font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-muted); margin: 20px 0 10px; }
 .acct-side a { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 8px; font-family: var(--font-label); font-size: 14px; color: var(--ink-soft); cursor: pointer; transition: all var(--dur) var(--ease); }
 .acct-side a:hover { background: var(--lavender-100); color: var(--ink); }
