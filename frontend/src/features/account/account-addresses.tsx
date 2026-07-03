@@ -98,6 +98,7 @@ export function AccountAddresses() {
 
       {showForm && (
         <AddressForm
+          key={editingAddress?.id ?? 'new'}
           address={editingAddress}
           onSubmit={async (data) => {
             try {
