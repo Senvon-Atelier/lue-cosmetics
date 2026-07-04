@@ -25,6 +25,11 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
   useEscToClose(open, onClose);
   useLockBodyScroll(open);
 
+  // Reset query when the overlay closes so it doesn't persist on reopen
+  useEffect(() => {
+    if (!open) setQ('');
+  }, [open]);
+
   useEffect(() => {
     if (!open) return;
     const t = setTimeout(() => inputRef.current?.focus(), 100);
@@ -61,6 +66,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search products, brands, rituals..."
+            aria-label="Search products"
             className="search-input"
           />
           {q && (

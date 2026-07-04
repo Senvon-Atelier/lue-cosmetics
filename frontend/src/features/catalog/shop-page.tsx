@@ -69,10 +69,13 @@ export function ShopPage() {
     loadProducts();
   }, [selectedCategory, selectedBrand, searchQuery, sortBy]);
 
-  // URL is the source of truth: back/forward + deep links update the filter
+  // URL is the source of truth: back/forward + deep links update the filter.
+  // Once categories are loaded, validate the slug — unknown slugs fall back to no filter (spec §3.5).
   useEffect(() => {
-    setSelectedCategory(categoryParam ?? null);
-  }, [categoryParam]);
+    if (categories.length === 0) return; // wait until list is loaded before validating
+    const isKnown = categories.some((c) => c.slug === categoryParam);
+    setSelectedCategory(isKnown ? (categoryParam ?? null) : null);
+  }, [categoryParam, categories]);
 
   const handleCategoryChange = (slug: string | null) => {
     setSelectedCategory(slug);
