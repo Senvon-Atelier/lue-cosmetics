@@ -60,8 +60,8 @@ export function Footer() {
               <h5>Help</h5>
               <ul>
                 <li><a href="#">Contact us</a></li>
-                <li><a href="#">Shipping & delivery</a></li>
-                <li><a href="#">Returns</a></li>
+                <li><Link to="/legal/$slug" params={{ slug: 'shipping' }}>Shipping &amp; delivery</Link></li>
+                <li><Link to="/legal/$slug" params={{ slug: 'returns' }}>Returns &amp; refunds</Link></li>
                 <li><a href="#">FAQs</a></li>
                 <li><a href="#">Authenticity</a></li>
               </ul>
@@ -92,9 +92,9 @@ export function Footer() {
         <div className="footer-bottom">
           <div>© 2026 Rue Cosmetics Ghana · All rights reserved</div>
           <div className="footer-legal">
-            <a href="#">Privacy</a>
-            <a href="#">Terms</a>
-            <a href="#">Cookies</a>
+            <Link to="/legal/$slug" params={{ slug: 'privacy' }}>Privacy</Link>
+            <Link to="/legal/$slug" params={{ slug: 'terms' }}>Terms</Link>
+            <Link to="/legal/$slug" params={{ slug: 'cookies' }}>Cookies</Link>
           </div>
         </div>
       </div>
