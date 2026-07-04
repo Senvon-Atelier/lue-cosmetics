@@ -1,38 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from '@tanstack/react-router';
-import { getMeOrdersId } from '../../lib/api/generated/rueCosmeticsAPI';
+import {
+  getMeOrdersId,
+  type InternalMeOrderDetailResponse,
+} from '../../lib/api/generated/rueCosmeticsAPI';
 import { formatGhs, formatOrderDate, getImageUrl } from '../../lib/format/utils';
 import { Icon } from '../shared/ui/icons';
 import { AcctHead, StatusPill } from './acct-primitives';
 
-type OrderItem = {
-  id?: string;
-  order_id?: string;
-  product_id?: string;
-  qty?: number;
-  unit_price_ghs?: number;
-  product_name_snapshot?: string;
-  product_brand_snapshot?: string;
-  product_image_snapshot?: string;
-};
-
-type OrderDetailResponse = {
-  id?: string;
-  user_id?: string;
-  status?: string;
-  subtotal_ghs?: number;
-  shipping_ghs?: number;
-  total_ghs?: number;
-  paystack_reference?: string;
-  shipping_address?: string;
-  created_at?: string;
-  updated_at?: string;
-  items?: OrderItem[];
-};
-
 export function AccountOrderDetail() {
   const { id } = useParams({ from: '/account/orders/$id' });
-  const [order, setOrder] = useState<OrderDetailResponse | null>(null);
+  const [order, setOrder] = useState<InternalMeOrderDetailResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -124,7 +102,7 @@ export function AccountOrderDetail() {
                   <div className="od-item-meta">Qty {it.qty}</div>
                 </div>
                 <div className="price">
-                  {formatGhs((it.unit_price_ghs || 0) * (it.qty || 0))}
+                  {formatGhs((it.unit_price_ghs_minor || 0) * (it.qty || 0))}
                 </div>
               </div>
             ))}
@@ -137,17 +115,17 @@ export function AccountOrderDetail() {
             </h3>
             <div className="kv-row">
               <span>Subtotal</span>
-              <span>{formatGhs(order.subtotal_ghs || 0)}</span>
+              <span>{formatGhs(order.subtotal_ghs_minor || 0)}</span>
             </div>
             <div className="kv-row">
               <span>Shipping</span>
-              <span>{formatGhs(order.shipping_ghs || 0)}</span>
+              <span>{formatGhs(order.shipping_ghs_minor || 0)}</span>
             </div>
             <div className="kv-divider"></div>
             <div className="kv-row">
               <strong>Total</strong>
               <strong className="price">
-                {formatGhs(order.total_ghs || 0)}
+                {formatGhs(order.total_ghs_minor || 0)}
               </strong>
             </div>
             {order.shipping_address && (

@@ -1,24 +1,21 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
-import { getMeAddresses, getMeOrders } from '../../lib/api/generated/rueCosmeticsAPI';
+import {
+  getMeAddresses,
+  getMeOrders,
+  type InternalMeOrderResponse,
+} from '../../lib/api/generated/rueCosmeticsAPI';
 import { useAuth } from '../../lib/auth/auth-provider';
 import { formatGhs, formatOrderDate } from '../../lib/format/utils';
 import { Icon } from '../shared/ui/icons';
 import { AcctHead, StatusPill } from './acct-primitives';
-
-type RecentOrder = {
-  id?: string;
-  status?: string;
-  total_ghs?: number;
-  created_at?: string;
-};
 
 type AddressSummary = { label?: string; is_default?: boolean };
 
 export function AccountDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [recent, setRecent] = useState<RecentOrder[]>([]);
+  const [recent, setRecent] = useState<InternalMeOrderResponse[]>([]);
   const [ordersTotal, setOrdersTotal] = useState<number | null>(null);
   const [addresses, setAddresses] = useState<AddressSummary[] | null>(null);
   const [ordersState, setOrdersState] = useState<'loading' | 'ready' | 'error'>('loading');
@@ -117,7 +114,7 @@ export function AccountDashboard() {
                   #{(o.id || '').slice(0, 8).toUpperCase()}
                 </div>
                 <div>{formatOrderDate(o.created_at)}</div>
-                <div className="price">{formatGhs(o.total_ghs || 0)}</div>
+                <div className="price">{formatGhs(o.total_ghs_minor || 0)}</div>
                 <div>
                   <StatusPill status={o.status} />
                 </div>

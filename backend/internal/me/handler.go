@@ -75,9 +75,9 @@ type orderResponse struct {
 	ID                string  `json:"id"`
 	UserID            string  `json:"user_id"`
 	Status            string  `json:"status"`
-	Subtotal          float64 `json:"subtotal_ghs"`
-	Shipping          float64 `json:"shipping_ghs"`
-	Total             float64 `json:"total_ghs"`
+	Subtotal          int64   `json:"subtotal_ghs_minor"`
+	Shipping          int64   `json:"shipping_ghs_minor"`
+	Total             int64   `json:"total_ghs_minor"`
 	PaystackReference string  `json:"paystack_reference"`
 	CreatedAt         string  `json:"created_at"`
 	UpdatedAt         string  `json:"updated_at"`
@@ -93,7 +93,7 @@ type orderItemResponse struct {
 	ID           string  `json:"id"`
 	ProductID    string  `json:"product_id"`
 	Qty          int32   `json:"qty"`
-	UnitPrice    float64 `json:"unit_price_ghs"`
+	UnitPrice    int64   `json:"unit_price_ghs_minor"`
 	ProductName  string  `json:"product_name_snapshot"`
 	ProductBrand string  `json:"product_brand_snapshot"`
 	ProductImage string  `json:"product_image_snapshot"`
@@ -176,9 +176,9 @@ func (h *Handlers) listOrders(w http.ResponseWriter, r *http.Request) {
 			ID:                order.ID.String(),
 			UserID:            order.UserID.String(),
 			Status:            order.Status,
-			Subtotal:          float64(order.SubtotalGhsMinor) / 100,
-			Shipping:          float64(order.ShippingGhsMinor) / 100,
-			Total:             float64(order.TotalGhsMinor) / 100,
+			Subtotal:          int64(order.SubtotalGhsMinor),
+			Shipping:          int64(order.ShippingGhsMinor),
+			Total:             int64(order.TotalGhsMinor),
 			PaystackReference: order.PaystackReference,
 			CreatedAt:         order.CreatedAt.Time.Format("2006-01-02T15:04:05Z07:00"),
 			UpdatedAt:         order.UpdatedAt.Time.Format("2006-01-02T15:04:05Z07:00"),
@@ -250,9 +250,9 @@ func (h *Handlers) getOrder(w http.ResponseWriter, r *http.Request) {
 			ID:                order.ID.String(),
 			UserID:            order.UserID.String(),
 			Status:            order.Status,
-			Subtotal:          float64(order.SubtotalGhsMinor) / 100,
-			Shipping:          float64(order.ShippingGhsMinor) / 100,
-			Total:             float64(order.TotalGhsMinor) / 100,
+			Subtotal:          int64(order.SubtotalGhsMinor),
+			Shipping:          int64(order.ShippingGhsMinor),
+			Total:             int64(order.TotalGhsMinor),
 			PaystackReference: order.PaystackReference,
 			CreatedAt:         order.CreatedAt.Time.Format("2006-01-02T15:04:05Z07:00"),
 			UpdatedAt:         order.UpdatedAt.Time.Format("2006-01-02T15:04:05Z07:00"),
@@ -266,7 +266,7 @@ func (h *Handlers) getOrder(w http.ResponseWriter, r *http.Request) {
 			ID:           item.ID.String(),
 			ProductID:    item.ProductID.String(),
 			Qty:          item.Qty,
-			UnitPrice:    float64(item.UnitPriceGhsMinor) / 100,
+			UnitPrice:    int64(item.UnitPriceGhsMinor),
 			ProductName:  item.ProductNameSnapshot,
 			ProductBrand: item.ProductBrandSnapshot,
 			ProductImage: item.ProductImageSnapshot,

@@ -421,10 +421,10 @@ export interface InternalMeOrderDetailResponse {
   items?: InternalMeOrderItemResponse[];
   paystack_reference?: string;
   shipping_address?: string;
-  shipping_ghs?: number;
+  shipping_ghs_minor?: number;
   status?: string;
-  subtotal_ghs?: number;
-  total_ghs?: number;
+  subtotal_ghs_minor?: number;
+  total_ghs_minor?: number;
   updated_at?: string;
   user_id?: string;
 }
@@ -436,17 +436,17 @@ export interface InternalMeOrderItemResponse {
   product_image_snapshot?: string;
   product_name_snapshot?: string;
   qty?: number;
-  unit_price_ghs?: number;
+  unit_price_ghs_minor?: number;
 }
 
 export interface InternalMeOrderResponse {
   created_at?: string;
   id?: string;
   paystack_reference?: string;
-  shipping_ghs?: number;
+  shipping_ghs_minor?: number;
   status?: string;
-  subtotal_ghs?: number;
-  total_ghs?: number;
+  subtotal_ghs_minor?: number;
+  total_ghs_minor?: number;
   updated_at?: string;
   user_id?: string;
 }
