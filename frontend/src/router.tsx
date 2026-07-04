@@ -13,6 +13,7 @@ import { CartPage } from './features/cart/cart-page';
 import { CheckoutPage } from './features/checkout/checkout-page';
 import { CheckoutReturnPage } from './features/checkout/checkout-return';
 import { AboutPage } from './features/content/about-page';
+import { LegalPageView } from './features/content/legal-page';
 import { AccountLayout } from './features/account/account-layout';
 import { AccountDashboard } from './features/account/account-dashboard';
 import { AccountOrders } from './features/account/account-orders';
@@ -107,6 +108,17 @@ const aboutRoute = createRoute({
   component: () => pageShell(<AboutPage />),
 });
 
+function LegalRouteComponent() {
+  const { slug } = useParams({ from: '/_storefront/legal/$slug' });
+  return pageShell(<LegalPageView slug={slug || ''} />);
+}
+
+const legalRoute = createRoute({
+  getParentRoute: () => storefrontLayoutRoute,
+  path: '/legal/$slug',
+  component: LegalRouteComponent,
+});
+
 // ── Auth: no storefront chrome ───────────────────────────────────────────────
 const authLayoutRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -176,6 +188,7 @@ const routeTree = rootRoute.addChildren([
     productDetailRoute,
     cartRoute,
     aboutRoute,
+    legalRoute,
   ]),
   authLayoutRoute.addChildren([
     loginRoute,

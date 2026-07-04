@@ -1,7 +1,7 @@
 /* Ported from Rue/account.css — account suite (Tranche 2, spec §5).
    Omitted on purpose: .auth-* / .back-link (in auth.css), .field* / .form-row* (in pages.css),
    .timeline / .tl-* (no fulfilment backend), .loyalty-*, .star-picker (no backends),
-   .legal-* (tranche 5), sidebar badges (no real counts). */
+   sidebar badges (no real counts). */
 
 .acct-layout { min-height: 100vh; display: grid; grid-template-columns: 260px 1fr; background: var(--cream); }
 @media (max-width: 900px) { .acct-layout { grid-template-columns: 1fr; } }
