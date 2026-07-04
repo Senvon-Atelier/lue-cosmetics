@@ -8,15 +8,15 @@ function Sidebar({ activeSlug }: { activeSlug: string }) {
       {LEGAL_PAGES.map((p) => {
         const isActive = p.slug === activeSlug;
         return (
-          <span key={p.slug} aria-current={isActive ? ('page' as const) : undefined}>
-            <Link
-              to="/legal/$slug"
-              params={{ slug: p.slug }}
-              className={isActive ? 'active' : undefined}
-            >
-              {p.navLabel}
-            </Link>
-          </span>
+          <Link
+            key={p.slug}
+            to="/legal/$slug"
+            params={{ slug: p.slug }}
+            className={isActive ? 'active' : undefined}
+            aria-current={isActive ? 'page' : undefined}
+          >
+            {p.navLabel}
+          </Link>
         );
       })}
     </nav>

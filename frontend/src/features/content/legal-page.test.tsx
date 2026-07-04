@@ -3,8 +3,18 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
 vi.mock('@tanstack/react-router', () => ({
-  Link: ({ children, className }: { children: React.ReactNode; className?: string }) => (
-    <a className={className}>{children}</a>
+  Link: ({
+    children,
+    className,
+    'aria-current': ariaCurrent,
+  }: {
+    children: React.ReactNode;
+    className?: string;
+    'aria-current'?: 'page' | undefined;
+  }) => (
+    <a className={className} aria-current={ariaCurrent}>
+      {children}
+    </a>
   ),
 }));
 
