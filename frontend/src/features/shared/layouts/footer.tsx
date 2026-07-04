@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { Icon } from '../ui/icons';
 import { Brand } from '../ui/brand';
+import { STORE_INFO } from '../../../content/store-info';
 
 export function Footer() {
   return (
@@ -72,16 +73,16 @@ export function Footer() {
               <ul className="footer-contact">
                 <li>
                   <Icon name="pin" size={14} />
-                  Community 18, Spintex<br />
-                  <span>Adjacent KFC, Accra</span>
+                  {STORE_INFO.addressLine1}<br />
+                  <span>{STORE_INFO.addressLine2}</span>
                 </li>
                 <li>
                   <Icon name="phone" size={14} />
-                  0594 701 345
+                  {STORE_INFO.phone}
                 </li>
                 <li>
                   <Icon name="clock" size={14} />
-                  Mon–Sat · 9am – 8pm
+                  {STORE_INFO.hours}
                 </li>
               </ul>
             </div>

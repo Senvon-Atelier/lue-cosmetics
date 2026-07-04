@@ -5,11 +5,13 @@ import { Brand } from '../ui/brand';
 import { useAuth } from '../../../lib/auth/auth-provider';
 import { useCart } from '../../cart/cart-provider';
 import { SearchOverlay } from '../search-overlay';
+import { MobileMenu } from '../mobile-menu';
 
 export function Header() {
   const { isAuthenticated } = useAuth();
-  const { itemCount, wishlistCount, openDrawer } = useCart();
+  const { itemCount, openDrawer } = useCart();
   const [searchOpen, setSearchOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <header className="header">
@@ -44,17 +46,8 @@ export function Header() {
                 <Icon name="user" size={20} />
               </Link>
             )}
-            <button
-              className="header-icon-btn"
-              style={{ position: 'relative' }}
-              aria-label="Wishlist"
-            >
+            <button className="header-icon-btn" aria-label="Wishlist" disabled title="Saved items coming soon">
               <Icon name="heart" size={20} />
-              {wishlistCount > 0 && (
-                <span className="badge">
-                  {wishlistCount > 9 ? '9+' : wishlistCount}
-                </span>
-              )}
             </button>
             <button
               className="header-icon-btn"
@@ -72,12 +65,14 @@ export function Header() {
             <button
               className="header-icon-btn mobile-menu-btn"
               aria-label="Menu"
+              onClick={() => setMenuOpen(true)}
             >
               <Icon name="menu" size={20} />
             </button>
           </div>
       </div>
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
     </header>
   );
 }
