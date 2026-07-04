@@ -1,12 +1,15 @@
+import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { Icon } from '../ui/icons';
 import { Brand } from '../ui/brand';
 import { useAuth } from '../../../lib/auth/auth-provider';
 import { useCart } from '../../cart/cart-provider';
+import { SearchOverlay } from '../search-overlay';
 
 export function Header() {
   const { isAuthenticated } = useAuth();
   const { itemCount, wishlistCount, openDrawer } = useCart();
+  const [searchOpen, setSearchOpen] = useState(false);
 
   return (
     <header className="header">
@@ -29,7 +32,7 @@ export function Header() {
             <Brand />
           </Link>
           <div className="header-actions">
-            <button className="header-icon-btn" aria-label="Search">
+            <button className="header-icon-btn" aria-label="Search" onClick={() => setSearchOpen(true)}>
               <Icon name="search" size={20} />
             </button>
             {isAuthenticated ? (
@@ -74,6 +77,7 @@ export function Header() {
             </button>
           </div>
       </div>
+      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
     </header>
   );
 }
