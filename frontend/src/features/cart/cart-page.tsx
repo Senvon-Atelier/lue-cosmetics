@@ -1,7 +1,8 @@
 import { useNavigate } from '@tanstack/react-router';
 import { Icon } from '../shared/ui/icons';
 import { useCart } from './cart-provider';
-import { formatGhs, getImageUrl } from '../../lib/format/utils';
+import { formatGhs } from '../../lib/format/utils';
+import { CartItemRow } from './cart-item-row';
 
 export function CartPage() {
   const { items, subtotalGhsMinor, freeShippingRemainderGhsMinor, updateItem, removeItem } = useCart();
@@ -49,62 +50,12 @@ export function CartPage() {
       <div className="cart-page-grid" style={{ marginTop: 40 }}>
         <div>
           {items.map((item) => (
-            <div className="cart-item" key={item.id}>
-              {item.product_image_path ? (
-                <img
-                  src={getImageUrl(item.product_image_path)}
-                  alt={item.product_name || 'Product'}
-                  style={{ width: 80, height: 100, flexShrink: 0, objectFit: 'cover', borderRadius: 'var(--radius)' }}
-                  loading="lazy"
-                />
-              ) : (
-                <div
-                  className="ph ph--lavender"
-                  style={{ width: 80, height: 100, flexShrink: 0 }}
-                >
-                  <span className="ph-label" style={{ fontSize: 8 }}>
-                    {item.product_name?.substring(0, 2) || ''}
-                  </span>
-                </div>
-              )}
-              <div className="cart-item-body">
-                <div className="cart-item-name">{item.product_name}</div>
-                <div className="cart-item-row">
-                  <div className="qty">
-                    <button
-                      onClick={() => {
-                        const newQty = (item.qty || 1) - 1;
-                        if (newQty < 1) {
-                          void removeItem(item.id!);
-                        } else {
-                          void updateItem(item.id!, newQty);
-                        }
-                      }}
-                      aria-label="Decrease quantity"
-                    >
-                      <Icon name="minus" size={12} />
-                    </button>
-                    <span>{item.qty || 1}</span>
-                    <button
-                      onClick={() => void updateItem(item.id!, (item.qty || 1) + 1)}
-                      aria-label="Increase quantity"
-                    >
-                      <Icon name="plus" size={12} />
-                    </button>
-                  </div>
-                  <div className="price">
-                    {formatGhs((item.unit_price_ghs_minor || 0) * (item.qty || 1))}
-                  </div>
-                </div>
-              </div>
-              <button
-                className="cart-item-remove"
-                onClick={() => void removeItem(item.id!)}
-                aria-label="Remove item"
-              >
-                <Icon name="close" size={14} />
-              </button>
-            </div>
+            <CartItemRow
+              key={item.id}
+              item={item}
+              onUpdateQty={(id, qty) => void updateItem(id, qty)}
+              onRemove={(id) => void removeItem(id)}
+            />
           ))}
         </div>
         <aside className="cart-summary">
