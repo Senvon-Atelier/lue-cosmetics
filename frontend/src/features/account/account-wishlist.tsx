@@ -12,7 +12,7 @@ export function AccountWishlist() {
       </div>
       <div className="acct-empty">
         <p>Nothing saved here yet. In the meantime, browse the edit.</p>
-        <Link className="btn btn-primary" to="/shop">
+        <Link className="btn btn-primary" to="/shop" search={{}}>
           Explore products
         </Link>
       </div>

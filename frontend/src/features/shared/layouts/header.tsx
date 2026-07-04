@@ -18,7 +18,7 @@ export function Header() {
             <Link to="/" className="header-nav-link">
               Home
             </Link>
-            <Link to="/shop" className="header-nav-link">
+            <Link to="/shop" search={{}} className="header-nav-link">
               Shop
             </Link>
             <Link to="/about" className="header-nav-link">

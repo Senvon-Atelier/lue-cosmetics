@@ -92,7 +92,7 @@ export function AccountOrders() {
               ? 'No orders with this status.'
               : 'No orders yet — when you place one, it will appear here.'}
           </p>
-          <Link className="btn btn-primary" to="/shop">
+          <Link className="btn btn-primary" to="/shop" search={{}}>
             Start shopping
           </Link>
         </div>

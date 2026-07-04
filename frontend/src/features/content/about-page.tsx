@@ -91,7 +91,7 @@ export function AboutPage() {
             <p className="text-ink-soft mb-8">
               Explore hundreds of authentic beauty products, ready to ship nationwide.
             </p>
-            <Link to="/shop">
+            <Link to="/shop" search={{}}>
               <Button variant="primary" icon="arrow" iconPosition="right">
                 Browse Products
               </Button>

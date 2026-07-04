@@ -81,16 +81,17 @@ export function ProductDetail({ slug }: ProductDetailProps) {
       : 'lavender'
   ) as 'lavender' | 'cream' | 'ink' | 'rose';
 
-  // Shop category filter is client-state-only (not URL-driven) — all breadcrumb
-  // and lede category links go to /shop without search params. See task-3-report.
+  // Category links deep-link via /shop?category=<slug> (URL-driven filter, tranche 4).
   return (
     <main className="fade-up">
       <nav className="wrap breadcrumb">
         <Link to="/">Home</Link>
         <Icon name="chevronRight" size={12} />
-        <Link to="/shop">Shop</Link>
+        <Link to="/shop" search={{}}>Shop</Link>
         <Icon name="chevronRight" size={12} />
-        <Link to="/shop">{categoryLabel ?? 'Category'}</Link>
+        <Link to="/shop" search={categorySlug ? { category: categorySlug } : {}}>
+          {categoryLabel ?? 'Category'}
+        </Link>
         <Icon name="chevronRight" size={12} />
         <span>{name}</span>
       </nav>
@@ -134,7 +135,7 @@ export function ProductDetail({ slug }: ProductDetailProps) {
 
           <p className="product-lede">
             {copy.lede}{' '}Part of our{' '}
-            <Link to="/shop">
+            <Link to="/shop" search={categorySlug ? { category: categorySlug } : {}}>
               {categoryLabel?.toLowerCase() ?? 'beauty'}
             </Link>{' '}
             edit.

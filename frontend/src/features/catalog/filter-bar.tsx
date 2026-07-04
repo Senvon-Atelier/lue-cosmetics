@@ -62,9 +62,9 @@ export function FilterBar({
             {categories.map((category) => (
               <button
                 key={category.id}
-                onClick={() => onCategoryChange(category.id)}
+                onClick={() => onCategoryChange(category.slug)}
                 className={`w-full text-left px-3 py-2 text-sm rounded-full transition-colors duration-[var(--dur)] ${
-                  selectedCategory === category.id
+                  selectedCategory === category.slug
                     ? 'bg-lavender-600 text-paper'
                     : 'bg-lavender-50 text-ink hover:bg-lavender-100'
                 }`}

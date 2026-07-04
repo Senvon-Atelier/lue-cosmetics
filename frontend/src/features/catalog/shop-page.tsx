@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import { FilterBar } from './filter-bar';
 import { SortBar } from './sort-bar';
 import { ProductGrid } from './product-grid';
@@ -7,18 +8,16 @@ import type { InternalCatalogProductView } from '../../lib/api/generated/rueCosm
 
 type SortBy = 'name' | 'price_asc' | 'price_desc' | 'rating' | 'newest';
 
-interface ShopPageProps {
-  initialCategory?: string;
-  initialBrand?: string;
-}
-
-export function ShopPage({ initialCategory, initialBrand }: ShopPageProps) {
+export function ShopPage() {
+  const { category: categoryParam } = useSearch({ from: '/_storefront/shop' });
+  const navigate = useNavigate();
   const [products, setProducts] = useState<InternalCatalogProductView[]>([]);
   const [categories, setCategories] = useState<Array<{ id: string; label: string; slug: string }>>([]);
   const [brands, setBrands] = useState<Array<{ id: string; name: string; slug: string }>>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(initialCategory || null);
-  const [selectedBrand, setSelectedBrand] = useState<string | null>(initialBrand || null);
+  // selectedCategory holds the category SLUG (the API filters by slug — see handler.go:118)
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(categoryParam ?? null);
+  const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortBy>('name');
 
@@ -70,8 +69,18 @@ export function ShopPage({ initialCategory, initialBrand }: ShopPageProps) {
     loadProducts();
   }, [selectedCategory, selectedBrand, searchQuery, sortBy]);
 
+  // URL is the source of truth: back/forward + deep links update the filter
+  useEffect(() => {
+    setSelectedCategory(categoryParam ?? null);
+  }, [categoryParam]);
+
   const handleCategoryChange = (slug: string | null) => {
     setSelectedCategory(slug);
+    void navigate({
+      to: '/shop',
+      search: slug ? { category: slug } : {},
+      replace: true,
+    });
   };
 
   const handleBrandChange = (slug: string | null) => {
@@ -114,9 +123,9 @@ export function ShopPage({ initialCategory, initialBrand }: ShopPageProps) {
             {categories.map((category) => (
               <button
                 key={category.id}
-                onClick={() => handleCategoryChange(category.id)}
+                onClick={() => handleCategoryChange(category.slug)}
                 className={`chip transition-colors duration-[var(--dur)] ${
-                  selectedCategory === category.id
+                  selectedCategory === category.slug
                     ? 'bg-lavender-600 text-paper'
                     : 'bg-lavender-100 text-ink hover:bg-lavender-200'
                 }`}

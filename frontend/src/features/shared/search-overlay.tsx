@@ -109,7 +109,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
           <div className="search-empty">
             <p>
               No results for <em>"{term}"</em>. Try a different term or browse{' '}
-              <Link to="/shop" onClick={onClose}>
+              <Link to="/shop" search={{}} onClick={onClose}>
                 the full shop
               </Link>
               .

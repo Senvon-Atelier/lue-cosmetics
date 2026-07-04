@@ -33,12 +33,12 @@ export function Footer() {
             <div className="footer-col">
               <h5>Shop</h5>
               <ul>
-                <li><Link to="/shop">Skincare</Link></li>
-                <li><Link to="/shop">Haircare</Link></li>
-                <li><Link to="/shop">Fragrance</Link></li>
-                <li><Link to="/shop">Bodycare</Link></li>
-                <li><Link to="/shop">Sets & Gifts</Link></li>
-                <li><Link to="/shop">All products</Link></li>
+                <li><Link to="/shop" search={{}}>Skincare</Link></li>
+                <li><Link to="/shop" search={{}}>Haircare</Link></li>
+                <li><Link to="/shop" search={{}}>Fragrance</Link></li>
+                <li><Link to="/shop" search={{}}>Bodycare</Link></li>
+                <li><Link to="/shop" search={{}}>Sets & Gifts</Link></li>
+                <li><Link to="/shop" search={{}}>All products</Link></li>
               </ul>
             </div>
 

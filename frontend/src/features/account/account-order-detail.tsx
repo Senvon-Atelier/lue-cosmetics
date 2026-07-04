@@ -166,7 +166,7 @@ export function AccountOrderDetail() {
             )}
           </div>
           <div style={{ marginTop: 16 }}>
-            <Link className="btn btn-ghost" to="/shop">
+            <Link className="btn btn-ghost" to="/shop" search={{}}>
               Continue shopping
             </Link>
           </div>

@@ -98,7 +98,7 @@ export function AccountDashboard() {
         ) : recent.length === 0 ? (
           <div className="acct-empty">
             <p>No orders yet — when you place one, it will appear here.</p>
-            <Link className="btn btn-primary" to="/shop">
+            <Link className="btn btn-primary" to="/shop" search={{}}>
               Start shopping
             </Link>
           </div>

@@ -75,6 +75,12 @@ const homeRoute = createRoute({
 const shopRoute = createRoute({
   getParentRoute: () => storefrontLayoutRoute,
   path: '/shop',
+  validateSearch: (search: Record<string, unknown>): { category?: string } => ({
+    category:
+      typeof search.category === 'string' && search.category !== ''
+        ? search.category
+        : undefined,
+  }),
   component: () => pageShell(<ShopPage />),
 });
 
