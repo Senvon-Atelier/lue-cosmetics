@@ -1,20 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link } from '@tanstack/react-router';
-import { getMeOrders } from '../../lib/api/generated/rueCosmeticsAPI';
+import {
+  getMeOrders,
+  type InternalMeOrderResponse,
+} from '../../lib/api/generated/rueCosmeticsAPI';
 import { formatGhs, formatOrderDate } from '../../lib/format/utils';
 import { AcctHead, StatusPill } from './acct-primitives';
-
-type Order = {
-  id?: string;
-  user_id?: string;
-  status?: string;
-  subtotal_ghs?: number;
-  shipping_ghs?: number;
-  total_ghs?: number;
-  paystack_reference?: string;
-  created_at?: string;
-  updated_at?: string;
-};
 
 const STATUS_TABS: Array<[value: string, label: string]> = [
   ['', 'All'],
@@ -25,7 +16,7 @@ const STATUS_TABS: Array<[value: string, label: string]> = [
 ];
 
 export function AccountOrders() {
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<InternalMeOrderResponse[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
   const [statusFilter, setStatusFilter] = useState('');
@@ -112,7 +103,7 @@ export function AccountOrders() {
                   #{(order.id || '').slice(0, 8).toUpperCase()}
                 </div>
                 <div>{formatOrderDate(order.created_at)}</div>
-                <div className="price">{formatGhs(order.total_ghs || 0)}</div>
+                <div className="price">{formatGhs(order.total_ghs_minor || 0)}</div>
                 <div>
                   <StatusPill status={order.status} />
                 </div>

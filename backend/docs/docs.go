@@ -2735,17 +2735,17 @@ const docTemplate = `{
                 "shipping_address": {
                     "type": "string"
                 },
-                "shipping_ghs": {
-                    "type": "number"
+                "shipping_ghs_minor": {
+                    "type": "integer"
                 },
                 "status": {
                     "type": "string"
                 },
-                "subtotal_ghs": {
-                    "type": "number"
+                "subtotal_ghs_minor": {
+                    "type": "integer"
                 },
-                "total_ghs": {
-                    "type": "number"
+                "total_ghs_minor": {
+                    "type": "integer"
                 },
                 "updated_at": {
                     "type": "string"
@@ -2776,8 +2776,8 @@ const docTemplate = `{
                 "qty": {
                     "type": "integer"
                 },
-                "unit_price_ghs": {
-                    "type": "number"
+                "unit_price_ghs_minor": {
+                    "type": "integer"
                 }
             }
         },
@@ -2793,17 +2793,17 @@ const docTemplate = `{
                 "paystack_reference": {
                     "type": "string"
                 },
-                "shipping_ghs": {
-                    "type": "number"
+                "shipping_ghs_minor": {
+                    "type": "integer"
                 },
                 "status": {
                     "type": "string"
                 },
-                "subtotal_ghs": {
-                    "type": "number"
+                "subtotal_ghs_minor": {
+                    "type": "integer"
                 },
-                "total_ghs": {
-                    "type": "number"
+                "total_ghs_minor": {
+                    "type": "integer"
                 },
                 "updated_at": {
                     "type": "string"

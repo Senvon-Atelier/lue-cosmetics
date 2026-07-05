@@ -680,14 +680,14 @@ definitions:
         type: string
       shipping_address:
         type: string
-      shipping_ghs:
-        type: number
+      shipping_ghs_minor:
+        type: integer
       status:
         type: string
-      subtotal_ghs:
-        type: number
-      total_ghs:
-        type: number
+      subtotal_ghs_minor:
+        type: integer
+      total_ghs_minor:
+        type: integer
       updated_at:
         type: string
       user_id:
@@ -707,8 +707,8 @@ definitions:
         type: string
       qty:
         type: integer
-      unit_price_ghs:
-        type: number
+      unit_price_ghs_minor:
+        type: integer
     type: object
   internal_me.orderResponse:
     properties:
@@ -718,14 +718,14 @@ definitions:
         type: string
       paystack_reference:
         type: string
-      shipping_ghs:
-        type: number
+      shipping_ghs_minor:
+        type: integer
       status:
         type: string
-      subtotal_ghs:
-        type: number
-      total_ghs:
-        type: number
+      subtotal_ghs_minor:
+        type: integer
+      total_ghs_minor:
+        type: integer
       updated_at:
         type: string
       user_id:
