@@ -1,24 +1,23 @@
 import { useState } from 'react';
 
-// Mock testimonial data
 const testimonials = [
   {
-    quote: 'Rue has completely transformed my skincare routine. The products are authentic, the delivery is fast, and the concierge service helped me build a routine that actually works for my skin.',
-    who: 'Amara O.',
-    where: 'Accra',
+    quote: 'The only shelf in Accra that carries everything I trust. I\'ve been a regular since they opened — the team knows my skin.',
+    who: 'Ama Owusu',
+    where: 'East Legon, Accra',
+    since: 'Customer since 2023',
+  },
+  {
+    quote: 'I ordered a gift for my sister in Kumasi. Arrived the next day, wrapped beautifully. They think about every part of it.',
+    who: 'Kofi Mensah',
+    where: 'Cantonments, Accra',
     since: 'Customer since 2024',
   },
   {
-    quote: 'Finally, a beauty store in Ghana that stocks the brands I actually trust. No more worrying about fake products or waiting weeks for international shipping. Rue is exactly what we needed.',
-    who: 'Efia K.',
-    where: 'Kumasi',
-    since: 'Customer since 2025',
-  },
-  {
-    quote: 'The WhatsApp concierge service is incredible. They took time to understand my skin concerns and recommended products within my budget. My skin has never looked better!',
-    who: 'Nana A.',
-    where: 'Takoradi',
-    since: 'Customer since 2025',
+    quote: 'Walked in asking about retinol and left with a routine that finally worked. That\'s a rare kind of service.',
+    who: 'Zainab Hassan',
+    where: 'Tema, Ghana',
+    since: 'Customer since 2022',
   },
 ];
 
@@ -31,8 +30,8 @@ export function TestimonialsSection() {
     <section className="section testimonials">
       <div className="wrap testimonials-wrap">
         <div className="eyebrow" style={{ textAlign: 'center' }}>From our people</div>
-        <blockquote className="quote font-display">
-          "{currentTestimonial?.quote}"
+        <blockquote className="quote">
+          &ldquo;{currentTestimonial?.quote}&rdquo;
         </blockquote>
         <div className="quote-attrib">
           <div className="quote-name">{currentTestimonial?.who}</div>

@@ -1,17 +1,26 @@
 import { ProductCard } from './product-card';
+import { Icon } from '../shared/ui/icons';
 import type { InternalCatalogProductView } from '../../lib/api/generated/rueCosmeticsAPI';
 
 interface ProductGridProps {
   products: InternalCatalogProductView[];
   loading?: boolean;
+  view?: 'grid' | 'list';
+  onReset?: () => void;
 }
 
-export function ProductGrid({ products, loading }: ProductGridProps) {
+export function ProductGrid({ products, loading, view = 'grid', onReset }: ProductGridProps) {
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="aspect-[4/5] bg-lavender-100 rounded animate-pulse" />
+      <div className={view === 'grid' ? 'grid-4 shop-grid' : 'shop-list'} style={{ marginTop: 0 }}>
+        {Array.from({ length: 16 }).map((_, i) => (
+          <div key={i} className="pcard">
+            <div className="pcard-media">
+              <div className="ph" style={{ aspectRatio: '4/5' }}>
+                <span className="ph-label">loading</span>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
     );
@@ -19,20 +28,24 @@ export function ProductGrid({ products, loading }: ProductGridProps) {
 
   if (products.length === 0) {
     return (
-      <div className="text-center py-16 mt-8">
-        <div className="inline-flex flex-col items-center justify-center w-20 h-20 bg-lavender-50 rounded-full mb-4">
-          <span className="text-4xl">🔍</span>
-        </div>
-        <h3 className="font-display text-2xl mb-2">No products found</h3>
-        <p className="text-ink-muted">Try adjusting your filters or search terms</p>
+      <div className="shop-empty">
+        <div className="shop-empty-icon"><Icon name="search" size={40} /></div>
+        <p>We couldn't find any matches. Try adjusting your filters or browsing our full collection.</p>
+        {onReset && (
+          <button className="btn btn-primary" onClick={onReset}>
+            Clear All Filters
+          </button>
+        )}
       </div>
     );
   }
 
+  const gridClass = view === 'grid' ? 'grid-4 shop-grid' : 'shop-list';
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+    <div className={gridClass} style={{ marginTop: 0 }}>
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCard key={product.id} product={product} variant={view === 'list' ? 'list' : 'default'} />
       ))}
     </div>
   );

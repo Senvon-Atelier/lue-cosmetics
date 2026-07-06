@@ -14,6 +14,7 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
+    <>
     <header className="header">
       <div className="wrap header-inner">
           <nav className="header-nav">
@@ -30,7 +31,7 @@ export function Header() {
               Journal
             </Link>
           </nav>
-          <Link to="/">
+          <Link to="/" className="brand">
             <Brand />
           </Link>
           <div className="header-actions">
@@ -71,8 +72,8 @@ export function Header() {
             </button>
           </div>
       </div>
-      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
-      <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
     </header>
-  );
+    <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
+    <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
+    </>);
 }

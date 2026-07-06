@@ -5,7 +5,7 @@ export function CheckoutLayout() {
   return (
     <div>
       <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '2rem' }}>
-        <Brand />
+        <div className="brand"><Brand /></div>
       </div>
       <div>
         <Outlet />

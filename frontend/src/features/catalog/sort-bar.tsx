@@ -1,41 +1,44 @@
 import { Icon } from '../shared/ui/icons';
 
 interface SortBarProps {
-  sortBy: 'name' | 'price_asc' | 'price_desc' | 'rating' | 'newest';
-  onSortChange: (sort: 'name' | 'price_asc' | 'price_desc' | 'rating' | 'newest') => void;
+  sortBy: string;
+  onSortChange: (sort: string) => void;
   productCount: number;
+  view: 'grid' | 'list';
+  onViewChange: (view: 'grid' | 'list') => void;
+  onOpenFilters: () => void;
 }
 
 const sortOptions = [
-  { value: 'name', label: 'Name A-Z' },
-  { value: 'price_asc', label: 'Price: Low to High' },
-  { value: 'price_desc', label: 'Price: High to Low' },
-  { value: 'rating', label: 'Top Rated' },
-  { value: 'newest', label: 'Newest' },
+  { value: 'featured', label: 'Featured' },
+  { value: 'price_asc', label: 'Price · low to high' },
+  { value: 'price_desc', label: 'Price · high to low' },
+  { value: 'rating', label: 'Highest rated' },
 ] as const;
 
-export function SortBar({ sortBy, onSortChange, productCount }: SortBarProps) {
+export function SortBar({ sortBy, onSortChange, productCount, view, onViewChange, onOpenFilters }: SortBarProps) {
   return (
-    <div className="flex items-center justify-between mb-8 pb-6 border-b border-line-soft">
-      <p className="font-label text-sm text-ink-soft">
-        {productCount} {productCount === 1 ? 'product' : 'products'}
-      </p>
-
-      <div className="flex items-center gap-3">
-        <span className="font-label text-sm text-ink-soft">Sort by:</span>
-        <div className="relative">
-          <select
-            value={sortBy}
-            onChange={(e) => onSortChange(e.target.value as typeof sortBy)}
-            className="appearance-none pr-8 pl-3 py-2 border border-line rounded bg-paper text-ink text-sm focus:outline-none focus:border-lavender-600 focus:ring-2 focus:ring-lavender-600 transition-all duration-[var(--dur)] cursor-pointer"
-          >
-            {sortOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
+    <div className="shop-bar">
+      <button className="btn btn-ghost shop-filter-btn" onClick={onOpenFilters}>
+        <Icon name="sliders" size={14} /> Filters
+      </button>
+      <div className="shop-bar-right">
+        <span className="shop-count">{productCount} items</span>
+        <div className="shop-view">
+          <button className={view === 'grid' ? 'active' : ''} onClick={() => onViewChange('grid')}>
+            <Icon name="grid" size={14} />
+          </button>
+          <button className={view === 'list' ? 'active' : ''} onClick={() => onViewChange('list')}>
+            <Icon name="list" size={14} />
+          </button>
+        </div>
+        <div className="shop-sort">
+          <select value={sortBy} onChange={(e) => onSortChange(e.target.value as typeof sortBy)}>
+            {sortOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
           </select>
-          <Icon name="chevronDown" size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-muted pointer-events-none" />
+          <Icon name="chevronDown" size={14} />
         </div>
       </div>
     </div>

@@ -37,7 +37,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
       <div className={`drawer-scrim${open ? ' open' : ''}`} onClick={onClose} />
       <aside className={`drawer drawer-left${open ? ' open' : ''}`} inert={open ? undefined : ''} aria-label="Menu">
         <div className="drawer-head">
-          <Link to="/" onClick={onClose} aria-label="Rue home">
+          <Link to="/" className="brand" onClick={onClose} aria-label="Rue home">
             <Brand />
           </Link>
           <button className="icon-btn" onClick={onClose} aria-label="Close menu">

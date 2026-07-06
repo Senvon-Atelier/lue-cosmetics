@@ -31,7 +31,7 @@ export function AccountLayout() {
     <div className="acct-layout">
       <aside className="acct-side">
         <div className="acct-side-brand">
-          <Link to="/" aria-label="Back to Rue home">
+          <Link to="/" className="brand" aria-label="Back to Rue home">
             <Brand />
           </Link>
         </div>

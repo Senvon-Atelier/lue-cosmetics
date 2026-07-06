@@ -23,14 +23,9 @@ export function RueMark({ size = 32, color = 'currentColor' }: RueMarkProps) {
   );
 }
 
-interface BrandProps {
-  onClick?: () => void;
-  variant?: 'default' | 'compact';
-}
-
-export function Brand({ onClick }: BrandProps) {
+export function Brand() {
   return (
-    <div className="brand" onClick={onClick}>
+    <>
       <div className="brand-mark">
         <RueMark size={22} />
       </div>
@@ -38,6 +33,6 @@ export function Brand({ onClick }: BrandProps) {
         <div className="brand-word">Rue</div>
         <div className="brand-tag">Cosmetics</div>
       </div>
-    </div>
+    </>
   );
 }

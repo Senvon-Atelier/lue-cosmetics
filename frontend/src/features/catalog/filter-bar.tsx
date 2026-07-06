@@ -1,124 +1,124 @@
 import { Icon } from '../shared/ui/icons';
 
+const CONCERNS = ['Hydration', 'Brightening', 'Anti-aging', 'Sensitive skin', 'Acne-prone', 'Damaged hair'];
+
 interface FilterBarProps {
-  categories: Array<{ id: string; label: string; slug: string }>;
   brands: Array<{ id: string; name: string; slug: string }>;
-  selectedCategory: string | null;
   selectedBrand: string | null;
   searchQuery: string;
-  onCategoryChange: (slug: string | null) => void;
+  showFilters: boolean;
   onBrandChange: (slug: string | null) => void;
   onSearchChange: (query: string) => void;
+  onCloseFilters: () => void;
+  onClear: () => void;
 }
 
 export function FilterBar({
-  categories,
   brands,
-  selectedCategory,
   selectedBrand,
   searchQuery,
-  onCategoryChange,
+  showFilters,
   onBrandChange,
   onSearchChange,
+  onCloseFilters,
+  onClear,
 }: FilterBarProps) {
+  const hasActiveFilters = !!selectedBrand;
+
   return (
-    <div className="space-y-6">
-      {/* Search */}
-      <div className="relative">
-        <Icon name="search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" />
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search products..."
-          className="w-full pl-10 pr-4 py-3 border border-line rounded bg-paper text-ink placeholder:text-ink-muted focus:outline-none focus:border-lavender-600 focus:ring-2 focus:ring-lavender-600 transition-all duration-[var(--dur)]"
-        />
-        {searchQuery && (
-          <button
-            onClick={() => onSearchChange('')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-muted hover:text-ink transition-colors"
-            aria-label="Clear search"
-          >
-            <Icon name="close" size={14} />
-          </button>
-        )}
+    <aside className={`shop-filters ${showFilters ? 'open' : ''}`}>
+      <div className="shop-filters-head">
+        <div>
+          <div className="eyebrow">Filters</div>
+          <h3 className="h-display" style={{ fontSize: 28, margin: 0 }}>Refine</h3>
+        </div>
+        <button className="icon-btn mobile-close-filters" onClick={onCloseFilters}>
+          <Icon name="close" />
+        </button>
       </div>
 
-      {/* Filter Groups */}
-      {categories.length > 0 && (
-        <div className="border border-line p-6 rounded">
-          <h3 className="font-label font-semibold text-xs uppercase tracking-wider mb-4 text-ink-soft">Categories</h3>
-          <div className="space-y-2">
+      {/* Search */}
+      <div className="filter-group" style={{ paddingTop: 0 }}>
+        <div className="label">Search</div>
+        <div style={{ position: 'relative' }}>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="Search products..."
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              border: '1px solid var(--line)',
+              borderRadius: 8,
+              fontFamily: 'var(--font-body)',
+              fontSize: 14,
+              background: 'transparent',
+              color: 'var(--ink)',
+              outline: 'none',
+              boxSizing: 'border-box',
+            }}
+          />
+          {searchQuery && (
             <button
-              onClick={() => onCategoryChange(null)}
-              className={`w-full text-left px-3 py-2 text-sm rounded-full transition-colors duration-[var(--dur)] ${
-                selectedCategory === null
-                  ? 'bg-lavender-600 text-paper'
-                  : 'bg-lavender-50 text-ink hover:bg-lavender-100'
-              }`}
+              onClick={() => onSearchChange('')}
+              style={{
+                position: 'absolute', right: 8, top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none', border: 'none',
+                cursor: 'pointer', color: 'var(--ink-muted)',
+                padding: 4,
+              }}
+              aria-label="Clear search"
             >
-              All Categories
+              <Icon name="close" size={14} />
             </button>
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => onCategoryChange(category.slug)}
-                className={`w-full text-left px-3 py-2 text-sm rounded-full transition-colors duration-[var(--dur)] ${
-                  selectedCategory === category.slug
-                    ? 'bg-lavender-600 text-paper'
-                    : 'bg-lavender-50 text-ink hover:bg-lavender-100'
-                }`}
-              >
-                {category.label}
-              </button>
-            ))}
-          </div>
+          )}
         </div>
-      )}
+      </div>
 
+      {/* Price */}
+      <div className="filter-group">
+        <div className="label">Price · up to GHS 500</div>
+        <input type="range" min="50" max="700" step="10" defaultValue={700} className="price-slider" disabled />
+        <div className="price-range-labels"><span>GHS 50</span><span>GHS 700</span></div>
+      </div>
+
+      {/* Brands */}
       {brands.length > 0 && (
-        <div className="border border-line p-6 rounded">
-          <h3 className="font-label font-semibold text-xs uppercase tracking-wider mb-4 text-ink-soft">Brands</h3>
-          <div className="space-y-2">
-            <button
-              onClick={() => onBrandChange(null)}
-              className={`w-full text-left px-3 py-2 text-sm rounded-full transition-colors duration-[var(--dur)] ${
-                selectedBrand === null
-                  ? 'bg-lavender-600 text-paper'
-                  : 'bg-lavender-50 text-ink hover:bg-lavender-100'
-              }`}
-            >
-              All Brands
-            </button>
-            {brands.map((brand) => (
-              <button
-                key={brand.id}
-                onClick={() => onBrandChange(brand.id)}
-                className={`w-full text-left px-3 py-2 text-sm rounded-full transition-colors duration-[var(--dur)] ${
-                  selectedBrand === brand.id
-                    ? 'bg-lavender-600 text-paper'
-                    : 'bg-lavender-50 text-ink hover:bg-lavender-100'
-                }`}
-              >
-                {brand.name}
-              </button>
+        <div className="filter-group">
+          <div className="label">Brand</div>
+          <div className="brand-list">
+            {brands.map((b) => (
+              <label key={b.id} className="brand-check">
+                <input
+                  type="checkbox"
+                  checked={selectedBrand === b.id}
+                  onChange={() => onBrandChange(selectedBrand === b.id ? null : b.id)}
+                />
+                <span className="check-box"><Icon name="check" size={12} /></span>
+                <span>{b.name}</span>
+              </label>
             ))}
           </div>
         </div>
       )}
 
-      {/* Clear All */}
-      {(selectedCategory || selectedBrand) && (
-        <button
-          onClick={() => {
-            onCategoryChange(null);
-            onBrandChange(null);
-          }}
-          className="font-label text-sm text-ink-soft hover:text-ink transition-colors"
-        >
+      {/* Concern */}
+      <div className="filter-group">
+        <div className="label">Concern</div>
+        <div className="tag-list">
+          {CONCERNS.map((t) => (
+            <button key={t} className="chip">{t}</button>
+          ))}
+        </div>
+      </div>
+
+      {hasActiveFilters && (
+        <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'center' }} onClick={onClear}>
           Clear all filters
         </button>
       )}
-    </div>
+    </aside>
   );
 }

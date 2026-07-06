@@ -12,7 +12,7 @@ const promises = [
     description: 'Same-day in Accra over GHS 250. 2–4 days to other regions.',
   },
   {
-    icon: 'heart',
+    icon: 'sparkle',
     title: 'Concierge beauty',
     description: 'Routines built with you, in-store or on WhatsApp. No commission, just honesty.',
   },

@@ -4,9 +4,18 @@ import { FilterBar } from './filter-bar';
 import { SortBar } from './sort-bar';
 import { ProductGrid } from './product-grid';
 import { getProducts, getCategories, getBrands } from '../../lib/api/generated/rueCosmeticsAPI';
-import type { InternalCatalogProductView } from '../../lib/api/generated/rueCosmeticsAPI';
+import type { InternalCatalogProductView, GetProductsParams } from '../../lib/api/generated/rueCosmeticsAPI';
+import { Pagination } from './pagination';
 
-type SortBy = 'name' | 'price_asc' | 'price_desc' | 'rating' | 'newest';
+type SortBy = 'featured' | 'price_asc' | 'price_desc' | 'rating';
+
+const SORT_API_MAP: Record<string, string> = {
+  featured: 'name',
+  price_asc: 'price_asc',
+  price_desc: 'price_desc',
+  rating: 'rating',
+};
+type ViewMode = 'grid' | 'list';
 
 export function ShopPage() {
   const { category: categoryParam } = useSearch({ from: '/_storefront/shop' });
@@ -15,13 +24,15 @@ export function ShopPage() {
   const [categories, setCategories] = useState<Array<{ id: string; label: string; slug: string }>>([]);
   const [brands, setBrands] = useState<Array<{ id: string; name: string; slug: string }>>([]);
   const [loading, setLoading] = useState(true);
-  // selectedCategory holds the category SLUG (the API filters by slug — see handler.go:118)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(categoryParam ?? null);
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<SortBy>('name');
+  const [sortBy, setSortBy] = useState<SortBy>('featured');
+  const [view, setView] = useState<ViewMode>('grid');
+  const [showFilters, setShowFilters] = useState(false);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
 
-  // Load categories and brands
   useEffect(() => {
     const loadFilters = async () => {
       try {
@@ -46,19 +57,22 @@ export function ShopPage() {
     loadFilters();
   }, []);
 
-  // Load products with filters
   useEffect(() => {
     const loadProducts = async () => {
       setLoading(true);
       try {
-        const params: Record<string, string> = {};
+        const params: GetProductsParams = {};
         if (selectedCategory) params.category = selectedCategory;
         if (selectedBrand) params.brand = selectedBrand;
         if (searchQuery) params.q = searchQuery;
-        params.sort = sortBy;
+        const apiSort = SORT_API_MAP[sortBy] || sortBy;
+        if (sortBy !== 'featured') params.sort = apiSort;
+        params.page = page;
+        params.limit = 16;
 
         const response = await getProducts(params);
         setProducts(response?.items || []);
+        setTotal(response?.total ?? 0);
       } catch (error) {
         console.error('Failed to load products:', error);
         setProducts([]);
@@ -67,18 +81,17 @@ export function ShopPage() {
       }
     };
     loadProducts();
-  }, [selectedCategory, selectedBrand, searchQuery, sortBy]);
+  }, [selectedCategory, selectedBrand, searchQuery, sortBy, page]);
 
-  // URL is the source of truth: back/forward + deep links update the filter.
-  // Once categories are loaded, validate the slug — unknown slugs fall back to no filter (spec §3.5).
   useEffect(() => {
-    if (categories.length === 0) return; // wait until list is loaded before validating
+    if (categories.length === 0) return;
     const isKnown = categories.some((c) => c.slug === categoryParam);
     setSelectedCategory(isKnown ? (categoryParam ?? null) : null);
   }, [categoryParam, categories]);
 
   const handleCategoryChange = (slug: string | null) => {
     setSelectedCategory(slug);
+    setPage(1);
     void navigate({
       to: '/shop',
       search: slug ? { category: slug } : {},
@@ -88,85 +101,104 @@ export function ShopPage() {
 
   const handleBrandChange = (slug: string | null) => {
     setSelectedBrand(slug);
+    setPage(1);
   };
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
+    setPage(1);
   };
 
-  const handleSortChange = (sort: SortBy) => {
-    setSortBy(sort);
+  const handleSortChange = (sort: string) => {
+    setSortBy(sort as SortBy);
+    setPage(1);
   };
+
+  const handleViewChange = (v: ViewMode) => {
+    setView(v);
+  };
+
+  const handleClear = () => {
+    setSelectedCategory(null);
+    setSelectedBrand(null);
+    setSearchQuery('');
+    setPage(1);
+    void navigate({ to: '/shop', search: {}, replace: true });
+  };
+
+  const categoryLabel = selectedCategory
+    ? categories.find((c) => c.slug === selectedCategory)?.label || 'All products'
+    : 'All products';
 
   return (
-    <div className="section">
-      <div className="wrap">
-        {/* Page Header */}
-        <div className="mb-12">
-          <div className="eyebrow">Shop</div>
-          <h1 className="font-display text-[clamp(32px,4vw,56px)] font-normal tracking-[-0.01em]">
-            All Products
-          </h1>
-          <p className="text-ink-muted">Browse our curated collection of skincare, haircare, and wellness products.</p>
-        </div>
-
-        {/* Category Chips */}
-        {categories.length > 0 && (
-          <div className="flex gap-3 mb-12 flex-wrap">
+    <div>
+      <section className="shop-head">
+        <div className="wrap">
+          <div className="eyebrow">The shop</div>
+          <h1 className="h-display shop-title">{categoryLabel}</h1>
+          <p className="shop-sub">
+            {selectedCategory
+              ? `Our edit of ${categoryLabel.toLowerCase()} — trusted names and new discoveries.`
+              : `${total || '…'} curated products. Filter to find yours.`}
+          </p>
+          <div className="shop-cats">
             <button
+              className={`chip ${selectedCategory === null ? 'active' : ''}`}
               onClick={() => handleCategoryChange(null)}
-              className={`chip transition-colors duration-[var(--dur)] ${
-                selectedCategory === null
-                  ? 'bg-lavender-600 text-paper'
-                  : 'bg-lavender-100 text-ink hover:bg-lavender-200'
-              }`}
             >
               All
             </button>
-            {categories.map((category) => (
+            {categories.map((c) => (
               <button
-                key={category.id}
-                onClick={() => handleCategoryChange(category.slug)}
-                className={`chip transition-colors duration-[var(--dur)] ${
-                  selectedCategory === category.slug
-                    ? 'bg-lavender-600 text-paper'
-                    : 'bg-lavender-100 text-ink hover:bg-lavender-200'
-                }`}
+                key={c.id}
+                className={`chip ${selectedCategory === c.slug ? 'active' : ''}`}
+                onClick={() => handleCategoryChange(c.slug)}
               >
-                {category.label}
+                {c.label}
               </button>
             ))}
           </div>
-        )}
+        </div>
+      </section>
 
-        {/* Two-Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-12">
-          {/* Filters Sidebar */}
-          <aside className="lg:sticky lg:top-24 lg:self-start h-fit">
-            <FilterBar
-              categories={categories}
-              brands={brands}
-              selectedCategory={selectedCategory}
-              selectedBrand={selectedBrand}
-              searchQuery={searchQuery}
-              onCategoryChange={handleCategoryChange}
-              onBrandChange={handleBrandChange}
-              onSearchChange={handleSearchChange}
-            />
-          </aside>
+      <section className="shop-body">
+        <div className="wrap shop-body-inner">
+        <FilterBar
+          brands={brands}
+          selectedBrand={selectedBrand}
+          searchQuery={searchQuery}
+          showFilters={showFilters}
+          onBrandChange={handleBrandChange}
+          onSearchChange={handleSearchChange}
+          onCloseFilters={() => setShowFilters(false)}
+          onClear={handleClear}
+        />
 
-          {/* Main Content */}
-          <div>
-            <SortBar
-              sortBy={sortBy}
-              onSortChange={handleSortChange}
-              productCount={products.length}
-            />
+        <div>
+          <SortBar
+            sortBy={sortBy}
+            onSortChange={handleSortChange}
+            productCount={total}
+            view={view}
+            onViewChange={handleViewChange}
+            onOpenFilters={() => setShowFilters(true)}
+          />
 
-            <ProductGrid products={products} loading={loading} />
-          </div>
+          <ProductGrid
+            products={products}
+            loading={loading}
+            view={view}
+            onReset={handleClear}
+          />
+
+          <Pagination
+            page={page}
+            totalPages={Math.ceil(total / 16)}
+            onPageChange={setPage}
+          />
         </div>
       </div>
+    </section>
     </div>
   );
 }

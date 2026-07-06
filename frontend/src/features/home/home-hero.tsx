@@ -1,5 +1,5 @@
 import { useNavigate } from '@tanstack/react-router';
-import { Button, Icon } from '../shared/ui';
+import { Icon } from '../shared/ui';
 
 export function HomeHero() {
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ export function HomeHero() {
           <div className="hero-e2-rating">
             <span className="stars-row">
               {[0, 1, 2, 3, 4].map((i) => (
-                <Icon key={i} name="star" size={12} />
+                <Icon key={i} name="starFilled" size={12} />
               ))}
             </span>
             <span>Rated 4.9 · 1,200+ Accra reviews</span>
@@ -40,7 +40,7 @@ export function HomeHero() {
 
           <div className="hero-e2-col-c">
             <div className="hero-e2-frame">
-              <div className="ph ph--lavender" style={{ minHeight: '560px', aspectRatio: '3/4' }}>
+              <div className="ph" style={{ minHeight: '560px' }}>
                 <span className="ph-label">editorial · portrait 1200×1600</span>
               </div>
               <div className="hero-e2-chip">
@@ -62,7 +62,7 @@ export function HomeHero() {
 
           <div className="hero-e2-col-r">
             <div className="hero-e2-stack-t">
-              <div className="ph ph--cream" style={{ height: '100%', borderRadius: 'var(--radius)' }}>
+              <div className="ph ph--cream" style={{ height: '100%' }}>
                 <span className="ph-label">still life</span>
               </div>
             </div>
@@ -83,9 +83,9 @@ export function HomeHero() {
             stocked in Accra, shipped across Ghana.
           </div>
           <div className="hero-e2-ctas">
-            <Button onClick={() => navigate({ to: '/shop' })} icon="arrow" iconPosition="right">
-              Shop the edit
-            </Button>
+            <button className="btn btn-primary" onClick={() => navigate({ to: '/shop' })}>
+              Shop the edit <Icon name="arrow" size={14} />
+            </button>
             <button
               className="hero-e2-link"
               onClick={() => navigate({ to: '/about' })}
