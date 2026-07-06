@@ -1,0 +1,24 @@
+[Unit]
+Description=Rue Cosmetics API
+Documentation=https://github.com/oti-adjei/ruecosmetics
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/rue/current
+EnvironmentFile=/opt/rue/current/.env
+ExecStart=/opt/rue/current/api
+Restart=always
+RestartSec=5
+User=root
+Group=root
+
+# Security hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ReadWritePaths=/opt/rue/current
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target
