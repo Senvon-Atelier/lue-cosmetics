@@ -34,15 +34,18 @@ if ! command -v node &>/dev/null; then
   echo "   ✓ Node.js $(node -v) installed"
 fi
 
-# ── Ensure npm dependencies are cached ──
+# ── Ensure pnpm is installed ──
+if ! command -v pnpm &>/dev/null; then
+  echo "→ pnpm not found. Installing via npm..."
+  npm install -g pnpm
+  echo "   ✓ pnpm $(pnpm -v) installed"
+fi
+
+# ── Ensure frontend dependencies are cached ──
 if [ ! -d /opt/rue/repo/frontend/node_modules ]; then
   echo "→ Installing frontend dependencies..."
   cd /opt/rue/repo/frontend
-  if [ -f package-lock.json ]; then
-    npm ci
-  else
-    npm install
-  fi
+  pnpm install
 fi
 
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
@@ -62,12 +65,12 @@ echo "   ✓ binary: $RELEASE/api"
 # ── Build frontend ──
 echo "→ Building frontend..."
 cd "$REPO/frontend"
-if [ -f package-lock.json ]; then
-  npm ci --silent
+if [ -f pnpm-lock.yaml ]; then
+  pnpm install --frozen-lockfile
 else
-  npm install
+  pnpm install
 fi
-npm run build --silent
+pnpm run build
 cp -r dist "$RELEASE/frontend"
 echo "   ✓ frontend: $RELEASE/frontend"
 
