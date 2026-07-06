@@ -38,7 +38,11 @@ fi
 if [ ! -d /opt/rue/repo/frontend/node_modules ]; then
   echo "→ Installing frontend dependencies..."
   cd /opt/rue/repo/frontend
-  npm ci
+  if [ -f package-lock.json ]; then
+    npm ci
+  else
+    npm install
+  fi
 fi
 
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
@@ -58,7 +62,11 @@ echo "   ✓ binary: $RELEASE/api"
 # ── Build frontend ──
 echo "→ Building frontend..."
 cd "$REPO/frontend"
-npm ci --silent
+if [ -f package-lock.json ]; then
+  npm ci --silent
+else
+  npm install
+fi
 npm run build --silent
 cp -r dist "$RELEASE/frontend"
 echo "   ✓ frontend: $RELEASE/frontend"
