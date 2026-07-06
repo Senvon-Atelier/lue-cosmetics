@@ -1,14 +1,14 @@
 # ──────────────────────────────────────────────
-# Rue Cosmetics — Caddy subdomain snippet
+# lue Cosmetics — Caddy subdomain snippet
 # Add this block to your existing Caddyfile.
 # ──────────────────────────────────────────────
 
-rue.senvon.studio {
+lue.senvon.studio {
     root * /opt/rue/current/frontend
     file_server
 
     handle /api/* {
-        reverse_proxy 127.0.0.1:8080
+        reverse_proxy 127.0.0.1:8082
     }
 
     # Security headers
@@ -20,6 +20,6 @@ rue.senvon.studio {
     }
 
     log {
-        output file /var/log/caddy/rue.log
+        output file /var/log/caddy/lue.log
     }
 }

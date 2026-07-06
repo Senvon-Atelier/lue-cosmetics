@@ -16,8 +16,10 @@ Services already running on this machine:
 ### 1. Clone the repo
 
 ```bash
-mkdir -p /opt/rue/{releases,shared,repo}
-git clone <repo-url> /opt/rue/repo
+sudo mkdir -p /opt/rue/{releases,shared,repo}
+sudo chown -R $USER:$USER /opt/rue
+cd /opt/rue
+git clone <repo-url> repo
 ```
 
 ### 2. Configure environment
@@ -66,8 +68,9 @@ bash /opt/rue/deploy.sh
 ```
 
 The script will:
-1. Build the Go binary
-2. Build the frontend (`npm ci && npm run build`)
+1. Auto-install Go + Node.js if missing (one-time)
+2. Build the Go binary
+3. Build the frontend (`npm ci && npm run build`)
 3. Link the `.env` file
 4. Swap `current` → `previous`, new release → `current`
 5. Restart the systemd service (migrations run automatically on startup)

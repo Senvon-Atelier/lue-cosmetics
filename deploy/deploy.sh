@@ -8,6 +8,39 @@ set -euo pipefail
 #           /opt/rue/shared/.env  (secrets)
 # ──────────────────────────────────────────────
 
+# ── Ensure Go is installed ──
+if ! command -v go &>/dev/null; then
+  echo "→ Go not found. Installing..."
+  GO_VER=$(grep '^go ' /opt/rue/repo/backend/go.mod | awk '{print $2}')
+  ARCH=$(uname -m)
+  case "$ARCH" in
+    x86_64)  ARCH="amd64" ;;
+    aarch64) ARCH="arm64" ;;
+    armv7l)  ARCH="armv6l" ;;
+  esac
+  wget -q "https://go.dev/dl/go${GO_VER}.linux-${ARCH}.tar.gz" -O /tmp/go.tar.gz
+  sudo rm -rf /usr/local/go
+  sudo tar -C /usr/local -xzf /tmp/go.tar.gz
+  rm /tmp/go.tar.gz
+  export PATH="$PATH:/usr/local/go/bin"
+  echo "   ✓ Go ${GO_VER} installed for ${ARCH}"
+fi
+
+# ── Ensure Node.js is installed (for frontend build) ──
+if ! command -v node &>/dev/null; then
+  echo "→ Node.js not found. Installing LTS via NodeSource..."
+  curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+  sudo apt-get install -y nodejs
+  echo "   ✓ Node.js $(node -v) installed"
+fi
+
+# ── Ensure npm dependencies are cached ──
+if [ ! -d /opt/rue/repo/frontend/node_modules ]; then
+  echo "→ Installing frontend dependencies..."
+  cd /opt/rue/repo/frontend
+  npm ci
+fi
+
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 RELEASE="/opt/rue/releases/$TIMESTAMP"
 REPO="/opt/rue/repo"
