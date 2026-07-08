@@ -50,7 +50,7 @@
     "brand_slug": "glow-beauty",
     "price_ghs": 180,
     "stock_qty": 25,
-    "image_url": "",
+    "image_url": "/products/anti-aging-serum.png",
     "tags": [
       "anti-aging",
       "organic",
@@ -154,7 +154,7 @@
     "brand_slug": "luxe-cosmetics",
     "price_ghs": 250,
     "stock_qty": 20,
-    "image_url": "",
+    "image_url": "/products/radiance-perfume.png",
     "tags": [
       "long-lasting",
       "vegan"
@@ -168,7 +168,7 @@
     "brand_slug": "rue-essentials",
     "price_ghs": 60,
     "stock_qty": 50,
-    "image_url": "",
+    "image_url": "/products/daily-face-cleanser.png",
     "tags": [
       "sensitive-skin",
       "organic",
@@ -198,7 +198,7 @@
     "brand_slug": "pure-botanicals",
     "price_ghs": 72,
     "stock_qty": 42,
-    "image_url": "",
+    "image_url": "/products/leave-in-conditioner.png",
     "tags": [
       "organic",
       "natural-ingredients",
@@ -213,7 +213,7 @@
     "brand_slug": "rue-essentials",
     "price_ghs": 90,
     "stock_qty": 38,
-    "image_url": "",
+    "image_url": "/products/hand-cream-collection.png",
     "tags": [
       "moisturizing",
       "organic",
@@ -242,7 +242,7 @@
     "brand_slug": "glow-beauty",
     "price_ghs": 195,
     "stock_qty": 22,
-    "image_url": "",
+    "image_url": "/products/night-repair-cream.png",
     "tags": [
       "anti-aging",
       "moisturizing",
@@ -272,7 +272,7 @@
     "brand_slug": "rue-essentials",
     "price_ghs": 105,
     "stock_qty": 35,
-    "image_url": "",
+    "image_url": "/products/sunscreen-spf-50.png",
     "tags": [
       "sensitive-skin",
       "organic",

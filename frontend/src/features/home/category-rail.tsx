@@ -8,11 +8,11 @@ import { Icon } from '../shared/ui/icons';
 // column. Requires: DB migration → update Go model + SQL query → sqlc generate
 // → update handler → regenerate API client → then remove this hardcoded map.
 const CATEGORY_IMAGE_MAP: Record<string, string> = {
-  skincare:  '/categories/skincare.jpg',
-  makeup:    '/categories/makeup.jpg',
-  'hair-care':'/categories/hair-care.jpg',
-  'body-care':'/categories/body-care.jpg',
-  fragrance: '/categories/fragrance.jpg',
+  skincare:  '/categories/skincare.png',
+  makeup:    '/categories/makeup.png',
+  'hair-care':'/categories/hair-care.png',
+  'body-care':'/categories/body-care.png',
+  fragrance: '/categories/fragrance.png',
 };
 
 export function CategoryRail() {

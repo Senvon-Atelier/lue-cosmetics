@@ -114,26 +114,26 @@ Earthy, botanical, natural-ingredient focused. Kraft paper labels, twine, raw te
 Save each generated image into `backend/cmd/seed/data/images/` (create this directory). The filename must match the product slug for the seed data to reference it.
 
 | # | Product | Slug | Filename |
-|---|---|---|---|
+|---|---|---|---|---|
 | Hero | Editorial portrait | — | `hero-editorial.jpg` |
-| 1 | Hydrating Face Moisturizer | `hydrating-face-moisturizer` | `hydrating-face-moisturizer.jpg` |
-| 2 | Velvet Matte Lipstick | `velvet-matte-lipstick` | `velvet-matte-lipstick.jpg` |
+| 1 | Hydrating Face Moisturizer | `hydrating-face-moisturizer` | `hydrating-face-moisturizer.png` |
+| 2 | Velvet Matte Lipstick | `velvet-matte-lipstick` | `velvet-matte-lipstick.png` |
 | 3 | Exfoliating Body Scrub | `exfoliating-body-scrub` | `exfoliating-body-scrub.jpg` |
-| 4 | Daily Face Cleanser | `daily-face-cleanser` | `daily-face-cleanser.jpg` |
-| 5 | Hand Cream Collection | `hand-cream-collection` | `hand-cream-collection.jpg` |
-| 6 | Sunscreen SPF 50 | `sunscreen-spf-50` | `sunscreen-spf-50.jpg` |
-| 7 | Anti-Aging Serum | `anti-aging-serum` | `anti-aging-serum.jpg` |
+| 4 | Daily Face Cleanser | `daily-face-cleanser` | `daily-face-cleanser.png` |
+| 5 | Hand Cream Collection | `hand-cream-collection` | `hand-cream-collection.png` |
+| 6 | Sunscreen SPF 50 | `sunscreen-spf-50` | `sunscreen-spf-50.png` |
+| 7 | Anti-Aging Serum | `anti-aging-serum` | `anti-aging-serum.png` |
 | 8 | Rose Petal Toner | `rose-petal-toner` | `rose-petal-toner.jpg` |
 | 9 | Eyeshadow Palette — Earth Tones | `eyeshadow-palette-earth-tones` | `eyeshadow-palette-earth-tones.jpg` |
-| 10 | Night Repair Cream | `night-repair-cream` | `night-repair-cream.jpg` |
+| 10 | Night Repair Cream | `night-repair-cream` | `night-repair-cream.png` |
 | 11 | Matte Liquid Foundation | `matte-liquid-foundation` | `matte-liquid-foundation.jpg` |
-| 12 | Volumizing Mascara | `volumizing-mascara` | `volumizing-mascara.jpg` |
-| 13 | Radiance Perfume | `radiance-perfume` | `radiance-perfume.jpg` |
+| 12 | Volumizing Mascara | `volumizing-mascara` | `volumizing-mascara.png` |
+| 13 | Radiance Perfume | `radiance-perfume` | `radiance-perfume.png` |
 | 14 | Under Eye Concealer | `under-eye-concealer` | `under-eye-concealer.jpg` |
 | 15 | Nourishing Shampoo | `nourishing-shampoo` | `nourishing-shampoo.jpg` |
-| 16 | Body Butter — Shea | `body-butter-shea` | `body-butter-shea.jpg` |
-| 17 | Repair Hair Mask | `repair-hair-mask` | `repair-hair-mask.jpg` |
-| 18 | Leave-In Conditioner | `leave-in-conditioner` | `leave-in-conditioner.jpg` |
+| 16 | Body Butter — Shea | `body-butter-shea` | `body-butter-shea.png` |
+| 17 | Repair Hair Mask | `repair-hair-mask` | `repair-hair-mask.png` |
+| 18 | Leave-In Conditioner | `leave-in-conditioner` | `leave-in-conditioner.png` |
 | 19 | Citrus Body Splash | `citrus-body-splash` | `citrus-body-splash.jpg` |
 
 ---
@@ -144,11 +144,11 @@ Editorial still lifes for each category tile on the homepage. Use the same style
 
 | # | Category | Prompt | Filename |
 |---|---|---|---|
-| 1 | Skincare | [anchor] Wide flat lay of four skincare products — a white jar with silver lid, a clear dropper bottle with amber liquid, a squeezable white tube, and a pale pink glass bottle — arranged diagonally on a cream marble surface, soft morning light from the upper left, minimalist editorial composition, subtle terracotta accent, a single aloe leaf framing the left edge, 4:5 aspect ratio. | `skincare.jpg` |
-| 2 | Makeup | [anchor] Open black eyeshadow palette with 12 warm earth-tone pans visible, a bullet lipstick in dusty rose lying beside it, a makeup brush with fine brown powder on its tip resting across the palette, on a cream vanity surface with soft window light casting gentle shadows, editorial beauty still life, 4:5 aspect ratio. | `makeup.jpg` |
-| 3 | Hair Care | [anchor] Sage green shampoo bottle with black pump, a white tub with green lid half-open revealing thick cream texture, a wooden wide-tooth comb lying beside them on a warm bamboo surface, a fresh eucalyptus sprig arching across the frame, bright morning light from above, botanical editorial style, 4:5 aspect ratio. | `hair-care.jpg` |
-| 4 | Body Care | [anchor] Wide cream tub of shea body butter half-open with rich whipped texture visible, an exfoliating scrub jar with dark wooden lid and twine beside it, a folded white cotton towel on warm terracotta stone tiles, soft diffused daylight from the left, spa-like editorial still life, 4:5 aspect ratio. | `body-care.jpg` |
-| 5 | Fragrance | [anchor] Clear fluted perfume bottle with gold spray top, warm amber liquid visible inside, half a sliced orange and a cinnamon stick resting on raw linen beside it, a single dried jasmine stem, warm golden-hour light from the right casting long soft shadows across the surface, luxury editorial still life, 4:5 aspect ratio. | `fragrance.jpg` |
+| 1 | Skincare | [anchor] Wide flat lay of four skincare products — a white jar with silver lid, a clear dropper bottle with amber liquid, a squeezable white tube, and a pale pink glass bottle — arranged diagonally on a cream marble surface, soft morning light from the upper left, minimalist editorial composition, subtle terracotta accent, a single aloe leaf framing the left edge, 4:5 aspect ratio. | `skincare.png` |
+| 2 | Makeup | [anchor] Open black eyeshadow palette with 12 warm earth-tone pans visible, a bullet lipstick in dusty rose lying beside it, a makeup brush with fine brown powder on its tip resting across the palette, on a cream vanity surface with soft window light casting gentle shadows, editorial beauty still life, 4:5 aspect ratio. | `makeup.png` |
+| 3 | Hair Care | [anchor] Sage green shampoo bottle with black pump, a white tub with green lid half-open revealing thick cream texture, a wooden wide-tooth comb lying beside them on a warm bamboo surface, a fresh eucalyptus sprig arching across the frame, bright morning light from above, botanical editorial style, 4:5 aspect ratio. | `hair-care.png` |
+| 4 | Body Care | [anchor] Wide cream tub of shea body butter half-open with rich whipped texture visible, an exfoliating scrub jar with dark wooden lid and twine beside it, a folded white cotton towel on warm terracotta stone tiles, soft diffused daylight from the left, spa-like editorial still life, 4:5 aspect ratio. | `body-care.png` |
+| 5 | Fragrance | [anchor] Clear fluted perfume bottle with gold spray top, warm amber liquid visible inside, half a sliced orange and a cinnamon stick resting on raw linen beside it, a single dried jasmine stem, warm golden-hour light from the right casting long soft shadows across the surface, luxury editorial still life, 4:5 aspect ratio. | `fragrance.png` |
 
 ---
 
