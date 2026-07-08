@@ -759,6 +759,7 @@ img {
 .ritual-copy h2 em { color: var(--lavender-300); }
 .ritual-copy p { color: rgba(255,255,255,0.7); }
 .ritual-visual { position: relative; min-height: 480px; }
+.ritual-visual img { display: block; width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
 @media (max-width: 900px) {
   .ritual { margin: 60px var(--gut); }
   .ritual-wrap { grid-template-columns: 1fr; }
@@ -838,6 +839,19 @@ img {
 }
 
 .journal-card:hover .ph {
+  transform: scale(0.99);
+}
+
+.journal-card-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  border-radius: var(--radius);
+  transition: transform 500ms var(--ease);
+}
+
+.journal-card:hover .journal-card-img {
   transform: scale(0.99);
 }
 

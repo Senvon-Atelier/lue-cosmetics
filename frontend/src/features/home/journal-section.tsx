@@ -1,5 +1,12 @@
 import { Icon } from '../shared/ui/icons';
 
+// TODO: Load journal images from API or CMS when content is dynamic.
+const JOURNAL_IMAGE_MAP: Record<string, string> = {
+  'b01': '/journal/journal-harmattan-ritual.jpg',
+  'b02': '/journal/journal-slower-skincare.jpg',
+  'b03': '/journal/journal-nuit-de-prelude.jpg',
+};
+
 const blogPosts = [
   {
     id: 'b01',
@@ -48,9 +55,7 @@ export function JournalSection() {
         <div className="grid-3 journal-grid">
           {blogPosts.map((post) => (
             <a key={post.id} className="journal-card">
-              <div className={`ph ph--${post.tone}`} style={{ aspectRatio: '4/3' }}>
-                <span className="ph-label">{post.tag} · editorial</span>
-              </div>
+              <img src={JOURNAL_IMAGE_MAP[post.id]} alt={post.title} className="journal-card-img" />
               <div className="journal-body">
                 <div className="journal-meta">
                   <span className="chip">{post.tag}</span>

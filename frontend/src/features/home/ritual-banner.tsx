@@ -23,9 +23,8 @@ export function RitualBanner() {
           </div>
         </div>
         <div className="ritual-visual">
-          <div className="ph ph--ink" style={{ height: '100%', minHeight: 320, aspectRatio: '3/4' }}>
-            <span className="ph-label">fragrance · bottle</span>
-          </div>
+          {/* TODO: Load from API if/when ritual content becomes dynamic */}
+          <img src="/ritual/nuit-de-prelude.jpg" alt="Nuit de Prélude fragrance" />
         </div>
       </div>
     </section>

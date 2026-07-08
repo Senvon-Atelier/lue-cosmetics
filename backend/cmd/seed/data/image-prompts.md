@@ -152,6 +152,26 @@ Editorial still lifes for each category tile on the homepage. Use the same style
 
 ---
 
+## Ritual Banner (Homepage)
+
+Vertical editorial shot for the dark split-layout section. Use the same style anchor. Save at **1200×1600** (portrait, fits the 3:4 visual area).
+
+| Section | Prompt | Filename |
+|---|---|---|
+| Ritual Banner | [anchor] Editorial perfume bottle photography, a tall clear fluted perfume bottle with gold spray nozzle and warm amber liquid inside, standing on a dark ink-black textured surface, single sharp beam of warm golden light from above-right catching the amber liquid and casting a glowing reflection, a single dried lavender sprig laid beside the bottle, dark moody background, luxurious and intimate, 4:5 portrait aspect ratio. | `nuit-de-prelude.jpg` |
+
+## Journal Images (Homepage)
+
+Editorial still lifes for each journal card on the homepage. Use the same style anchor. Save at **1600×1200** (landscape, 4:3 aspect ratio for the journal card media area).
+
+| # | Post | Prompt | Filename |
+|---|---|---|---|
+| 1 | Building a Ghanaian Beauty Ritual for Harmattan Season | [anchor] Warm editorial flat lay on a cream linen surface: a small ceramic bowl of shea butter, a white skincare bottle with silver cap, a single aloe vera leaf cut open revealing clear gel, dried harmattan leaves scattered around, a wooden kente comb, warm golden hour light casting long shadows, 4:3 landscape aspect ratio. | `journal-harmattan-ritual.jpg` |
+| 2 | The Case for Slower Skincare | [anchor] Minimalist editorial still life on pale cream stone: a single amber glass dropper bottle with gold cap standing alone, one white tea flower floating in a shallow ceramic dish beside it, vast negative space, soft diffused morning light from the left, quiet meditative mood, 4:3 landscape aspect ratio. | `journal-slower-skincare.jpg` |
+| 3 | Inside The Lue Atelier: How Nuit de Prélude Came to Be | [anchor] Editorial workspace still life on dark wood: a perfume bottle with amber liquid, scattered handwritten notebook pages with ink sketches of molecular structures, a brass fountain pen, dried orange peel, warm candlelight mood with shallow depth of field, 4:3 landscape aspect ratio. | `journal-nuit-de-prelude.jpg` |
+
+---
+
 - **Label text:** GPT Image 2 can render text on products if the prompt specifies the font style, placement, and exact wording. If the text comes out garbled, try generating without text and adding it in Photoshop/Canva — or just accept the visual placeholder and update `image_url` to omit text-specific prompts.
 - **Consistency:** Run all prompts in the same session or with the same seed settings to keep lighting and colour temperature consistent across the batch.
 - **Backgrounds:** The three backdrop colours (cream, lavender, charcoal, wood) correspond loosely to the four brand identities. Don't worry if the AI interprets them slightly differently — the cohesive style anchor should keep them looking like they belong to the same store.
