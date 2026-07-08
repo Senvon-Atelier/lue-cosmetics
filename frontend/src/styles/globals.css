@@ -625,53 +625,68 @@ img {
 
 @media (max-width: 720px) {
   .hero-e2 {
-    padding-top: 20px;
+    padding-top: 16px;
   }
   .hero-e2-grid {
     grid-template-columns: 1fr;
-    gap: 14px;
+    gap: 12px;
   }
   .hero-e2-col-l, .hero-e2-col-c, .hero-e2-col-r {
     grid-column: 1;
   }
   .hero-e2-col-l {
     grid-row: 1;
+    padding-bottom: 0;
   }
   .hero-e2-col-c {
     grid-row: 2;
   }
   .hero-e2-col-r {
     grid-row: 3;
-    grid-template-rows: 240px auto;
+    grid-template-rows: 200px auto;
+    gap: 12px;
   }
   .hero-e2-frame {
-    min-height: 380px;
+    min-height: 300px;
   }
   .hero-e2-title {
-    font-size: clamp(56px, 16vw, 100px);
+    font-size: clamp(48px, 14vw, 80px);
   }
   .hero-e2-title .line-2 {
-    padding-left: 0.4em;
+    padding-left: 0.3em;
   }
   .hero-e2-title .line-3 {
-    padding-left: 1em;
+    padding-left: 0.6em;
+  }
+  .hero-e2-title .line-4 {
+    padding-left: 0.15em;
+  }
+  .hero-e2-top {
+    padding-bottom: 12px;
+    margin-bottom: 16px;
   }
   .hero-e2-bottom {
     grid-template-columns: 1fr;
-    gap: 20px;
-    padding: 32px 0;
+    gap: 16px;
+    padding: 24px 0;
   }
   .hero-e2-ctas {
     justify-content: flex-start;
   }
+  .hero-e2-lede {
+    font-size: 15px;
+  }
   .hero-e2-chip {
-    padding: 8px 8px 8px 14px;
+    padding: 6px 6px 6px 12px;
   }
   .hero-e2-chip-v {
-    font-size: 13px;
+    font-size: 12px;
+  }
+  .hero-e2-stack-b {
+    padding: 16px;
   }
   .hero-e2-number {
-    font-size: 72px;
+    font-size: 64px;
   }
 }
 
@@ -738,8 +753,20 @@ img {
 
 @media (max-width: 520px) {
   .cat-rail {
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
   }
+  .cat-rail::-webkit-scrollbar { display: none; }
+  .cat-tile {
+    flex: 0 0 75vw;
+    scroll-snap-align: start;
+  }
+  .cat-tile-name { font-size: 15px; }
+  .cat-tile-foot { padding: 10px 2px 0; }
 }
 
 /* ---------- RITUAL BANNER ---------- */
