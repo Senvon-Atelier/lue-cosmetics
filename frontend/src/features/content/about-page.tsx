@@ -30,7 +30,8 @@ export function AboutPage() {
 
       <section className="section">
         <div className="wrap about-split">
-          <div className="ph ph--lavender about-ph"><span className="ph-label">founder · portrait</span></div>
+          {/* TODO: Load from API when about content becomes dynamic */}
+          <img src="/about/founder-portrait.png" alt="Lue Cosmetics founder" className="about-ph-img" />
           <div>
             <div className="eyebrow">Founded in Accra</div>
             <h2 className="h-display" style={{ fontSize: 'clamp(32px, 4.5vw, 64px)' }}>
@@ -98,7 +99,8 @@ export function AboutPage() {
               <div><Icon name="phone" /> <div><strong>0594 701 345</strong><br />WhatsApp welcome</div></div>
             </div>
           </div>
-          <div className="ph ph--cream visit-map"><span className="ph-label">map · Spintex, Accra</span></div>
+          {/* TODO: Replace with interactive map embed (e.g. OpenStreetMap) */}
+          <img src="/about/shop-map.png" alt="Map of Spintex, Accra" className="visit-map-img" />
         </div>
       </section>
     </div>

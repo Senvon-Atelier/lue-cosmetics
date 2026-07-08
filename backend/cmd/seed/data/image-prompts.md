@@ -158,7 +158,7 @@ Vertical editorial shot for the dark split-layout section. Use the same style an
 
 | Section | Prompt | Filename |
 |---|---|---|
-| Ritual Banner | [anchor] Editorial perfume bottle photography, a tall clear fluted perfume bottle with gold spray nozzle and warm amber liquid inside, standing on a dark ink-black textured surface, single sharp beam of warm golden light from above-right catching the amber liquid and casting a glowing reflection, a single dried lavender sprig laid beside the bottle, dark moody background, luxurious and intimate, 4:5 portrait aspect ratio. | `nuit-de-prelude.jpg` |
+| Ritual Banner | [anchor] Editorial perfume bottle photography, a tall clear fluted perfume bottle with gold spray nozzle and warm amber liquid inside, standing on a dark ink-black textured surface, single sharp beam of warm golden light from above-right catching the amber liquid and casting a glowing reflection, a single dried lavender sprig laid beside the bottle, dark moody background, luxurious and intimate, 4:5 portrait aspect ratio. | `nuit-de-prelude.png` |
 
 ## Journal Images (Homepage)
 
@@ -166,9 +166,20 @@ Editorial still lifes for each journal card on the homepage. Use the same style 
 
 | # | Post | Prompt | Filename |
 |---|---|---|---|
-| 1 | Building a Ghanaian Beauty Ritual for Harmattan Season | [anchor] Warm editorial flat lay on a cream linen surface: a small ceramic bowl of shea butter, a white skincare bottle with silver cap, a single aloe vera leaf cut open revealing clear gel, dried harmattan leaves scattered around, a wooden kente comb, warm golden hour light casting long shadows, 4:3 landscape aspect ratio. | `journal-harmattan-ritual.jpg` |
-| 2 | The Case for Slower Skincare | [anchor] Minimalist editorial still life on pale cream stone: a single amber glass dropper bottle with gold cap standing alone, one white tea flower floating in a shallow ceramic dish beside it, vast negative space, soft diffused morning light from the left, quiet meditative mood, 4:3 landscape aspect ratio. | `journal-slower-skincare.jpg` |
-| 3 | Inside The Lue Atelier: How Nuit de Prélude Came to Be | [anchor] Editorial workspace still life on dark wood: a perfume bottle with amber liquid, scattered handwritten notebook pages with ink sketches of molecular structures, a brass fountain pen, dried orange peel, warm candlelight mood with shallow depth of field, 4:3 landscape aspect ratio. | `journal-nuit-de-prelude.jpg` |
+| 1 | Building a Ghanaian Beauty Ritual for Harmattan Season | [anchor] Warm editorial flat lay on a cream linen surface: a small ceramic bowl of shea butter, a white skincare bottle with silver cap, a single aloe vera leaf cut open revealing clear gel, dried harmattan leaves scattered around, a wooden kente comb, warm golden hour light casting long shadows, 4:3 landscape aspect ratio. | `journal-harmattan-ritual.png` |
+| 2 | The Case for Slower Skincare | [anchor] Minimalist editorial still life on pale cream stone: a single amber glass dropper bottle with gold cap standing alone, one white tea flower floating in a shallow ceramic dish beside it, vast negative space, soft diffused morning light from the left, quiet meditative mood, 4:3 landscape aspect ratio. | `journal-slower-skincare.png` |
+| 3 | Inside The Lue Atelier: How Nuit de Prélude Came to Be | [anchor] Editorial workspace still life on dark wood: a perfume bottle with amber liquid, scattered handwritten notebook pages with ink sketches of molecular structures, a brass fountain pen, dried orange peel, warm candlelight mood with shallow depth of field, 4:3 landscape aspect ratio. | `journal-nuit-de-prelude.png` |
+
+---
+
+## About Page Images
+
+Editorial images for the About page. Use the same style anchor.
+
+| Section | Prompt | Filename |
+|---|---|---|
+| Founder Portrait | [anchor] Editorial portrait, a Black Ghanaian woman in her early thirties with natural curls, wearing a cream linen blouse, standing in a bright airy Accra room with warm afternoon sun streaming through sheer curtains, holding a small skincare bottle naturally in one hand, minimal jewelry, warm neutral background with subtle lavender tones, relaxed professional editorial style, 4:5 portrait aspect ratio. | `founder-portrait.png` |
+| Shop Storefront | [anchor] Editorial photograph of a modern minimalist storefront in Accra, warm afternoon light, cream and glass facade, subtle lavender signage, a customer walking out holding a small paper bag, shot from across the street, warm Accra atmosphere, clean premium editorial style, 4:3 landscape aspect ratio. | `shop-map.png` |
 
 ---
 

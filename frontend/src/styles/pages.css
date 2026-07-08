@@ -304,6 +304,7 @@
 .about-split h2 { margin: 12px 0 24px; }
 .about-split p { color: var(--ink-soft); line-height: 1.7; margin-bottom: 16px; }
 .about-ph { aspect-ratio: 4/5; }
+.about-ph-img { display: block; width: 100%; aspect-ratio: 4/5; object-fit: cover; border-radius: var(--radius); }
 @media (max-width: 900px) { .about-split { grid-template-columns: 1fr; gap: 32px; } }
 
 .values { background: var(--cream); }
@@ -324,6 +325,7 @@
 .visit-info strong { color: var(--ink); font-weight: 600; }
 .visit-info svg { color: var(--lavender-700); margin-top: 2px; flex-shrink: 0; }
 .visit-map { aspect-ratio: 4/3; }
+.visit-map-img { display: block; width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: var(--radius); }
 @media (max-width: 900px) { .visit-wrap { grid-template-columns: 1fr; gap: 40px; } }
 
 /* ── cart page (extrapolated — no mockup source; follows drawer vocabulary) ── */

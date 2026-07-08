@@ -2,9 +2,9 @@ import { Icon } from '../shared/ui/icons';
 
 // TODO: Load journal images from API or CMS when content is dynamic.
 const JOURNAL_IMAGE_MAP: Record<string, string> = {
-  'b01': '/journal/journal-harmattan-ritual.jpg',
-  'b02': '/journal/journal-slower-skincare.jpg',
-  'b03': '/journal/journal-nuit-de-prelude.jpg',
+  'b01': '/journal/journal-harmattan-ritual.png',
+  'b02': '/journal/journal-slower-skincare.png',
+  'b03': '/journal/journal-nuit-de-prelude.png',
 };
 
 const blogPosts = [

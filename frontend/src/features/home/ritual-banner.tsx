@@ -24,7 +24,7 @@ export function RitualBanner() {
         </div>
         <div className="ritual-visual">
           {/* TODO: Load from API if/when ritual content becomes dynamic */}
-          <img src="/ritual/nuit-de-prelude.jpg" alt="Nuit de Prélude fragrance" />
+          <img src="/ritual/nuit-de-prelude.png" alt="Nuit de Prélude fragrance" />
         </div>
       </div>
     </section>
