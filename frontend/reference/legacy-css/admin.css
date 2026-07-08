@@ -1,4 +1,4 @@
-/* ========== Rue Admin Panel ========== */
+/* ========== Lue Admin Panel ========== */
 
 .admin-body { background: #F5F2ED; font-family: var(--font-label); color: var(--ink); min-height: 100vh; }
 .admin-layout { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }

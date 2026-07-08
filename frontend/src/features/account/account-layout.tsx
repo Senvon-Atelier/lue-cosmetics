@@ -3,7 +3,7 @@ import { useAuth } from '../../lib/auth/auth-provider';
 import { Brand } from '../shared/ui/brand';
 import { Icon } from '../shared/ui/icons';
 
-// Ported from Rue/src/acct-pages.jsx (AcctSidebar) — real links only (spec §2.2):
+// Ported from Lue/src/acct-pages.jsx (AcctSidebar) — real links only (spec §2.2):
 // the mockup's tracking/subscriptions/returns/reviews/reorder/loyalty/referral/payments
 // entries have no backend and are omitted.
 
@@ -31,7 +31,7 @@ export function AccountLayout() {
     <div className="acct-layout">
       <aside className="acct-side">
         <div className="acct-side-brand">
-          <Link to="/" className="brand" aria-label="Back to Rue home">
+          <Link to="/" className="brand" aria-label="Back to Lue home">
             <Brand />
           </Link>
         </div>

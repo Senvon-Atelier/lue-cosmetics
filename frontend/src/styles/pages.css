@@ -1,6 +1,6 @@
-/* Ported from Rue mockup — see spec §3. */
+/* Ported from Lue mockup — see spec §3. */
 
-/* shared display heading — ported from Rue/styles.css */
+/* shared display heading — ported from Lue/styles.css */
 .h-display {
   font-family: var(--font-display);
   font-weight: 400;
@@ -10,7 +10,7 @@
 .h-display em { font-family: var(--font-serif); font-style: italic; color: var(--lavender-600); font-weight: 400; letter-spacing: -0.01em; }
 
 /* ---------- BUTTONS ---------- */
-/* Source: Rue/styles.css — not present in globals.css */
+/* Source: Lue/styles.css — not present in globals.css */
 .btn {
   font-family: var(--font-label);
   font-weight: 600;
@@ -35,7 +35,7 @@
 .btn-ghost:hover { background: var(--ink); color: var(--cream); }
 
 /* ---------- PRICE ---------- */
-/* Source: Rue/styles.css — not present in globals.css */
+/* Source: Lue/styles.css — not present in globals.css */
 .price {
   font-family: var(--font-label);
   font-weight: 600;
@@ -44,7 +44,7 @@
 }
 
 /* ---------- ICON BUTTON ---------- */
-/* Source: Rue/styles.css — not present in globals.css */
+/* Source: Lue/styles.css — not present in globals.css */
 .icon-btn {
   width: 40px; height: 40px;
   border-radius: 999px;
@@ -60,7 +60,7 @@
 }
 .icon-btn:hover { background: var(--lavender-100); }
 
-/* Source: Rue/pages.css — not present in globals.css */
+/* Source: Lue/pages.css — not present in globals.css */
 .icon-btn-lg {
   width: 52px; height: 52px;
   border: 1px solid var(--ink);
@@ -76,7 +76,7 @@
 .icon-btn-lg.wished { background: var(--lavender-100); color: var(--lavender-700); border-color: var(--lavender-400); }
 
 /* ---------- QTY STEPPER ---------- */
-/* Source: Rue/pages.css — not present in globals.css */
+/* Source: Lue/pages.css — not present in globals.css */
 .qty { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 999px; padding: 4px; }
 .qty button { width: 26px; height: 26px; border-radius: 999px; display: grid; place-items: center; color: var(--ink-soft); background: none; border: none; cursor: pointer; }
 .qty button:hover { background: var(--lavender-100); color: var(--ink); }
@@ -86,7 +86,7 @@
 .qty-lg span { font-size: 15px; min-width: 28px; }
 
 /* ---------- CART DRAWER ---------- */
-/* Source: Rue/styles.css */
+/* Source: Lue/styles.css */
 .drawer-scrim {
   position: fixed;
   inset: 0;
@@ -111,7 +111,7 @@
 }
 .drawer.open { transform: translateX(0); }
 
-/* Source: Rue/pages.css */
+/* Source: Lue/pages.css */
 .drawer-head {
   padding: 24px;
   border-bottom: 1px solid var(--line);
@@ -137,7 +137,7 @@
 .cart-item-remove:hover { color: var(--ink); }
 
 /* ---------- TOAST ---------- */
-/* Source: Rue Cosmetics.html inline style */
+/* Source: Lue Cosmetics.html inline style */
 .toast {
   position: fixed;
   bottom: 24px; left: 50%;
@@ -176,7 +176,7 @@
 @keyframes toastIn { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
 
 /* ---------- PRODUCT DETAIL PAGE ---------- */
-/* Source: Rue/pages.css "PRODUCT PAGE" block — verbatim, dedup checked vs globals.css + above. */
+/* Source: Lue/pages.css "PRODUCT PAGE" block — verbatim, dedup checked vs globals.css + above. */
 /* Skipped: .product-swatches, .swatch-row, .label (spec §4.1 swatches omitted). */
 /* .icon-btn-lg, .qty, .qty-lg already defined above — not repeated. */
 /* .price-was: not in globals.css or prior pages.css — added here. */
@@ -220,7 +220,7 @@
 }
 
 /* ---------- PRODUCT CARD ---------- */
-/* Source: Rue/pages.css — not present in globals.css */
+/* Source: Lue/pages.css — not present in globals.css */
 .pcard { position: relative; }
 .pcard-media { position: relative; cursor: pointer; overflow: hidden; border-radius: var(--radius); }
 .pcard-media .ph { transition: transform 600ms var(--ease); }
@@ -294,7 +294,7 @@
 .pcard-bordered .pcard-body { padding: 16px; border: 1px solid var(--line); border-top: 0; }
 
 /* ---------- ABOUT PAGE ---------- */
-/* Source: Rue/pages.css — about-hero, about-split, values, stats, visit */
+/* Source: Lue/pages.css — about-hero, about-split, values, stats, visit */
 .about-hero { padding: 80px 0; background: var(--surface); }
 .about-hero-wrap { max-width: 900px; padding-left: var(--gut); padding-right: var(--gut); margin: 0 auto; }
 .about-hero h1 { margin: 12px 0 32px; }
@@ -336,7 +336,7 @@
 .cart-summary .drawer-row { padding: 8px 0; }
 .cart-free-note { font-family: var(--font-label); font-size: 12px; color: var(--lavender-700); background: var(--lavender-100); border-radius: var(--radius); padding: 10px 12px; margin-top: 12px; }
 
-/* ── field form classes — verbatim from Rue/account.css ── */
+/* ── field form classes — verbatim from Lue/account.css ── */
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
 .form-row.full { grid-template-columns: 1fr; }
 @media (max-width: 720px) { .form-row { grid-template-columns: 1fr; } }
@@ -358,7 +358,7 @@
 .field-error { font-family: var(--font-label); font-size: 11px; color: var(--lavender-700); }
 
 /* ---------- SHOP PAGE ---------- */
-/* Source: Rue/pages.css — shop-head, shop-body, filters, bar, grid */
+/* Source: Lue/pages.css — shop-head, shop-body, filters, bar, grid */
 .shop-head { padding: 64px 0 56px; background: var(--surface); }
 .shop-title { font-size: clamp(48px, 8vw, 112px); margin: 12px 0 20px; }
 .shop-sub { color: var(--ink-soft); max-width: 560px; font-size: 16px; margin: 0 0 32px; }

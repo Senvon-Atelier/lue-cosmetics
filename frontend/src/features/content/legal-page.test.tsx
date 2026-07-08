@@ -24,7 +24,7 @@ describe('LegalPageView', () => {
   it('renders the page title and lead for a known slug', () => {
     render(<LegalPageView slug="privacy" />);
     expect(screen.getByRole('heading', { level: 1 }).textContent).toContain('Privacy');
-    expect(screen.getByText(/what Rue Cosmetics collects/i)).toBeTruthy();
+    expect(screen.getByText(/what Lue Cosmetics collects/i)).toBeTruthy();
   });
 
   it('marks the active sidebar entry with aria-current', () => {

@@ -1,4 +1,4 @@
-/* ========== Rue Account — styles ========== */
+/* ========== Lue Account — styles ========== */
 
 .acct-layout { min-height: 100vh; display: grid; grid-template-columns: 260px 1fr; background: var(--cream); }
 @media (max-width: 900px) { .acct-layout { grid-template-columns: 1fr; } }

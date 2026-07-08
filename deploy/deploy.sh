@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ──────────────────────────────────────────────
-# Rue Cosmetics — deploy script
+# Lue Cosmetics — deploy script
 # Usage: bash /opt/rue/deploy.sh
 # Requires: /opt/rue/repo  (cloned git repo)
 #           /opt/rue/shared/.env  (secrets)

@@ -5,7 +5,7 @@ const messages = [
   "Free delivery in Accra over GHS 250",
   "Community 18, Spintex — adjacent KFC",
   "Shop Mon–Sat · 9am–8pm",
-  "New Rue Atelier fragrances have landed",
+  "New Lue Atelier fragrances have landed",
 ] as const;
 
 export function AnnouncementBar() {

@@ -5,7 +5,7 @@ export function RitualBanner() {
     <section className="section ritual">
       <div className="ritual-wrap">
         <div className="ritual-copy">
-          <div className="eyebrow" style={{ color: 'var(--lavender-300)' }}>The Rue Atelier</div>
+          <div className="eyebrow" style={{ color: 'var(--lavender-300)' }}>The Lue Atelier</div>
           <h2 className="h-display" style={{ fontSize: 'clamp(40px, 6vw, 88px)' }}>
             <em>Nuit de Prélude</em>
             <br />

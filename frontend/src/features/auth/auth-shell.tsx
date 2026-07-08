@@ -15,7 +15,7 @@ export function AuthShell({ title, sub, children, footer }: AuthShellProps) {
       <div className="auth-visual">
         <div className="ph ph--lavender"><span className="ph-label">editorial · lifestyle</span></div>
         <div className="auth-visual-copy">
-          <div className="eyebrow" style={{ color: 'var(--lavender-300)' }}>Rue · Members</div>
+          <div className="eyebrow" style={{ color: 'var(--lavender-300)' }}>Lue · Members</div>
           <h2>
             Small rituals,<br />
             <em style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', color: 'var(--lavender-300)' }}>
@@ -27,7 +27,7 @@ export function AuthShell({ title, sub, children, footer }: AuthShellProps) {
       </div>
       <div className="auth-form-wrap">
         <div className="auth-form">
-          <Link className="back-link" to="/"><Icon name="arrowLeft" size={12} /> Back to Rue</Link>
+          <Link className="back-link" to="/"><Icon name="arrowLeft" size={12} /> Back to Lue</Link>
           <div className="eyebrow" style={{ color: 'var(--lavender-700)' }}>{sub}</div>
           <h1>{title}</h1>
           {children}

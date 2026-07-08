@@ -1,5 +1,5 @@
 [Unit]
-Description=Rue Cosmetics API
+Description=Lue Cosmetics API
 Documentation=https://github.com/oti-adjei/ruecosmetics
 After=network.target docker.service
 Requires=docker.service

@@ -32,7 +32,7 @@ export function CaseStudyBanner() {
         </h2>
 
         <p className="cs-body">
-          Rue Cosmetics mimics a live e-commerce experience — browse products,
+          Lue Cosmetics mimics a live e-commerce experience — browse products,
           add to cart, and go through checkout. It's built with a real backend,
           database, and payment integration (test mode).
         </p>
@@ -41,7 +41,7 @@ export function CaseStudyBanner() {
           <div className="cs-creds-label">Quick login</div>
           <div className="cs-creds-row">
             <span className="cs-creds-key">Email</span>
-            <span className="cs-creds-value">customer@ruecosmetics.com</span>
+            <span className="cs-creds-value">customer@luecosmetics.com</span>
           </div>
           <div className="cs-creds-row">
             <span className="cs-creds-key">Password</span>

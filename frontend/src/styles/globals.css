@@ -871,7 +871,7 @@ img {
   gap: 6px;
 }
 
-/* Placeholder imagery (striped) — ported from Rue/styles.css */
+/* Placeholder imagery (striped) — ported from Lue/styles.css */
 .ph {
   background: var(--lavender-100);
   background-image: repeating-linear-gradient(
@@ -1030,7 +1030,7 @@ img {
   }
 }
 
-/* brand mark (ported from Rue/styles.css — was missing; used by header + account sidebar) */
+/* brand mark (ported from Lue/styles.css — was missing; used by header + account sidebar) */
 .brand {
   justify-self: center;
   display: flex;
@@ -1420,7 +1420,7 @@ img {
   }
 }
 
-/* ----- Search overlay (ported from Rue/styles.css + Rue/pages.css SEARCH block) ----- */
+/* ----- Search overlay (ported from Lue/styles.css + Lue/pages.css SEARCH block) ----- */
 .search-overlay {
   position: fixed;
   inset: 0;

@@ -1,4 +1,4 @@
-# Rue Cosmetics
+# Lue Cosmetics
 
 E-commerce case study. Go backend + React frontend, deployed behind Caddy on Hetzner.
 

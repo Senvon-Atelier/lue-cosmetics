@@ -1,19 +1,19 @@
-# Rue Cosmetics — Case Study Design
+# Lue Cosmetics — Case Study Design
 
 **Date:** 2026-06-27
 **Status:** Draft for review (revised after external review)
-**Goal:** Turn the existing Rue Cosmetics frontend mockup (in `casestud/Rue/`) into a fully functional e-commerce case study, deployed to the user's Hetzner server behind Caddy.
+**Goal:** Turn the existing Lue Cosmetics frontend mockup (in `casestud/Rue/`) into a fully functional e-commerce case study, deployed to the user's Hetzner server behind Caddy.
 
 ## Naming conventions used throughout this spec
 
-- **Brand / product name:** Rue Cosmetics
+- **Brand / product name:** Lue Cosmetics
 - **Project folder:** `casestud/ruecosmetics/`
 - **Go module:** `github.com/oti-adjei/ruecosmetics` (or equivalent; finalized at scaffold time)
 - **Existing mockup folder being ported from:** `casestud/Rue/`
 
 ## 1. Purpose & Success Criteria
 
-Rue Cosmetics is a Ghana-based cosmetics & wellness e-commerce concept. It was originally designed for potential clients who did not engage. It is being repurposed as a **public case study**: a working website visitors can sign up to, browse, add to cart, check out (in payment-gateway test mode), and explore as either a fresh customer or as one of several pre-seeded demo accounts.
+Lue Cosmetics is a Ghana-based cosmetics & wellness e-commerce concept. It was originally designed for potential clients who did not engage. It is being repurposed as a **public case study**: a working website visitors can sign up to, browse, add to cart, check out (in payment-gateway test mode), and explore as either a fresh customer or as one of several pre-seeded demo accounts.
 
 **Success means:**
 

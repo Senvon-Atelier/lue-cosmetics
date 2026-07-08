@@ -56,16 +56,16 @@ func (s *ResendSender) Send(ctx context.Context, to, template string, data map[s
 func subjectFor(template string, data map[string]any) string {
 	switch template {
 	case "verify_email":
-		return "Verify your email for Rue Cosmetics"
+		return "Verify your email for Lue Cosmetics"
 	case "password_reset":
 		return "Reset your password"
 	case "welcome":
-		return "Welcome to Rue Cosmetics"
+		return "Welcome to Lue Cosmetics"
 	case "order_confirmation":
 		if ref, ok := data["paystack_reference"].(string); ok {
-			return "Your Rue Cosmetics order " + ref
+			return "Your Lue Cosmetics order " + ref
 		}
-		return "Your Rue Cosmetics order"
+		return "Your Lue Cosmetics order"
 	}
-	return "Rue Cosmetics"
+	return "Lue Cosmetics"
 }

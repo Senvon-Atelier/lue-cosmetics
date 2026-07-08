@@ -35,7 +35,7 @@ export const LEGAL_PAGES: readonly LegalPage[] = [
       </>
     ),
     lastUpdated: 'July 2026',
-    lead: 'This policy explains what Rue Cosmetics collects when you shop with us, how we use it, and the choices you have. It is written to match how this store actually works — nothing more.',
+    lead: 'This policy explains what Lue Cosmetics collects when you shop with us, how we use it, and the choices you have. It is written to match how this store actually works — nothing more.',
     body: (
       <>
         <h2>What we collect</h2>
@@ -49,7 +49,7 @@ export const LEGAL_PAGES: readonly LegalPage[] = [
         <h2>Payments</h2>
         <p>
           Payments are processed by <strong>Paystack</strong>. Your full card
-          details are entered on Paystack&rsquo;s secure checkout — Rue never
+          details are entered on Paystack&rsquo;s secure checkout — Lue never
           sees or stores them. We keep a payment reference so we can match a
           payment to your order.
         </p>
@@ -78,7 +78,7 @@ export const LEGAL_PAGES: readonly LegalPage[] = [
       </>
     ),
     lastUpdated: 'July 2026',
-    lead: 'These terms govern your use of the Rue Cosmetics store and the orders you place with us. By placing an order you agree to them.',
+    lead: 'These terms govern your use of the Lue Cosmetics store and the orders you place with us. By placing an order you agree to them.',
     body: (
       <>
         <h2>Orders &amp; acceptance</h2>
@@ -105,7 +105,7 @@ export const LEGAL_PAGES: readonly LegalPage[] = [
         </p>
         <h2>Liability</h2>
         <p>
-          To the extent permitted by law, Rue Cosmetics is not liable for
+          To the extent permitted by law, Lue Cosmetics is not liable for
           indirect or consequential loss arising from use of the store. Nothing
           here limits rights you have under Ghanaian consumer law.
         </p>
@@ -127,7 +127,7 @@ export const LEGAL_PAGES: readonly LegalPage[] = [
     body: (
       <>
         <div className="callout info">
-          Rue uses <strong>essential cookies only</strong> — no advertising or
+          Lue uses <strong>essential cookies only</strong> — no advertising or
           cross-site tracking.
         </div>
         <h2>What we use</h2>

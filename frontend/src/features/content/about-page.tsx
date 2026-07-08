@@ -22,7 +22,7 @@ export function AboutPage() {
             Beauty is a <em>practice,</em><br />not a purchase.
           </h1>
           <p className="hero-lede" style={{ maxWidth: 680 }}>
-            Founded in Accra in 2024, Rue Cosmetics began with a simple mission: to bring authentic,
+            Founded in Accra in 2024, Lue Cosmetics began with a simple mission: to bring authentic,
             trusted beauty products to Ghanaians — without the markup, without the wait.
           </p>
         </div>
@@ -34,14 +34,14 @@ export function AboutPage() {
           <div>
             <div className="eyebrow">Founded in Accra</div>
             <h2 className="h-display" style={{ fontSize: 'clamp(32px, 4.5vw, 64px)' }}>
-              Why <em>Rue?</em>
+              Why <em>Lue?</em>
             </h2>
             <p>
               We noticed something frustrating: Ghanaians were paying premium prices for international
               beauty brands, or waiting weeks for deliveries that might never arrive.
             </p>
             <p>
-              So we built Rue differently. We source directly from brands and authorized distributors,
+              So we built Lue differently. We source directly from brands and authorized distributors,
               stock locally in Accra, and ship nationwide within days — not weeks.
             </p>
             <p>

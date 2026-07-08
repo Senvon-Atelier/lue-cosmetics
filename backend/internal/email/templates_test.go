@@ -14,7 +14,7 @@ func TestRenderer_OrderConfirmation_HappyData(t *testing.T) {
 		"name":               "Ada",
 		"paystack_reference": "RUE-DEADBEEF",
 		"items": []map[string]any{
-			{"name": "Lipstick", "brand": "RueBrand", "qty": 2, "line_total": "50.00"},
+			{"name": "Lipstick", "brand": "LueBrand", "qty": 2, "line_total": "50.00"},
 			{"name": "Mascara", "qty": 1, "line_total": "30.00"},
 		},
 		"subtotal": "80.00",

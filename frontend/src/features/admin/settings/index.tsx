@@ -14,7 +14,7 @@ export function AdminSettings() {
       <Panel title="Store">
         <div className="kv-row">
           <span>Store</span>
-          <span>Rue Cosmetics</span>
+          <span>Lue Cosmetics</span>
         </div>
         <div className="kv-row">
           <span>Currency</span>

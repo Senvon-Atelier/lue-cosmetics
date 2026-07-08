@@ -1,4 +1,4 @@
-# Rue Cosmetics — Deploy Guide
+# Lue Cosmetics — Deploy Guide
 
 ## Server
 

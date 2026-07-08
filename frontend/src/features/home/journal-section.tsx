@@ -24,7 +24,7 @@ const blogPosts = [
     tag: 'Fragrance',
     readMin: 11,
     date: 'Feb 22',
-    title: 'Inside The Rue Atelier: How Nuit de Prélude Came to Be',
+    title: 'Inside The Lue Atelier: How Nuit de Prélude Came to Be',
     excerpt: 'Two years, seventeen drafts, and one perfumer in Grasse. The story behind our first in-house fragrance.',
     tone: 'ink' as const,
   },

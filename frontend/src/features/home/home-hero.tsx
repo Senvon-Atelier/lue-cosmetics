@@ -100,7 +100,7 @@ export function HomeHero() {
           <div className="hero-e2-track">
             {[...Array(2)].map((_, k) => (
               <div key={k}>
-                {['Nuxe', 'CeraVe', 'The Ordinary', 'La Roche-Posay', 'Shea Moisture', 'Cantu', 'Rue Atelier', "Palmer's", 'Garnier', 'Eucerin'].map(
+                {['Nuxe', 'CeraVe', 'The Ordinary', 'La Roche-Posay', 'Shea Moisture', 'Cantu', 'Lue Atelier', "Palmer's", 'Garnier', 'Eucerin'].map(
                   (b, i) => (
                     <span key={`${k}-${i}`} className="hero-e2-brand">
                       {b}

@@ -1,4 +1,4 @@
-/* Ported from Rue/admin.css — admin suite (Tranche 3, spec §5).
+/* Ported from Lue/admin.css — admin suite (Tranche 3, spec §5).
    Omitted on purpose: .seg-chart (hardcoded conic donut), .admin-activity/.activity-* (fake feed),
    .admin-chip / .admin-form* (no consumers after dead-control strip — port when one arrives),
    .admin-side .pill (nav count pills omitted per spec §2.2).

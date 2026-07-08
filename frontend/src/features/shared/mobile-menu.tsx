@@ -6,7 +6,7 @@ import { Brand } from './ui/brand';
 import { Icon } from './ui/icons';
 import { useEscToClose, useLockBodyScroll } from './use-overlay';
 
-// Ported from Rue/src/shared.jsx MobileMenu (lines 336–382).
+// Ported from Lue/src/shared.jsx MobileMenu (lines 336–382).
 // No category counts (.mnav-count) — the API has none. Contact copy shared with the footer.
 
 interface MobileMenuProps {
@@ -37,7 +37,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
       <div className={`drawer-scrim${open ? ' open' : ''}`} onClick={onClose} />
       <aside className={`drawer drawer-left${open ? ' open' : ''}`} inert={open ? undefined : ''} aria-label="Menu">
         <div className="drawer-head">
-          <Link to="/" className="brand" onClick={onClose} aria-label="Rue home">
+          <Link to="/" className="brand" onClick={onClose} aria-label="Lue home">
             <Brand />
           </Link>
           <button className="icon-btn" onClick={onClose} aria-label="Close menu">

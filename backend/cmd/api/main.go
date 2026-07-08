@@ -15,9 +15,9 @@ import (
 	"go.uber.org/zap"
 )
 
-// @title           Rue Cosmetics API
+// @title           Lue Cosmetics API
 // @version         0.1.0
-// @description     E-commerce backend for the Rue Cosmetics case study.
+// @description     E-commerce backend for the Lue Cosmetics case study.
 // @BasePath        /api/v1
 func main() {
 	if err := run(); err != nil {

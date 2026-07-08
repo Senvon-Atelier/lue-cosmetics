@@ -47,7 +47,7 @@ export function Footer() {
             <div className="footer-col">
               <h5>Company</h5>
               <ul>
-                <li><Link to="/about">About Rue</Link></li>
+                <li><Link to="/about">About Lue</Link></li>
                 <li><Link to="/" hash="journal">The Journal</Link></li>
                 <li><a href="#">Store locator</a></li>
                 <li><a href="#">Careers</a></li>
@@ -90,7 +90,7 @@ export function Footer() {
         </div>
 
         <div className="footer-bottom">
-          <div>© 2026 Rue Cosmetics Ghana · All rights reserved</div>
+          <div>© 2026 Lue Cosmetics Ghana · All rights reserved</div>
           <div className="footer-legal">
             <Link to="/legal/$slug" params={{ slug: 'privacy' }}>Privacy</Link>
             <Link to="/legal/$slug" params={{ slug: 'terms' }}>Terms</Link>

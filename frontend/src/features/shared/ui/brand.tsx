@@ -1,12 +1,12 @@
 // Logo (original pinwheel-circle mark, not the brand's exact glyph)
-// Ported from Rue/src/shared.jsx
+// Ported from Lue/src/shared.jsx
 
-interface RueMarkProps {
+interface LueMarkProps {
   size?: number;
   color?: string;
 }
 
-export function RueMark({ size = 32, color = 'currentColor' }: RueMarkProps) {
+export function LueMark({ size = 32, color = 'currentColor' }: LueMarkProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 40 40" fill="none" style={{ color }}>
       <circle cx="20" cy="20" r="18" stroke="currentColor" strokeWidth="1" opacity={0.4} />
@@ -27,10 +27,10 @@ export function Brand() {
   return (
     <>
       <div className="brand-mark">
-        <RueMark size={22} />
+        <LueMark size={22} />
       </div>
       <div>
-        <div className="brand-word">Rue</div>
+        <div className="brand-word">Lue</div>
         <div className="brand-tag">Cosmetics</div>
       </div>
     </>
