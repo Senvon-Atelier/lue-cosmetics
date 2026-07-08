@@ -1,24 +1,34 @@
 /* Ported from Lue/account.css — account suite (Tranche 2, spec §5).
-   Omitted on purpose: .auth-* / .back-link (in auth.css), .field* / .form-row* (in pages.css),
-   .timeline / .tl-* (no fulfilment backend), .loyalty-*, .star-picker (no backends),
-   sidebar badges (no real counts). */
+   Sidebar layout removed — account now uses in-page nav within storefront chrome. */
 
-.acct-layout { min-height: 100vh; display: grid; grid-template-columns: 260px 1fr; background: var(--cream); }
-@media (max-width: 900px) { .acct-layout { grid-template-columns: 1fr; } }
-.acct-side { background: var(--surface); padding: 32px 24px; border-right: 1px solid var(--line); position: sticky; top: 0; height: 100vh; overflow-y: auto; }
-@media (max-width: 900px) { .acct-side { position: static; height: auto; } }
-.acct-side-brand { margin-bottom: 32px; }
-.acct-side-brand a { padding: 0; background: transparent; }
-.acct-side h5 { font-family: var(--font-label); font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-muted); margin: 20px 0 10px; }
-.acct-side a { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 8px; font-family: var(--font-label); font-size: 14px; color: var(--ink-soft); cursor: pointer; transition: all var(--dur) var(--ease); }
-.acct-side a:hover { background: var(--lavender-100); color: var(--ink); }
-.acct-side a.active { background: var(--ink); color: white; }
-.acct-me { background: white; border-radius: 12px; padding: 16px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
-.acct-avatar { width: 44px; height: 44px; border-radius: 999px; background: var(--lavender-300); color: var(--ink); display: grid; place-items: center; font-family: var(--font-serif); font-weight: 500; font-size: 18px; }
-.acct-me-name { font-family: var(--font-serif); font-size: 17px; font-style: italic; }
-.acct-me-tier { font-family: var(--font-label); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--lavender-700); overflow-wrap: anywhere; }
+.acct-page { padding: 48px 0 96px; }
 
-.acct-main { padding: 48px clamp(24px, 4vw, 64px); max-width: 1200px; }
+.acct-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; gap: 20px; flex-wrap: wrap; }
+
+.acct-nav {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 40px;
+  overflow-x: auto;
+}
+.acct-nav a {
+  padding: 12px 24px;
+  font-family: var(--font-label);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all 200ms;
+  white-space: nowrap;
+}
+.acct-nav a:hover { color: var(--ink); }
+.acct-nav a.active { color: var(--ink); border-bottom-color: var(--lavender-700); }
+
+.acct-main { max-width: 1200px; }
 .acct-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; gap: 20px; flex-wrap: wrap; }
 .acct-head h1 { font-family: var(--font-display); font-size: clamp(36px, 5vw, 64px); margin: 8px 0 0; letter-spacing: 0.005em; font-weight: 400; }
 .acct-head .eyebrow { color: var(--lavender-700); }
@@ -88,12 +98,8 @@
 .alert-success { background: #E7F4EC; color: #2B7A4A; }
 .alert-warn { background: #FFF4D6; color: #8A6500; }
 
-/* adapted/extrapolated — inline styles from the mockup lifted into real classes */
-.acct-side-link-label { display: inline-flex; align-items: center; gap: 10px; }
-.acct-side-foot { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
-.acct-side-foot button { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 10px 12px; border-radius: 8px; font-family: var(--font-label); font-size: 14px; color: var(--ink-muted); cursor: pointer; transition: all var(--dur) var(--ease); text-align: left; border: none; background: none; }
-.acct-side-foot button:hover { background: var(--lavender-100); color: var(--ink); }
-.acct-loading { padding: 48px; font-family: var(--font-label); font-size: 13px; color: var(--ink-muted); }
+/* sidebar classes removed — account now uses in-page nav */
+.acct-loading { padding: 48px 0; font-family: var(--font-label); font-size: 13px; color: var(--ink-muted); text-align: center; }
 .order-detail-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
 @media (max-width: 900px) { .order-detail-grid { grid-template-columns: 1fr; } }
 .form-card-title { font-family: var(--font-serif); font-style: italic; font-size: 22px; font-weight: 400; margin: 0 0 16px; }

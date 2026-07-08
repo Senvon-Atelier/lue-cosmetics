@@ -5,7 +5,7 @@ import { AuthProvider } from './lib/auth/auth-provider';
 import { CartProvider } from './features/cart/cart-provider';
 import { sessionQueryOptions } from './lib/auth/session';
 import { redirectPathFor, GuardRequirement } from './lib/auth/guards';
-import { RootLayout, CheckoutLayout } from './features/shared/layouts';
+import { RootLayout } from './features/shared/layouts';
 import { HomePage } from './features/home/home-page';
 import { ShopPage } from './features/catalog/shop-page';
 import { ProductDetail } from './features/catalog/product-detail';
@@ -132,9 +132,9 @@ const forgotPasswordRoute = createRoute({ getParentRoute: () => authLayoutRoute,
 const resetPasswordRoute = createRoute({ getParentRoute: () => authLayoutRoute, path: '/reset-password', component: ResetPasswordPage });
 const verifyEmailRoute = createRoute({ getParentRoute: () => authLayoutRoute, path: '/verify-email', component: VerifyEmailPage });
 
-// ── Account: authenticated customers, standalone chrome (mockup acct-layout) ─
+// ── Account: authenticated customers, within storefront chrome ──────────────
 const accountRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => storefrontLayoutRoute,
   path: '/account',
   beforeLoad: () => requireRole('authenticated'),
   component: AccountLayout,
@@ -167,16 +167,10 @@ const adminMarketingRoute = createRoute({ getParentRoute: () => adminRoute, path
 const adminContentRoute = createRoute({ getParentRoute: () => adminRoute, path: '/content', component: AdminContent });
 const adminSettingsRoute = createRoute({ getParentRoute: () => adminRoute, path: '/settings', component: AdminSettings });
 
-// ── Checkout: minimal chrome ─────────────────────────────────────────────────
-const checkoutLayoutRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  id: '_checkout',
-  component: CheckoutLayout,
-});
-
-const checkoutRoute = createRoute({ getParentRoute: () => checkoutLayoutRoute, path: '/checkout', component: CheckoutPage });
+// ── Checkout: within storefront chrome ──────────────────────────────────────
+const checkoutRoute = createRoute({ getParentRoute: () => storefrontLayoutRoute, path: '/checkout', component: CheckoutPage });
 const checkoutReturnRoute = createRoute({
-  getParentRoute: () => checkoutLayoutRoute,
+  getParentRoute: () => storefrontLayoutRoute,
   path: '/checkout/return',
   component: () => pageShell(<CheckoutReturnPage />),
 });
@@ -189,6 +183,15 @@ const routeTree = rootRoute.addChildren([
     cartRoute,
     aboutRoute,
     legalRoute,
+    accountRoute.addChildren([
+      accountDashboardRoute,
+      accountOrdersRoute.addChildren([accountOrderDetailRoute]),
+      accountAddressesRoute,
+      accountWishlistRoute,
+      accountSettingsRoute,
+    ]),
+    checkoutRoute,
+    checkoutReturnRoute,
   ]),
   authLayoutRoute.addChildren([
     loginRoute,
@@ -196,13 +199,6 @@ const routeTree = rootRoute.addChildren([
     forgotPasswordRoute,
     resetPasswordRoute,
     verifyEmailRoute,
-  ]),
-  accountRoute.addChildren([
-    accountDashboardRoute,
-    accountOrdersRoute.addChildren([accountOrderDetailRoute]),
-    accountAddressesRoute,
-    accountWishlistRoute,
-    accountSettingsRoute,
   ]),
   adminRoute.addChildren([
     adminDashboardRoute,
@@ -217,7 +213,6 @@ const routeTree = rootRoute.addChildren([
     adminContentRoute,
     adminSettingsRoute,
   ]),
-  checkoutLayoutRoute.addChildren([checkoutRoute, checkoutReturnRoute]),
 ]);
 
 export const router = createRouter({

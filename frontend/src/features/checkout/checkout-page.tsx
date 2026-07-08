@@ -34,7 +34,7 @@ export function CheckoutPage() {
   // Redirect if not authenticated
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
-      navigate({ to: '/login' });
+      navigate({ to: '/login', search: { redirect: '/checkout' } });
     }
   }, [authLoading, isAuthenticated, navigate]);
 

@@ -1,15 +1,2 @@
-import { Outlet } from '@tanstack/react-router';
-import { Brand } from '../ui/brand';
-
-export function CheckoutLayout() {
-  return (
-    <div>
-      <div className="wrap" style={{ maxWidth: 'var(--max)', margin: '0 auto', padding: '2rem' }}>
-        <div className="brand"><Brand /></div>
-      </div>
-      <div>
-        <Outlet />
-      </div>
-    </div>
-  );
-}
+// Checkout now uses storefront layout (Header + Footer + CartDrawer).
+// This file kept for reference but no longer used.

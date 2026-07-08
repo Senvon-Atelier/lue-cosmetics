@@ -9,7 +9,7 @@ import { Icon } from '../shared/ui/icons';
 import { AcctHead, StatusPill } from './acct-primitives';
 
 export function AccountOrderDetail() {
-  const { id } = useParams({ from: '/account/orders/$id' });
+  const { id } = useParams({ from: '/_storefront/account/orders/$id' });
   const [order, setOrder] = useState<InternalMeOrderDetailResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

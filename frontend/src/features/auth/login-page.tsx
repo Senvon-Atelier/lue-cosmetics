@@ -10,6 +10,7 @@ const GOOGLE_START_URL = `${import.meta.env.VITE_API_URL ?? '/api/v1'}/auth/goog
 export function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const redirect = new URLSearchParams(window.location.search).get('redirect');
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,7 +23,7 @@ export function LoginPage() {
     setIsLoading(true);
     try {
       await login(emailVal, passwordVal);
-      navigate({ to: '/account' });
+      navigate({ to: redirect || '/account' });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Invalid email or password');
     } finally {
