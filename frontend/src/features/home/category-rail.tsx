@@ -4,7 +4,16 @@ import { getCategories } from '../../lib/api/generated/rueCosmeticsAPI';
 import type { InternalCatalogCategoryView } from '../../lib/api/generated/rueCosmeticsAPI';
 import { Icon } from '../shared/ui/icons';
 
-const TONES = ['lavender', 'cream', 'rose', 'ink', 'lavender', 'cream'] as const;
+// TODO: Load category images from API. The categories table needs an image_path
+// column. Requires: DB migration → update Go model + SQL query → sqlc generate
+// → update handler → regenerate API client → then remove this hardcoded map.
+const CATEGORY_IMAGE_MAP: Record<string, string> = {
+  skincare:  '/categories/skincare.jpg',
+  makeup:    '/categories/makeup.jpg',
+  'hair-care':'/categories/hair-care.jpg',
+  'body-care':'/categories/body-care.jpg',
+  fragrance: '/categories/fragrance.jpg',
+};
 
 export function CategoryRail() {
   const navigate = useNavigate();
@@ -70,15 +79,13 @@ export function CategoryRail() {
         </div>
 
         <div className="cat-rail">
-          {categories.slice(0, 6).map((c, i) => (
+          {categories.slice(0, 6).map((c) => (
             <button
               key={c.id}
               className="cat-tile"
               onClick={() => navigate({ to: '/shop', search: { category: c.slug || undefined } })}
             >
-              <div className={`ph ph--${TONES[i % TONES.length]}`} style={{ aspectRatio: '3/4' }}>
-                <span className="ph-label">{(c.label || 'Category').substring(0, 1)}</span>
-              </div>
+              <img src={CATEGORY_IMAGE_MAP[c.slug!]} alt={c.label || 'Category'} className="cat-tile-img" />
               <div className="cat-tile-foot">
                 <div className="cat-tile-name">{c.label || 'Category'}</div>
                 {/* <div className="cat-tile-count">

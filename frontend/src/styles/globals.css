@@ -694,6 +694,19 @@ img {
   transform: scale(0.98);
 }
 
+.cat-tile-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3/4;
+  object-fit: cover;
+  border-radius: var(--radius);
+  transition: transform 400ms var(--ease);
+}
+
+.cat-tile:hover .cat-tile-img {
+  transform: scale(0.98);
+}
+
 .cat-tile-foot {
   padding: 12px 4px 0;
   display: flex;

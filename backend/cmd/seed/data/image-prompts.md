@@ -138,7 +138,19 @@ Save each generated image into `backend/cmd/seed/data/images/` (create this dire
 
 ---
 
-## Notes
+## Category Images
+
+Editorial still lifes for each category tile on the homepage. Use the same style anchor. Save at **1200×1600** (4:5 portrait).
+
+| # | Category | Prompt | Filename |
+|---|---|---|---|
+| 1 | Skincare | [anchor] Wide flat lay of four skincare products — a white jar with silver lid, a clear dropper bottle with amber liquid, a squeezable white tube, and a pale pink glass bottle — arranged diagonally on a cream marble surface, soft morning light from the upper left, minimalist editorial composition, subtle terracotta accent, a single aloe leaf framing the left edge, 4:5 aspect ratio. | `skincare.jpg` |
+| 2 | Makeup | [anchor] Open black eyeshadow palette with 12 warm earth-tone pans visible, a bullet lipstick in dusty rose lying beside it, a makeup brush with fine brown powder on its tip resting across the palette, on a cream vanity surface with soft window light casting gentle shadows, editorial beauty still life, 4:5 aspect ratio. | `makeup.jpg` |
+| 3 | Hair Care | [anchor] Sage green shampoo bottle with black pump, a white tub with green lid half-open revealing thick cream texture, a wooden wide-tooth comb lying beside them on a warm bamboo surface, a fresh eucalyptus sprig arching across the frame, bright morning light from above, botanical editorial style, 4:5 aspect ratio. | `hair-care.jpg` |
+| 4 | Body Care | [anchor] Wide cream tub of shea body butter half-open with rich whipped texture visible, an exfoliating scrub jar with dark wooden lid and twine beside it, a folded white cotton towel on warm terracotta stone tiles, soft diffused daylight from the left, spa-like editorial still life, 4:5 aspect ratio. | `body-care.jpg` |
+| 5 | Fragrance | [anchor] Clear fluted perfume bottle with gold spray top, warm amber liquid visible inside, half a sliced orange and a cinnamon stick resting on raw linen beside it, a single dried jasmine stem, warm golden-hour light from the right casting long soft shadows across the surface, luxury editorial still life, 4:5 aspect ratio. | `fragrance.jpg` |
+
+---
 
 - **Label text:** GPT Image 2 can render text on products if the prompt specifies the font style, placement, and exact wording. If the text comes out garbled, try generating without text and adding it in Photoshop/Canva — or just accept the visual placeholder and update `image_url` to omit text-specific prompts.
 - **Consistency:** Run all prompts in the same session or with the same seed settings to keep lighting and colour temperature consistent across the batch.
