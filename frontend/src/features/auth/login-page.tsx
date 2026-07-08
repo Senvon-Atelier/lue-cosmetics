@@ -3,6 +3,7 @@ import { useNavigate, Link } from '@tanstack/react-router';
 import { useAuth } from '../../lib/auth/auth-provider';
 import { Icon } from '../shared/ui/icons';
 import { AuthShell } from './auth-shell';
+import { DemoLoginButton } from '../shared/case-study';
 
 const GOOGLE_START_URL = `${import.meta.env.VITE_API_URL ?? '/api/v1'}/auth/google/start`;
 
@@ -16,20 +17,28 @@ export function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const doLogin = async (emailVal: string, passwordVal: string) => {
     setError(null);
     setIsLoading(true);
-
     try {
-      await login(email, password);
-      // Redirect to account page or home on successful login
+      await login(emailVal, passwordVal);
       navigate({ to: '/account' });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Invalid email or password');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    await doLogin(email, password);
+  };
+
+  const handleDemoLogin = (emailVal: string, passwordVal: string) => {
+    setEmail(emailVal);
+    setPassword(passwordVal);
+    doLogin(emailVal, passwordVal);
   };
 
   return (
@@ -96,6 +105,7 @@ export function LoginPage() {
         >
           Sign in <Icon name="arrow" size={14} />
         </button>
+        <DemoLoginButton onLogin={handleDemoLogin} />
       </form>
     </AuthShell>
   );

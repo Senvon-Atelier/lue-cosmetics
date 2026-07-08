@@ -540,6 +540,8 @@ img {
 }
 
 .hero-e2-link {
+  background: none;
+  border: none;
   font-family: var(--font-label);
   font-size: 13px;
   font-weight: 600;

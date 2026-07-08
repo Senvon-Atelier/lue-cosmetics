@@ -16,6 +16,7 @@ export function ProductCard({ product, variant = 'default' }: ProductCardProps) 
   const navigate = useNavigate();
   const {
     id,
+    slug,
     name = 'Product',
     price_ghs_minor: price = 0,
     was_price_ghs_minor: wasPrice,
@@ -43,7 +44,7 @@ export function ProductCard({ product, variant = 'default' }: ProductCardProps) 
   };
 
   const handleOpen = () => {
-    if (id) navigate({ to: '/shop/$slug', params: { slug: id } });
+    if (slug) navigate({ to: '/shop/$slug', params: { slug } });
   };
 
   return (

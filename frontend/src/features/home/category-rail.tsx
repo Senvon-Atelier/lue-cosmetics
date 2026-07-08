@@ -74,7 +74,7 @@ export function CategoryRail() {
             <button
               key={c.id}
               className="cat-tile"
-              onClick={() => navigate({ to: '/shop', search: { category: c.id || undefined } })}
+              onClick={() => navigate({ to: '/shop', search: { category: c.slug || undefined } })}
             >
               <div className={`ph ph--${TONES[i % TONES.length]}`} style={{ aspectRatio: '3/4' }}>
                 <span className="ph-label">{(c.label || 'Category').substring(0, 1)}</span>

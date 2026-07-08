@@ -1,3 +1,4 @@
+import { CaseStudyBanner } from '../shared/case-study';
 import { HomeHero } from './home-hero';
 import { PromiseSection } from './promise-section';
 import { CategoryRail } from './category-rail';
@@ -10,6 +11,7 @@ import { NewsletterSection } from './newsletter-section';
 export function HomePage() {
   return (
     <div>
+      <CaseStudyBanner />
       <HomeHero />
       <PromiseSection />
       <CategoryRail />
