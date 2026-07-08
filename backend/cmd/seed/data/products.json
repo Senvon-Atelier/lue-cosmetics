@@ -5,10 +5,14 @@
     "description": "A lightweight moisturizer that provides 24-hour hydration. Perfect for all skin types.",
     "category_slug": "skincare",
     "brand_slug": "rue-essentials",
-    "price_ghs": 85.00,
+    "price_ghs": 85,
     "stock_qty": 50,
-    "image_url": "",
-    "tags": ["moisturizing", "organic", "sensitive-skin"]
+    "image_url": "/products/hydrating-face-moisturizer.png",
+    "tags": [
+      "moisturizing",
+      "organic",
+      "sensitive-skin"
+    ]
   },
   {
     "name": "Matte Liquid Foundation",
@@ -16,10 +20,13 @@
     "description": "Full coverage foundation with a natural matte finish. Available in multiple shades.",
     "category_slug": "makeup",
     "brand_slug": "luxe-cosmetics",
-    "price_ghs": 120.00,
+    "price_ghs": 120,
     "stock_qty": 30,
-    "image_url": "",
-    "tags": ["matte", "long-lasting"]
+    "image_url": "/products/matte-liquid-foundation.jpg",
+    "tags": [
+      "matte",
+      "long-lasting"
+    ]
   },
   {
     "name": "Nourishing Shampoo",
@@ -27,10 +34,13 @@
     "description": "Gentle cleansing shampoo with natural botanical extracts. Safe for color-treated hair.",
     "category_slug": "hair-care",
     "brand_slug": "pure-botanicals",
-    "price_ghs": 65.00,
+    "price_ghs": 65,
     "stock_qty": 40,
-    "image_url": "",
-    "tags": ["organic", "natural-ingredients"]
+    "image_url": "/products/nourishing-shampoo.jpg",
+    "tags": [
+      "organic",
+      "natural-ingredients"
+    ]
   },
   {
     "name": "Anti-Aging Serum",
@@ -38,10 +48,14 @@
     "description": "Powerful serum with retinol and vitamin C to reduce fine lines and wrinkles.",
     "category_slug": "skincare",
     "brand_slug": "glow-beauty",
-    "price_ghs": 180.00,
+    "price_ghs": 180,
     "stock_qty": 25,
     "image_url": "",
-    "tags": ["anti-aging", "organic", "vegan"]
+    "tags": [
+      "anti-aging",
+      "organic",
+      "vegan"
+    ]
   },
   {
     "name": "Velvet Matte Lipstick",
@@ -49,10 +63,14 @@
     "description": "Long-wearing matte lipstick with a comfortable, non-drying formula.",
     "category_slug": "makeup",
     "brand_slug": "rue-essentials",
-    "price_ghs": 55.00,
+    "price_ghs": 55,
     "stock_qty": 60,
-    "image_url": "",
-    "tags": ["matte", "long-lasting", "cruelty-free"]
+    "image_url": "/products/velvet-matte-lipstick.png",
+    "tags": [
+      "matte",
+      "long-lasting",
+      "cruelty-free"
+    ]
   },
   {
     "name": "Body Butter - Shea",
@@ -60,10 +78,14 @@
     "description": "Rich body butter with pure shea butter. Provides deep moisture for dry skin.",
     "category_slug": "body-care",
     "brand_slug": "pure-botanicals",
-    "price_ghs": 75.00,
+    "price_ghs": 75,
     "stock_qty": 35,
-    "image_url": "",
-    "tags": ["moisturizing", "organic", "natural-ingredients"]
+    "image_url": "/products/body-butter-shea.png",
+    "tags": [
+      "moisturizing",
+      "organic",
+      "natural-ingredients"
+    ]
   },
   {
     "name": "Volumizing Mascara",
@@ -71,10 +93,13 @@
     "description": "Dramatic volume and length for your lashes. Smudge-proof and clump-free formula.",
     "category_slug": "makeup",
     "brand_slug": "luxe-cosmetics",
-    "price_ghs": 95.00,
+    "price_ghs": 95,
     "stock_qty": 45,
-    "image_url": "",
-    "tags": ["long-lasting", "waterproof"]
+    "image_url": "/products/volumizing-mascara.png",
+    "tags": [
+      "long-lasting",
+      "waterproof"
+    ]
   },
   {
     "name": "Rose Petal Toner",
@@ -82,10 +107,14 @@
     "description": "Refreshing facial toner with rose water and witch hazel. Balances pH and tightens pores.",
     "category_slug": "skincare",
     "brand_slug": "glow-beauty",
-    "price_ghs": 70.00,
+    "price_ghs": 70,
     "stock_qty": 55,
-    "image_url": "",
-    "tags": ["organic", "sensitive-skin", "vegan"]
+    "image_url": "/products/rose-petal-toner.jpg",
+    "tags": [
+      "organic",
+      "sensitive-skin",
+      "vegan"
+    ]
   },
   {
     "name": "Repair Hair Mask",
@@ -93,10 +122,14 @@
     "description": "Deep conditioning treatment with argan oil and keratin. Repairs damaged hair.",
     "category_slug": "hair-care",
     "brand_slug": "pure-botanicals",
-    "price_ghs": 110.00,
+    "price_ghs": 110,
     "stock_qty": 30,
-    "image_url": "",
-    "tags": ["organic", "natural-ingredients", "vegan"]
+    "image_url": "/products/repair-hair-mask.png",
+    "tags": [
+      "organic",
+      "natural-ingredients",
+      "vegan"
+    ]
   },
   {
     "name": "Exfoliating Body Scrub",
@@ -104,10 +137,14 @@
     "description": "Gentle body scrub with sea salt and coconut oil. Leaves skin soft and smooth.",
     "category_slug": "body-care",
     "brand_slug": "rue-essentials",
-    "price_ghs": 80.00,
+    "price_ghs": 80,
     "stock_qty": 40,
-    "image_url": "",
-    "tags": ["organic", "natural-ingredients", "cruelty-free"]
+    "image_url": "/products/exfoliating-body-scrub.jpg",
+    "tags": [
+      "organic",
+      "natural-ingredients",
+      "cruelty-free"
+    ]
   },
   {
     "name": "Radiance Perfume",
@@ -115,10 +152,13 @@
     "description": "Floral fragrance with notes of jasmine, rose, and vanilla. Long-lasting scent.",
     "category_slug": "fragrance",
     "brand_slug": "luxe-cosmetics",
-    "price_ghs": 250.00,
+    "price_ghs": 250,
     "stock_qty": 20,
     "image_url": "",
-    "tags": ["long-lasting", "vegan"]
+    "tags": [
+      "long-lasting",
+      "vegan"
+    ]
   },
   {
     "name": "Daily Face Cleanser",
@@ -126,10 +166,14 @@
     "description": "Gentle foaming cleanser for daily use. Removes makeup and impurities without stripping.",
     "category_slug": "skincare",
     "brand_slug": "rue-essentials",
-    "price_ghs": 60.00,
+    "price_ghs": 60,
     "stock_qty": 50,
     "image_url": "",
-    "tags": ["sensitive-skin", "organic", "vegan"]
+    "tags": [
+      "sensitive-skin",
+      "organic",
+      "vegan"
+    ]
   },
   {
     "name": "Eyeshadow Palette - Earth Tones",
@@ -137,10 +181,14 @@
     "description": "12-shade eyeshadow palette with matte and shimmer finishes. Highly pigmented.",
     "category_slug": "makeup",
     "brand_slug": "glow-beauty",
-    "price_ghs": 150.00,
+    "price_ghs": 150,
     "stock_qty": 28,
-    "image_url": "",
-    "tags": ["matte", "long-lasting", "cruelty-free"]
+    "image_url": "/products/eyeshadow-palette-earth-tones.jpg",
+    "tags": [
+      "matte",
+      "long-lasting",
+      "cruelty-free"
+    ]
   },
   {
     "name": "Leave-In Conditioner",
@@ -148,10 +196,14 @@
     "description": "Lightweight leave-in conditioner for detangling and protection. Safe for all hair types.",
     "category_slug": "hair-care",
     "brand_slug": "pure-botanicals",
-    "price_ghs": 72.00,
+    "price_ghs": 72,
     "stock_qty": 42,
     "image_url": "",
-    "tags": ["organic", "natural-ingredients", "vegan"]
+    "tags": [
+      "organic",
+      "natural-ingredients",
+      "vegan"
+    ]
   },
   {
     "name": "Hand Cream Collection",
@@ -159,10 +211,14 @@
     "description": "Set of 3 hand creams in various scents. Nourishes and protects dry hands.",
     "category_slug": "body-care",
     "brand_slug": "rue-essentials",
-    "price_ghs": 90.00,
+    "price_ghs": 90,
     "stock_qty": 38,
     "image_url": "",
-    "tags": ["moisturizing", "organic", "cruelty-free"]
+    "tags": [
+      "moisturizing",
+      "organic",
+      "cruelty-free"
+    ]
   },
   {
     "name": "Under Eye Concealer",
@@ -170,10 +226,13 @@
     "description": "Full coverage concealer for dark circles and blemishes. Crease-resistant formula.",
     "category_slug": "makeup",
     "brand_slug": "luxe-cosmetics",
-    "price_ghs": 85.00,
+    "price_ghs": 85,
     "stock_qty": 48,
-    "image_url": "",
-    "tags": ["long-lasting", "matte"]
+    "image_url": "/products/under-eye-concealer.jpg",
+    "tags": [
+      "long-lasting",
+      "matte"
+    ]
   },
   {
     "name": "Night Repair Cream",
@@ -181,10 +240,14 @@
     "description": "Intensive night cream with peptides and hyaluronic acid. Repairs while you sleep.",
     "category_slug": "skincare",
     "brand_slug": "glow-beauty",
-    "price_ghs": 195.00,
+    "price_ghs": 195,
     "stock_qty": 22,
     "image_url": "",
-    "tags": ["anti-aging", "moisturizing", "organic"]
+    "tags": [
+      "anti-aging",
+      "moisturizing",
+      "organic"
+    ]
   },
   {
     "name": "Citrus Body Splash",
@@ -192,10 +255,14 @@
     "description": "Refreshing body spray with lemon, orange, and bergamot essential oils.",
     "category_slug": "fragrance",
     "brand_slug": "pure-botanicals",
-    "price_ghs": 65.00,
+    "price_ghs": 65,
     "stock_qty": 52,
-    "image_url": "",
-    "tags": ["natural-ingredients", "vegan", "cruelty-free"]
+    "image_url": "/products/citrus-body-splash.jpg",
+    "tags": [
+      "natural-ingredients",
+      "vegan",
+      "cruelty-free"
+    ]
   },
   {
     "name": "Sunscreen SPF 50",
@@ -203,9 +270,13 @@
     "description": "Broad spectrum sunscreen SPF 50. Water-resistant and non-greasy formula.",
     "category_slug": "skincare",
     "brand_slug": "rue-essentials",
-    "price_ghs": 105.00,
+    "price_ghs": 105,
     "stock_qty": 35,
     "image_url": "",
-    "tags": ["sensitive-skin", "organic", "waterproof"]
+    "tags": [
+      "sensitive-skin",
+      "organic",
+      "waterproof"
+    ]
   }
 ]

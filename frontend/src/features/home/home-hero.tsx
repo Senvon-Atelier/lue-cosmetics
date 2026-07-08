@@ -40,9 +40,7 @@ export function HomeHero() {
 
           <div className="hero-e2-col-c">
             <div className="hero-e2-frame">
-              <div className="ph" style={{ minHeight: '560px' }}>
-                <span className="ph-label">editorial · portrait 1200×1600</span>
-              </div>
+              <img src="/products/hero-editorial.jpg" alt="Lue Cosmetics editorial" style={{ minHeight: '560px', display: 'block', width: '100%', objectFit: 'cover' }} />
               <div className="hero-e2-chip">
                 <div className="hero-e2-chip-dot" />
                 <div>

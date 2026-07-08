@@ -74,12 +74,9 @@ export function formatRating(rating: number | undefined | null, reviewCount: num
  */
 export function getImageUrl(imagePath: string | undefined | null): string {
   if (!imagePath) return '';
-  // In dev, use relative path to public folder
-  // In prod, use absolute URL to CDN or backend
-  if (import.meta.env.DEV) {
-    return `/${imagePath}`;
-  }
-  return imagePath; // In prod, assume imagePath is already a full URL or relative to CDN
+  if (imagePath.startsWith('http')) return imagePath;
+  if (!imagePath.startsWith('/')) return '/' + imagePath;
+  return imagePath;
 }
 
 /** Mockup-style GHS price: "GHS 480", "GHS 480.50". Input is minor units. */
